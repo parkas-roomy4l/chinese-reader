@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#f7f3ea">
-<title>慢慢读 · A Graded Chinese Reader — HSK 1 & 2 Complete</title>
+<title>一字一世界 · A Graded Chinese Reader — 500 Words from Zero</title>
 <style>
 :root{
   color-scheme: only light;
@@ -103,6 +103,26 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   box-shadow:0 4px 16px rgba(176,46,32,.4);transition:transform .15s
 }
 #wl-btn:hover{transform:scale(1.07)}
+#credit-badge{
+  position:fixed;left:16px;bottom:18px;z-index:70;
+  display:flex;align-items:center;gap:7px;
+  padding:7px 13px 7px 11px;background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--seal);border-radius:22px;
+  font-family:Georgia,serif;font-size:12.5px;color:var(--ink-soft);
+  text-decoration:none;box-shadow:0 2px 10px rgba(43,38,32,.12);
+  transition:transform .15s, box-shadow .15s;
+}
+#credit-badge:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(43,38,32,.2)}
+#credit-badge .cb-seal{
+  width:20px;height:20px;flex:none;border:1.5px solid var(--seal);color:var(--seal);
+  border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;
+}
+#credit-badge .cb-by{color:var(--ink-soft)}
+#credit-badge .cb-handle{color:var(--seal);font-weight:bold}
+@media (max-width:520px){
+  #credit-badge{font-size:11.5px;padding:6px 11px 6px 9px;left:12px;bottom:14px}
+  #credit-badge .cb-by{display:none}
+}
 #wl-btn .cnt{position:absolute;top:-6px;right:-6px;background:var(--ink);font-size:10.5px;font-family:Georgia,serif;padding:3px 7px;border-radius:10px}
 #drawer{
   position:fixed;top:0;right:0;bottom:0;width:min(390px,100vw);background:var(--card);z-index:100;
@@ -135,6 +155,11 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 }
 .fin p{font-size:14px;font-style:italic}
 .fin .fin-big{font-size:22px;font-style:normal;margin-bottom:8px;color:var(--ink)}
+.segment.review{margin:30px 0}
+.segment.review .storyline{font-size:23px}
+.credit{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-soft)}
+.credit a{color:var(--seal);text-decoration:none;border-bottom:1px solid #dcb6ae}
+.credit a:hover{color:var(--seal-soft)}
 
 @media (max-width:520px){
   header{padding-top:44px}
@@ -150,8 +175,8 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 
 <header>
   <div class="brand">
-    <h1 class="hanzi hz">慢慢读</h1>
-    <span class="brand-pinyin">màn màn dú · read slowly</span>
+    <h1 class="hanzi hz">一字一世界</h1>
+    <span class="brand-pinyin">yī zì yī shìjiè · one word, one world</span>
   </div>
   <p class="tagline">A graded reader of modern life in Beijing — one girl, one enormous cat, one friend with an HSK exam — 500 words from zero.</p>
   <div class="rules">
@@ -172,6 +197,9 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 
 <div id="tip"></div>
 
+<a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener" title="Created by @pourteaux on X">
+  <span class="cb-seal hanzi">字</span><span class="cb-by">by</span><span class="cb-handle">@pourteaux</span>
+</a>
 <button id="wl-btn" title="Word list"><span class="hanzi">词</span><span class="cnt" id="wl-cnt">0</span></button>
 <div id="scrim"></div>
 <aside id="drawer">
@@ -1280,6 +1308,17 @@ const STORY = [
 {nw:"世界",lines:[["「","世界","很","大","，","我","想","去","看","看","。」"],["——","很","多","中国","人","都","爱","说","这","个","。"],["世界","大","，","朋友","多","，","好吃","的","也","多","！"]]},
 {nw:"未来",lines:[["未来","会","怎么样","？","不","知道","！"],["但是","不","用","担心","——","未来","一定","会","来","！"],["（","你","看","，","它","来","了","：","这","是","「","未来","」","这","个","词","。","）"]]},
 {nw:"故事",lines:[["这","个","故事","，","到","这","里","就","——","完","了","！"],["五","百","个","词","，","都","是","你","的","了","。"],["你","的","中国","故事","，","现在","开始","。","加油","！"],["包子","说","：「","喵","。」（","这","次","的","意思","，","我们","都","懂","：「","再见","，","朋友","！」）"]]}
+,
+{ch:"第三十一章 · 一字一世界",cp:"dì sān shí yī zhāng · yī zì yī shì jiè",en:"Chapter 31 · One Word, One World"},
+{rv:1,lines:[["这","本","书","完","了","吗","？","——","还","没有","！"],["还","没有","！","这","里","没有","新","词","——","都","是","你","认识","的","词","！"],["再","读","一","次","，","慢","慢","读","。"]]},
+{rv:1,lines:[["从","「","你好","」","到","现在","，","是","一","个","长","长","的","故事","。"],["一","个","女","人","、","一","只","猫","、","一","个","学习","汉语","的","男","朋友","——","不","！","现在","他","是","一","个","好","同事","、","一","个","好","邻居","、","一","个","好","朋友","：","大卫","。"],["还","有","北京","：","这","个","大","城市","的","早上","和","晚上","，","晴","的","天气","和","下雨","的","时候","。"]]},
+{rv:1,lines:[["你","记得","吗","？"],["第一","次","，","你","不","认识","一","个","字","。","「","你好","」、「","我","」、「","是","」——","一","个","一","个","，","慢","慢","来","。"],["现在","，","你","读","得","很","快","了","！","你","知道","「","公司","」、「","会议","」、「","项目","」，","也","知道","「","扫码","」、「","支付宝","」、「","外卖","」！"]]},
+{rv:1,lines:[["很","多","事情","变","了","。"],["大卫","的","汉语","越来越","好","：","他","会","说话","、","会","写","字","、","会","问","问题","，","还","考试","成功","了","！"],["包子","呢","？","从","小","猫","到","网红","——","一","千","个","粉丝","！","但是","它","一直","没有","变","：","爱","吃","鱼","，","爱","睡觉","，","一","日","睡","十","四","个","小时","。"]]},
+{rv:1,lines:[["现在","，","很","多","事情","是","你","的","习惯","了","。"],["早上","起床","，","喝","咖啡","，","去","上班","；","中午","吃","饭","，","下午","开会","，","晚上","下班","回","家","。"],["坐","地铁","、","打车","、","骑","自行车","；","用","手机","付钱","、","发","信息","、","看","视频","——","这","就","是","在","中国","的","每","日","。"]]},
+{rv:1,lines:[["一","个","字","，","是","一","个","小","门","。"],["「","吃","」","是","一","个","门","：","开","了","，","有","米饭","、","面条","、","羊肉","、","西瓜","、","啤酒","、","月饼","……","一","个","好吃","的","世界","！"],["「","走","」","也","是","一","个","门","：","从","家","到","公司","，","从","北京","到","很","远","的","地方","，","从","中国","到","这","个","大","世界","。"]]},
+{rv:1,lines:[["未来","会","怎么样","？","我们","都","不","知道","。"],["大卫","想","开","一","个","猫","的","饭店","：","人","来","喝","咖啡","，","猫","来","吃","鱼","。","这","是","他","的","梦想","。"],["你","的","梦想","呢","？","别","着急","，","慢","慢","想","——","未来","一定","会","来","。"]]},
+{rv:1,lines:[["谢谢","你","。"],["谢谢","你","和","小美","、","大卫","、","包子","在","一起","，","从","第一","个","字","到","现在","。"],["你","很","努力","，","你","太","厉害","了","！"]]},
+{rv:1,lines:[["五","百","个","词","，","都","是","你","的","了","。"],["这","本","书","的","故事","，","到","这","里","就","完","了","；","你","的","中国","故事","，","现在","开始","。"],["包子","来","门","那","里","，","看","着","你","，","说","：「","喵","。」"],["（","它","的","意思","是","：「","再见","，","朋友","！","加油","！","我们","一定","会","再见","！」）"]]}
 ];
 
 
@@ -1306,6 +1345,16 @@ STORY.forEach(item=>{
     a.innerHTML=`<span class="hanzi">${item.ch.split('·')[1]?item.ch.split('·')[1].trim():item.ch}</span>${chIdx}`;
     a.innerHTML=`<span class="hanzi">${(item.ch.split('·')[1]||'').trim()}</span>`;
     tocEl.appendChild(a);
+    return;
+  }
+  if(item.rv){
+    const sec=document.createElement('section');
+    sec.className='segment review';
+    sec.innerHTML=item.lines.map(line=>'<p class="storyline hanzi">'+line.map(tok=>{
+      if(VOCAB[tok]) return `<span class="w" data-w="${tok}">${tok}</span>`;
+      return tok;
+    }).join('')+'</p>').join('');
+    storyEl.appendChild(sec);
     return;
   }
   segIdx++;
