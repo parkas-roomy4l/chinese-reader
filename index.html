@@ -133,6 +133,29 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 .w:hover,.w.active{color:var(--seal);border-bottom-color:var(--seal-soft);background:rgba(176,46,32,.06)}
 .w.fresh{color:var(--seal);font-weight:bold}
 
+/* ---- speaker buttons ---- */
+.spk{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:24px;height:24px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--seal);cursor:pointer;font-size:11.5px;line-height:1;
+  transition:all .12s;
+}
+.spk:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
+.no-tts .spk{display:none}
+.nw-py-row{display:flex;align-items:center;gap:8px}
+.dr-item .spk{width:21px;height:21px;font-size:10px}
+@media (max-width:520px){ .spk{width:27px;height:27px;font-size:12.5px} }
+.line-spk{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:21px;height:21px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--seal-soft);cursor:pointer;font-size:9px;
+  vertical-align:middle;margin-right:11px;margin-top:-4px;
+  transition:all .12s;
+}
+.line-spk:hover{background:var(--seal-soft);color:#fff;border-color:var(--seal-soft)}
+.no-tts .line-spk{display:none}
+@media (max-width:520px){ .line-spk{width:24px;height:24px;font-size:10px;margin-right:9px} }
+
 /* ---- tooltip ---- */
 #tip{
   position:absolute;z-index:80;background:var(--ink);color:var(--paper);padding:9px 14px;
@@ -140,18 +163,28 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   box-shadow:0 4px 18px rgba(43,38,32,.35)
 }
 #tip .t-hz{font-size:19px;margin-right:8px}
+#tip .t-py-row{display:inline-flex;align-items:center;gap:7px}
 #tip .t-py{color:#e8b3a9;font-style:italic}
+#tip .spk{width:20px;height:20px;font-size:10px;border-color:rgba(255,255,255,.35);background:transparent;color:#e8b3a9}
+#tip .spk:hover{background:rgba(255,255,255,.18);color:#fff}
 #tip .t-def{display:block;margin-top:3px;color:#cfc8bc;font-size:13px}
 #tip::after{content:"";position:absolute;top:100%;left:18px;border:6px solid transparent;border-top-color:var(--ink)}
 #tip.below::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--ink)}
 
 /* ---- drawer ---- */
 #wl-btn{
-  position:fixed;right:20px;bottom:20px;z-index:70;width:58px;height:58px;border-radius:50%;
+  position:fixed;right:20px;bottom:20px;z-index:110;width:58px;height:58px;border-radius:50%;
   background:var(--seal);color:#fff;border:none;cursor:pointer;font-size:23px;
   box-shadow:0 4px 16px rgba(176,46,32,.4);transition:transform .15s
 }
 #wl-btn:hover{transform:scale(1.07)}
+#settings-btn{
+  position:fixed;right:20px;bottom:88px;z-index:110;width:44px;height:44px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s, background .15s, color .15s;
+}
+#settings-btn:hover{transform:scale(1.08) rotate(28deg);background:var(--seal);color:#fff;border-color:var(--seal)}
+@media (max-width:520px){ #settings-btn{right:16px;bottom:80px;width:40px;height:40px;font-size:16px} }
 #credit-badge{
   position:fixed;left:16px;bottom:18px;z-index:70;
   display:flex;align-items:center;gap:7px;
@@ -173,12 +206,12 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   #credit-badge .cb-by{display:none}
 }
 #wl-btn .cnt{position:absolute;top:-6px;right:-6px;background:var(--ink);font-size:10.5px;font-family:Georgia,serif;padding:3px 7px;border-radius:10px}
-#drawer{
+.side-panel{
   position:fixed;top:0;right:0;bottom:0;width:min(390px,100vw);background:var(--card);z-index:100;
   transform:translateX(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);
   box-shadow:-6px 0 30px rgba(43,38,32,.18);display:flex;flex-direction:column
 }
-#drawer.open{transform:translateX(0)}
+.side-panel.open{transform:translateX(0)}
 .dr-head{padding:22px 24px 14px;border-bottom:1px solid var(--line)}
 .dr-head h2{font-size:21px;font-weight:400;letter-spacing:.1em}
 .dr-head .dr-sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px}
@@ -195,6 +228,54 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 #dr-lock{padding:14px 24px;color:var(--ink-soft);font-size:13px;font-style:italic;border-top:1px dashed var(--line)}
 #scrim{position:fixed;inset:0;background:rgba(43,38,32,.35);z-index:95;opacity:0;pointer-events:none;transition:opacity .25s}
 #scrim.on{opacity:1;pointer-events:auto}
+
+/* ---- reset link in drawer ---- */
+#dr-voice{padding:14px 24px;border-top:1px dashed var(--line)}
+.dr-voice-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dr-voice-row:last-of-type{margin-bottom:6px}
+.dr-voice-row label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);min-width:44px}
+.dr-voice-row select{
+  flex:1;font-family:inherit;font-size:12.5px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--line);padding:5px 8px;min-width:0;
+}
+.dr-voice-row input[type=range]{flex:1;accent-color:var(--seal)}
+.dr-voice-row #rateVal{font-size:11.5px;color:var(--seal);min-width:32px;text-align:right}
+#voiceTestBtn{
+  flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--seal-soft);
+  background:var(--card);color:var(--seal-soft);cursor:pointer;font-size:10px;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;
+}
+#voiceTestBtn:hover{background:var(--seal-soft);color:#fff}
+#voiceNote{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.4}
+.no-tts #dr-voice{display:none}
+
+#dr-reset{padding:14px 24px 18px;border-top:1px dashed var(--line)}
+#dr-reset button{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--card);border:1px solid var(--line);color:var(--ink-soft);
+  font-family:inherit;font-size:12.5px;letter-spacing:.04em;
+  padding:10px 14px;cursor:pointer;transition:all .15s;
+}
+#dr-reset button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
+#dr-reset .rst-icon{font-size:13px}
+
+/* ---- continue-reading banner ---- */
+.continue-bar{
+  max-width:520px;margin:16px auto 0;padding:12px 18px;
+  border:1px solid var(--seal-soft);background:#fbeeec;color:var(--ink);
+  align-items:center;justify-content:space-between;gap:14px;font-size:13.5px;
+}
+.continue-bar b{color:var(--seal)}
+.continue-bar .cb-actions{display:flex;align-items:center;gap:8px;flex:none}
+.continue-bar button{font-family:inherit;cursor:pointer}
+#continueBtn{background:var(--seal);color:#fff;border:none;padding:7px 15px;font-size:12.5px;letter-spacing:.03em;white-space:nowrap;transition:background .12s}
+#continueBtn:hover{background:var(--seal-soft)}
+#continueDismiss{background:none;border:none;color:var(--ink-soft);font-size:16px;padding:0 2px}
+#continueDismiss:hover{color:var(--seal)}
+@media (max-width:520px){
+  .continue-bar{flex-direction:column;align-items:stretch;text-align:center}
+  .continue-bar .cb-actions{justify-content:center}
+}
 
 /* ---- footer ---- */
 .fin{margin-top:90px;text-align:center;color:var(--ink-soft)}
@@ -240,6 +321,14 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   </div>
 </header>
 
+<div class="continue-bar" id="continueBar" style="display:none">
+  <span id="continueText"></span>
+  <div class="cb-actions">
+    <button id="continueBtn">Continue →</button>
+    <button id="continueDismiss" title="Dismiss">✕</button>
+  </div>
+</div>
+
 <details class="toc-wrap" id="tocWrap">
   <summary class="toc-summary"><span class="hanzi">目录</span> Chapters <span class="toc-count" id="tocCount"></span><span class="toc-chevron"></span></summary>
   <nav class="toc" id="toc"></nav>
@@ -252,9 +341,10 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 <a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener" title="Created by @pourteaux on X">
   <span class="cb-seal hanzi">字</span><span class="cb-by">by</span><span class="cb-handle">@pourteaux</span>
 </a>
+<button id="settings-btn" title="Settings">⚙</button>
 <button id="wl-btn" title="Word list"><span class="hanzi">词</span><span class="cnt" id="wl-cnt">0</span></button>
 <div id="scrim"></div>
-<aside id="drawer">
+<aside id="drawer" class="side-panel">
   <div class="dr-head">
     <h2><span class="hanzi">词表</span> · Word List</h2>
     <div class="dr-sub"><b id="dr-hsk">0</b> of 300 HSK + 200 essential unlocked · <span id="dr-tot">0</span> total</div>
@@ -263,6 +353,28 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   <input id="dr-search" type="text" placeholder="Search hanzi, pinyin, or English…">
   <div id="dr-list"></div>
   <div id="dr-lock">Keep reading — words appear here as you meet them in the story.</div>
+</aside>
+
+<aside id="settingsPanel" class="side-panel">
+  <div class="dr-head">
+    <h2><span class="hanzi">设置</span> · Settings</h2>
+    <div class="dr-sub">Voice, playback speed, and progress</div>
+    <button id="settings-close">✕</button>
+  </div>
+  <div id="dr-voice">
+    <div class="dr-voice-row">
+      <label for="voiceSelect">Voice</label>
+      <select id="voiceSelect"></select>
+      <button id="voiceTestBtn" title="Test this voice">▶</button>
+    </div>
+    <div class="dr-voice-row">
+      <label for="rateRange">Speed</label>
+      <input type="range" id="rateRange" min="0.6" max="1.2" step="0.02">
+      <span id="rateVal"></span>
+    </div>
+    <div id="voiceNote"></div>
+  </div>
+  <div id="dr-reset"><button id="resetBtn"><span class="rst-icon">↺</span> Reset all progress</button></div>
 </aside>
 
 <script>
@@ -1381,7 +1493,74 @@ const $=s=>document.querySelector(s);
 const storyEl=$('#story'), tocEl=$('#toc');
 const isHover=window.matchMedia('(hover:hover)').matches;
 
+/* ---------- audio (speechSynthesis) ---------- */
+let ttsVoices=[];
+let ttsRate=parseFloat(localStorage.getItem('manmandu-rate')||'0.92')||0.92;
+let ttsVoiceName=null;
+try{ ttsVoiceName=localStorage.getItem('manmandu-voice-name'); }catch(e){}
+
+function voiceScore(v){
+  let s=0;
+  const lang=(v.lang||'').toLowerCase();
+  if(lang.startsWith('zh')) s+=100; else return -1; // only rank Chinese voices at all
+  if(lang==='zh-cn') s+=20;
+  if(!v.localService) s+=15; // network/cloud voices usually sound far more natural
+  if(/google/i.test(v.name)) s+=12;
+  if(/neural|natural|enhanced|premium|online|wavenet/i.test(v.name)) s+=10;
+  return s;
+}
+function bestVoices(){
+  return ttsVoices.map(v=>({v,s:voiceScore(v)})).filter(x=>x.s>=0).sort((a,b)=>b.s-a.s).map(x=>x.v);
+}
+function populateVoiceSelect(){
+  const sel=document.getElementById('voiceSelect'); if(!sel) return;
+  const zh=bestVoices();
+  const note=document.getElementById('voiceNote');
+  if(!zh.length){
+    sel.innerHTML='<option value="">(no Chinese voice found)</option>';
+    sel.disabled=true;
+    if(note) note.textContent='Your browser has no Chinese voice installed — try Chrome or Edge for the best options.';
+    return;
+  }
+  sel.disabled=false;
+  sel.innerHTML=zh.map(v=>`<option value="${v.name}">${v.name}${v.localService?'':' ☁'}</option>`).join('');
+  const match=zh.find(v=>v.name===ttsVoiceName);
+  sel.value=match?match.name:zh[0].name;
+  if(!match) ttsVoiceName=sel.value;
+  if(note) note.textContent=zh.length>1?`${zh.length} Chinese voices found — pick the one that sounds best (☁ = higher-quality cloud voice).`:'';
+}
+function loadVoices(){
+  try{ ttsVoices=window.speechSynthesis.getVoices()||[]; }catch(e){}
+  populateVoiceSelect();
+}
+if('speechSynthesis' in window){
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged=loadVoices;
+}else{
+  document.documentElement.classList.add('no-tts');
+}
+function speak(hanzi){
+  if(!hanzi || !('speechSynthesis' in window)) return;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  try{
+    const u=new SpeechSynthesisUtterance(hanzi);
+    u.lang='zh-CN';
+    u.rate=ttsRate;
+    try{
+      const chosen=ttsVoices.find(v=>v.name===ttsVoiceName);
+      const v=chosen || bestVoices()[0] || ttsVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith('zh'));
+      if(v) u.voice=v;
+    }catch(e){ /* fall back to default system voice for u.lang if assigning a specific voice fails */ }
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
 /* ---------- build ---------- */
+function lineSpkBtn(line){
+  const raw=line.join('');
+  const clean=raw.replace(/[「」『』（）\[\]]/g,'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return `<button class="line-spk" data-t="${clean}" aria-label="Play sentence">\u25b6</button>`;
+}
 let segIdx=0, chIdx=0;
 const segEls=[];
 STORY.forEach(item=>{
@@ -1401,7 +1580,7 @@ STORY.forEach(item=>{
   if(item.rv){
     const sec=document.createElement('section');
     sec.className='segment review';
-    sec.innerHTML=item.lines.map(line=>'<p class="storyline hanzi">'+line.map(tok=>{
+    sec.innerHTML=item.lines.map(line=>'<p class="storyline hanzi">'+lineSpkBtn(line)+line.map(tok=>{
       if(VOCAB[tok]) return `<span class="w" data-w="${tok}">${tok}</span>`;
       return tok;
     }).join('')+'</p>').join('');
@@ -1419,10 +1598,10 @@ STORY.forEach(item=>{
     <div class="newword">
       <div class="nw-count">New word<b>#${segIdx}</b></div>
       <div class="gridchars">${boxes}</div>
-      <div class="nw-info"><div class="nw-py">${v.p}</div><div class="nw-def">${v.d}</div></div>
+      <div class="nw-info"><div class="nw-py-row"><div class="nw-py">${v.p}</div><button class="spk" data-w="${item.nw}" aria-label="Play pronunciation">🔊</button></div><div class="nw-def">${v.d}</div></div>
       <div class="nw-tag ${tagCls}">${tagTxt}</div>
     </div>` +
-    item.lines.map(line=>'<p class="storyline hanzi">'+line.map(tok=>{
+    item.lines.map(line=>'<p class="storyline hanzi">'+lineSpkBtn(line)+line.map(tok=>{
       if(VOCAB[tok]){
         const fresh=tok===item.nw?' fresh':'';
         return `<span class="w${fresh}" data-w="${tok}">${tok}</span>`;
@@ -1449,8 +1628,8 @@ storyEl.appendChild(fin);
 const tip=$('#tip'); let tipFor=null;
 function showTip(el){
   const v=VOCAB[el.dataset.w]; if(!v)return;
-  tip.innerHTML=`<span class="t-hz hanzi">${el.dataset.w}</span><span class="t-py">${v.p}</span><span class="t-def">${v.d}</span>`;
-  tip.style.opacity=0; tip.style.display='block';
+  tip.innerHTML=`<span class="t-hz hanzi">${el.dataset.w}</span><span class="t-py-row"><span class="t-py">${v.p}</span><button class="spk" data-w="${el.dataset.w}" aria-label="Play pronunciation">🔊</button></span><span class="t-def">${v.d}</span>`;
+  tip.style.opacity=0; tip.style.display='block'; tip.style.pointerEvents='auto';
   const r=el.getBoundingClientRect(), tw=tip.offsetWidth;
   let x=r.left+window.scrollX+r.width/2-24;
   x=Math.max(8,Math.min(x,window.scrollX+document.documentElement.clientWidth-tw-8));
@@ -1460,17 +1639,36 @@ function showTip(el){
   tip.style.top=above?(r.top+window.scrollY-tip.offsetHeight-10)+'px':(r.bottom+window.scrollY+10)+'px';
   tip.style.opacity=1; tipFor=el; el.classList.add('active');
 }
-function hideTip(){tip.style.opacity=0; if(tipFor){tipFor.classList.remove('active');tipFor=null;}}
+function hideTip(){tip.style.opacity=0; tip.style.pointerEvents='none'; if(tipFor){tipFor.classList.remove('active');tipFor=null;}}
 if(isHover){
   document.addEventListener('mouseover',e=>{const w=e.target.closest('.w'); if(w)showTip(w);});
   document.addEventListener('mouseout',e=>{if(e.target.closest('.w'))hideTip();});
 }
 document.addEventListener('click',e=>{
+  const lspk=e.target.closest('.line-spk');
+  if(lspk){ speak(lspk.dataset.t); e.stopPropagation(); return; }
+  const spk=e.target.closest('.spk');
+  if(spk){ speak(spk.dataset.w); e.stopPropagation(); return; }
   const w=e.target.closest('.w');
-  if(w){ if(tipFor===w){hideTip();} else {hideTip();showTip(w);} e.stopPropagation(); }
-  else hideTip();
+  if(w){
+    // Clicking/tapping a word always speaks it — even if hovering already showed its tooltip.
+    speak(w.dataset.w);
+    if(!isHover && tipFor===w){ hideTip(); } // touch devices: tap same word again to dismiss
+    else { hideTip(); showTip(w); }
+    e.stopPropagation();
+  } else hideTip();
 });
 window.addEventListener('scroll',()=>{if(tipFor)hideTip();},{passive:true});
+
+/* ---------- progress persistence ---------- */
+const LS_KEY='manmandu-progress-v1';
+let maxSeg=0;
+function saveProgress(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({maxSeg, total:segEls.length, ts:Date.now()})); }catch(e){}
+}
+function loadProgress(){
+  try{ const raw=localStorage.getItem(LS_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; }
+}
 
 /* ---------- unlock tracking ---------- */
 const unlocked=new Set();
@@ -1490,6 +1688,8 @@ function unlock(sec){
   wlCnt.textContent=order.length;
   drTot.textContent=order.length;
   drawerDirty=true;
+  const segN=Number(sec.dataset.i);
+  if(segN>maxSeg){ maxSeg=segN; saveProgress(); }
 }
 const io=new IntersectionObserver(entries=>{
   entries.forEach(en=>{ if(en.isIntersecting) unlock(en.target); });
@@ -1504,7 +1704,7 @@ window.addEventListener('scroll',()=>{
 },{passive:true});
 
 /* ---------- drawer ---------- */
-const drawer=$('#drawer'),scrim=$('#scrim'),drList=$('#dr-list'),drSearch=$('#dr-search');
+const drawer=$('#drawer'),settingsPanel=$('#settingsPanel'),scrim=$('#scrim'),drList=$('#dr-list'),drSearch=$('#dr-search');
 let drawerDirty=true;
 function segChapter(w){ // find chapter label for a word
   let ch='';
@@ -1520,16 +1720,73 @@ function renderDrawer(){
     if(q && !(w.includes(q)||v.p.toLowerCase().includes(q)||v.d.toLowerCase().includes(q)))return;
     const ch=segChapter(w);
     if(ch!==lastCh){html+=`<div class="dr-ch hanzi">${ch}</div>`;lastCh=ch;}
-    html+=`<div class="dr-item"><span class="hz hanzi">${w}</span><span class="py">${v.p}</span><span class="df">${v.d}</span><span class="lv">${v.l}</span></div>`;
+    html+=`<div class="dr-item"><span class="hz hanzi">${w}</span><button class="spk" data-w="${w}" aria-label="Play pronunciation">🔊</button><span class="py">${v.p}</span><span class="df">${v.d}</span><span class="lv">${v.l}</span></div>`;
   });
   drList.innerHTML=html||'<div style="padding:20px 0;color:var(--ink-soft);font-style:italic">Nothing yet — or no matches.</div>';
   drawerDirty=false;
 }
-$('#wl-btn').addEventListener('click',()=>{renderDrawer();drawer.classList.add('open');scrim.classList.add('on');});
-$('#dr-close').addEventListener('click',close);
-scrim.addEventListener('click',close);
-function close(){drawer.classList.remove('open');scrim.classList.remove('on');}
+function closePanels(){
+  drawer.classList.remove('open');
+  settingsPanel.classList.remove('open');
+  scrim.classList.remove('on');
+}
+function openPanel(panel){
+  closePanels();
+  panel.classList.add('open');
+  scrim.classList.add('on');
+}
+$('#wl-btn').addEventListener('click',()=>{renderDrawer();openPanel(drawer);});
+$('#dr-close').addEventListener('click',closePanels);
+$('#settings-btn').addEventListener('click',()=>openPanel(settingsPanel));
+$('#settings-close').addEventListener('click',closePanels);
+scrim.addEventListener('click',closePanels);
 drSearch.addEventListener('input',()=>{drawerDirty=true;renderDrawer();});
+
+/* ---------- restore saved progress ---------- */
+const savedProgress=loadProgress();
+if(savedProgress && savedProgress.maxSeg>0){
+  segEls.forEach(sec=>{ if(Number(sec.dataset.i)<=savedProgress.maxSeg) unlock(sec); });
+  if(savedProgress.maxSeg < segEls.length){
+    const bar=$('#continueBar'), txt=$('#continueText'), cbtn=$('#continueBtn'), cdis=$('#continueDismiss');
+    txt.innerHTML=`Welcome back — you've unlocked <b>${savedProgress.maxSeg}</b> words. Continue where you left off?`;
+    bar.style.display='flex';
+    cbtn.addEventListener('click',()=>{
+      const next=segEls[savedProgress.maxSeg];
+      if(next) next.scrollIntoView({behavior:'smooth',block:'center'});
+      bar.style.display='none';
+    });
+    cdis.addEventListener('click',()=>{ bar.style.display='none'; });
+  }
+}
+
+/* ---------- voice picker ---------- */
+const rateRange=$('#rateRange'), rateVal=$('#rateVal'), voiceSelect=$('#voiceSelect'), voiceTestBtn=$('#voiceTestBtn');
+if(rateRange){
+  rateRange.value=ttsRate;
+  rateVal.textContent=ttsRate.toFixed(2)+'x';
+  rateRange.addEventListener('input',()=>{
+    ttsRate=parseFloat(rateRange.value);
+    rateVal.textContent=ttsRate.toFixed(2)+'x';
+    try{ localStorage.setItem('manmandu-rate', ttsRate); }catch(e){}
+  });
+}
+if(voiceSelect){
+  voiceSelect.addEventListener('change',()=>{
+    ttsVoiceName=voiceSelect.value;
+    try{ localStorage.setItem('manmandu-voice-name', ttsVoiceName); }catch(e){}
+  });
+}
+if(voiceTestBtn){
+  voiceTestBtn.addEventListener('click',()=>speak('你好，很高兴认识你！'));
+}
+
+/* ---------- reset progress ---------- */
+$('#resetBtn').addEventListener('click',()=>{
+  if(confirm('Reset all progress on this device? This clears your unlocked words.')){
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    location.reload();
+  }
+});
 })();
 </script>
 </body>
