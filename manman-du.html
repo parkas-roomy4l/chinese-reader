@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>慢慢读 · A Graded Chinese Reader</title>
+<style>
+  :root{
+    --paper:#f4f4ec;
+    --paper-deep:#ebebdf;
+    --ink:#24282a;
+    --ink-soft:#5c6266;
+    --seal:#b02e20;
+    --seal-wash:#f6e3dd;
+    --bamboo:#48684f;
+    --bamboo-wash:#e4ebe2;
+    --line:#d8d8c8;
+    --hanzi-font:"Kaiti SC","KaiTi","STKaiti","Noto Serif SC","Songti SC","SimSun",serif;
+    --ui-font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation:none!important;transition:none!important;}
+  }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--ui-font);
+    line-height:1.6;
+  }
+
+  /* ---------- progress ribbon ---------- */
+  #progressbar{
+    position:fixed;top:0;left:0;height:4px;width:0%;
+    background:var(--seal);z-index:60;transition:width .25s ease;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    max-width:660px;margin:0 auto;padding:56px 22px 8px;
+    text-align:center;
+  }
+  .title-hanzi{
+    font-family:var(--hanzi-font);
+    font-size:clamp(56px,14vw,84px);
+    letter-spacing:.08em;
+    line-height:1.15;
+  }
+  .title-pinyin{
+    color:var(--seal);
+    font-size:14px;letter-spacing:.42em;text-transform:lowercase;
+    margin-top:2px;
+  }
+  .title-sub{
+    color:var(--ink-soft);font-size:14.5px;max-width:420px;margin:18px auto 0;
+  }
+  .howto{
+    display:inline-block;margin-top:22px;padding:9px 16px;
+    border:1px solid var(--line);border-radius:999px;
+    background:var(--paper-deep);color:var(--ink-soft);font-size:13px;
+  }
+  .howto b{color:var(--ink);font-weight:600;}
+
+  /* ---------- story ---------- */
+  main{max-width:660px;margin:0 auto;padding:28px 22px 140px;}
+  .segment{
+    padding:26px 0 10px;
+    border-bottom:1px dashed var(--line);
+  }
+  .segment:last-of-type{border-bottom:none;}
+
+  /* new-word primer box (tian zi ge) */
+  .newword{
+    display:flex;align-items:center;gap:14px;margin-bottom:14px;
+    user-select:none;
+  }
+  .grid-box{
+    position:relative;flex:none;
+    width:58px;height:58px;
+    border:1.5px solid var(--seal);
+    border-radius:3px;
+    background:
+      linear-gradient(to right, transparent calc(50% - .5px), rgba(176,46,32,.28) calc(50% - .5px), rgba(176,46,32,.28) calc(50% + .5px), transparent calc(50% + .5px)),
+      linear-gradient(to bottom, transparent calc(50% - .5px), rgba(176,46,32,.28) calc(50% - .5px), rgba(176,46,32,.28) calc(50% + .5px), transparent calc(50% + .5px)),
+      #fdfdf8;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--hanzi-font);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .grid-box span{position:relative;z-index:1;}
+  .newword-meta .nw-label{
+    font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--seal);font-weight:700;
+  }
+  .newword-meta .nw-pinyin{
+    font-size:16px;color:var(--ink);font-weight:600;margin-top:1px;
+  }
+  .newword-meta .nw-def{font-size:13.5px;color:var(--ink-soft);}
+  .nw-count{
+    margin-left:auto;align-self:flex-start;
+    font-size:11px;color:var(--ink-soft);letter-spacing:.08em;
+    border:1px solid var(--line);border-radius:999px;padding:2px 9px;
+    background:var(--paper-deep);white-space:nowrap;
+  }
+
+  .lines p{
+    font-family:var(--hanzi-font);
+    font-size:clamp(24px,5.6vw,30px);
+    line-height:2.05;
+    margin:2px 0;
+    letter-spacing:.02em;
+  }
+
+  /* words */
+  .w{
+    cursor:pointer;border-radius:4px;
+    border-bottom:1px dotted #b9b9a6;
+    padding:1px 1px 0;
+    transition:background .12s ease;
+  }
+  .w:hover,.w:focus-visible{background:var(--bamboo-wash);}
+  .w:focus-visible{outline:2px solid var(--bamboo);outline-offset:1px;}
+  .w.first{
+    background:var(--seal-wash);
+    border-bottom:1.5px solid var(--seal);
+    color:#7c1f15;
+  }
+  .w.active{background:var(--bamboo-wash);border-bottom-color:var(--bamboo);}
+
+  .the-end{
+    text-align:center;margin-top:46px;color:var(--ink-soft);font-size:14px;letter-spacing:.2em;
+  }
+  .the-end .stamp{
+    font-family:var(--hanzi-font);
+    display:inline-block;border:2px solid var(--seal);color:var(--seal);
+    padding:8px 10px;font-size:22px;border-radius:4px;letter-spacing:.15em;
+    transform:rotate(-3deg);margin-bottom:10px;background:#fdfdf8;
+  }
+
+  /* ---------- tooltip ---------- */
+  #tip{
+    position:absolute;z-index:80;display:none;
+    max-width:260px;min-width:160px;
+    background:#fffdf6;border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;
+    box-shadow:0 6px 24px rgba(36,40,42,.14);
+    font-family:var(--ui-font);
+  }
+  #tip .t-hanzi{font-family:var(--hanzi-font);font-size:30px;line-height:1.2;}
+  #tip .t-pinyin{color:var(--seal);font-weight:700;font-size:16px;margin-top:1px;}
+  #tip .t-def{color:var(--ink);font-size:13.5px;margin-top:4px;line-height:1.45;}
+  #tip .t-tag{
+    display:inline-block;margin-top:8px;font-size:10.5px;font-weight:700;
+    letter-spacing:.1em;color:var(--bamboo);background:var(--bamboo-wash);
+    border-radius:999px;padding:2px 8px;
+  }
+  #tip .t-tag.new{color:var(--seal);background:var(--seal-wash);}
+  #tip::after{
+    content:"";position:absolute;left:24px;bottom:-6px;width:10px;height:10px;
+    background:#fffdf6;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+    transform:rotate(45deg);
+  }
+  #tip.below::after{bottom:auto;top:-6px;transform:rotate(225deg);}
+
+  /* ---------- vocab drawer ---------- */
+  #vocab-btn{
+    position:fixed;right:18px;bottom:18px;z-index:70;
+    width:64px;height:64px;border:none;border-radius:10px;
+    background:var(--seal);color:#fdf6ee;
+    font-family:var(--hanzi-font);font-size:26px;line-height:1;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(176,46,32,.35);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    transform:rotate(-2deg);
+    transition:transform .15s ease;
+  }
+  #vocab-btn:hover{transform:rotate(0deg) scale(1.04);}
+  #vocab-btn .count{font-family:var(--ui-font);font-size:10.5px;letter-spacing:.05em;font-weight:700;}
+
+  #drawer{
+    position:fixed;top:0;right:0;bottom:0;z-index:90;
+    width:min(400px,100%);
+    background:var(--paper);
+    border-left:1px solid var(--line);
+    box-shadow:-12px 0 40px rgba(36,40,42,.18);
+    transform:translateX(102%);
+    transition:transform .28s ease;
+    display:flex;flex-direction:column;
+  }
+  #drawer.open{transform:translateX(0);}
+  #drawer header.d-head{
+    padding:20px 20px 14px;margin:0;max-width:none;text-align:left;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:10px;
+  }
+  .d-title{font-family:var(--hanzi-font);font-size:26px;}
+  .d-title-pinyin{color:var(--seal);font-size:12px;letter-spacing:.2em;}
+  .d-close{
+    margin-left:auto;border:1px solid var(--line);background:var(--paper-deep);
+    border-radius:999px;width:32px;height:32px;font-size:15px;cursor:pointer;color:var(--ink-soft);
+  }
+  .d-sub{padding:10px 20px;color:var(--ink-soft);font-size:12.5px;border-bottom:1px solid var(--line);}
+  .d-sub b{color:var(--seal);}
+  #vlist{overflow-y:auto;flex:1;padding:6px 0 30px;}
+  .v-item{
+    display:flex;align-items:center;gap:12px;
+    padding:9px 20px;border-bottom:1px solid #e7e7d9;
+  }
+  .v-hanzi{font-family:var(--hanzi-font);font-size:23px;min-width:74px;}
+  .v-mid{flex:1;}
+  .v-pinyin{font-weight:700;font-size:13.5px;color:var(--ink);}
+  .v-def{font-size:12.5px;color:var(--ink-soft);line-height:1.35;}
+  .v-lvl{
+    flex:none;font-size:10px;font-weight:700;letter-spacing:.08em;
+    color:var(--bamboo);background:var(--bamboo-wash);
+    border-radius:999px;padding:2px 8px;
+  }
+  .v-lvl.name{color:var(--seal);background:var(--seal-wash);}
+  #overlay{
+    position:fixed;inset:0;background:rgba(36,40,42,.25);z-index:85;
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  #overlay.show{opacity:1;pointer-events:auto;}
+
+  footer{
+    text-align:center;color:var(--ink-soft);font-size:12px;
+    padding:0 22px 40px;
+  }
+</style>
+</head>
+<body>
+
+<div id="progressbar"></div>
+
+<header>
+  <div class="title-hanzi">慢慢读</div>
+  <div class="title-pinyin">màn màn dú</div>
+  <p class="title-sub">A story that starts impossibly easy and grows one word at a time. Set in modern Shanghai. Starring one cat.</p>
+  <div class="howto"><b>Tap or hover</b> any word for pinyin &amp; meaning · new words are marked <span style="background:var(--seal-wash);border-bottom:1.5px solid var(--seal);padding:0 3px;color:#7c1f15;">红色</span></div>
+</header>
+
+<main id="story"></main>
+
+<div id="tip" role="tooltip"></div>
+
+<button id="vocab-btn" aria-label="Open vocabulary list">
+  词<span class="count" id="btn-count">0/0</span>
+</button>
+
+<div id="overlay"></div>
+<aside id="drawer" aria-label="Vocabulary read so far">
+  <header class="d-head">
+    <span class="d-title">词汇表</span>
+    <span class="d-title-pinyin">cíhuìbiǎo</span>
+    <button class="d-close" id="d-close" aria-label="Close">✕</button>
+  </header>
+  <div class="d-sub">Every word you've read so far, in the order it appeared — <b id="d-count">0</b> and counting. Keep scrolling the story to unlock more.</div>
+  <div id="vlist"></div>
+</aside>
+
+<footer>慢慢读 · one word at a time</footer>
+
+<script>
+/* ================= DATA ================= */
+/* level: 1–4 ≈ HSK band, "名" = name, "音" = sound */
+const VOCAB = {
+  "你好":{p:"nǐ hǎo",d:"hello",l:"HSK 1"},
+  "我":{p:"wǒ",d:"I; me",l:"HSK 1"},
+  "是":{p:"shì",d:"to be (am / is / are)",l:"HSK 1"},
+  "小美":{p:"Xiǎoměi",d:"Xiaomei (a name — “little beautiful”)",l:"name"},
+  "你":{p:"nǐ",d:"you",l:"HSK 1"},
+  "好":{p:"hǎo",d:"good; well; fine",l:"HSK 1"},
+  "吗":{p:"ma",d:"question particle (turns a statement into a yes/no question)",l:"HSK 1"},
+  "很":{p:"hěn",d:"very",l:"HSK 1"},
+  "忙":{p:"máng",d:"busy",l:"HSK 2"},
+  "不":{p:"bù",d:"not; no",l:"HSK 1"},
+  "也":{p:"yě",d:"also; too",l:"HSK 1"},
+  "有":{p:"yǒu",d:"to have",l:"HSK 1"},
+  "一":{p:"yī",d:"one",l:"HSK 1"},
+  "只":{p:"zhī",d:"measure word for animals",l:"HSK 3"},
+  "猫":{p:"māo",d:"cat",l:"HSK 1"},
+  "它":{p:"tā",d:"it (animals & things)",l:"HSK 2"},
+  "叫":{p:"jiào",d:"to be called; to be named",l:"HSK 1"},
+  "包子":{p:"Bāozi",d:"Baozi (the cat's name — lit. “steamed bun”)",l:"name"},
+  "的":{p:"de",d:"possessive particle (’s / of)",l:"HSK 1"},
+  "爱":{p:"ài",d:"to love",l:"HSK 1"},
+  "吃":{p:"chī",d:"to eat",l:"HSK 1"},
+  "睡觉":{p:"shuìjiào",d:"to sleep",l:"HSK 1"},
+  "住":{p:"zhù",d:"to live (somewhere)",l:"HSK 1"},
+  "在":{p:"zài",d:"at; in; on",l:"HSK 1"},
+  "上海":{p:"Shànghǎi",d:"Shanghai",l:"place"},
+  "今天":{p:"jīntiān",d:"today",l:"HSK 1"},
+  "想":{p:"xiǎng",d:"to want to; would like to",l:"HSK 1"},
+  "喝":{p:"hē",d:"to drink",l:"HSK 1"},
+  "咖啡":{p:"kāfēi",d:"coffee",l:"HSK 2"},
+  "去":{p:"qù",d:"to go",l:"HSK 1"},
+  "店":{p:"diàn",d:"shop; store (咖啡店 = coffee shop)",l:"HSK 1"},
+  "人":{p:"rén",d:"person; people",l:"HSK 1"},
+  "多":{p:"duō",d:"many; a lot",l:"HSK 1"},
+  "手机":{p:"shǒujī",d:"mobile phone",l:"HSK 2"},
+  "用":{p:"yòng",d:"to use",l:"HSK 2"},
+  "钱":{p:"qián",d:"money",l:"HSK 1"},
+  "没":{p:"méi",d:"not (没有 = to not have)",l:"HSK 1"},
+  "带":{p:"dài",d:"to bring; to carry",l:"HSK 3"},
+  "怎么办":{p:"zěnme bàn",d:"what should I do?!",l:"HSK 3"},
+  "朋友":{p:"péngyou",d:"friend",l:"HSK 1"},
+  "来":{p:"lái",d:"to come",l:"HSK 1"},
+  "说":{p:"shuō",d:"to say; to speak",l:"HSK 1"},
+  "请":{p:"qǐng",d:"to treat (someone); please",l:"HSK 1"},
+  "谢谢":{p:"xièxie",d:"thank you",l:"HSK 1"},
+  "了":{p:"le",d:"particle: completed action / change",l:"HSK 1"},
+  "家":{p:"jiā",d:"home; family",l:"HSK 1"},
+  "回":{p:"huí",d:"to return (回家 = go home)",l:"HSK 1"},
+  "看":{p:"kàn",d:"to look; to see",l:"HSK 1"},
+  "门":{p:"mén",d:"door",l:"HSK 2"},
+  "快递":{p:"kuàidì",d:"package delivery; parcel",l:"HSK 4"},
+  "买":{p:"mǎi",d:"to buy",l:"HSK 1"},
+  "东西":{p:"dōngxi",d:"thing; stuff",l:"HSK 1"},
+  "太":{p:"tài",d:"too (excessively) — 太…了!",l:"HSK 1"},
+  "累":{p:"lèi",d:"tired",l:"HSK 2"},
+  "现在":{p:"xiànzài",d:"now",l:"HSK 1"},
+  "明天":{p:"míngtiān",d:"tomorrow",l:"HSK 1"},
+  "再见":{p:"zàijiàn",d:"goodbye",l:"HSK 1"},
+  "喵":{p:"miāo",d:"meow",l:"sound"}
+};
+
+/* Each segment introduces exactly ONE new word.
+   Lines are arrays of tokens; tokens found in VOCAB become interactive. */
+const STORY = [
+ {nw:"你好", lines:[["你好","！"],["你好","！","你好","！"]]},
+ {nw:"我",   lines:[["你好","！","我","……"]]},
+ {nw:"是",   lines:[["你好","！","我","是","……"]]},
+ {nw:"小美", lines:[["你好","！","我","是","小美","。"]]},
+ {nw:"你",   lines:[["我","是","小美","。","你","……","你","是","？"]]},
+ {nw:"好",   lines:[["好","！","好","，","好","，","好","！"],["你","……","好","？","——","你好","！"]]},
+ {nw:"吗",   lines:[["你","好","吗","？"]]},
+ {nw:"很",   lines:[["我","很","好","！","你","好","吗","？"]]},
+ {nw:"忙",   lines:[["你","忙","吗","？"]]},
+ {nw:"不",   lines:[["我","不","忙","！","不","忙","，","不","忙","。"]]},
+ {nw:"也",   lines:[["我","很","好","，","我","也","不","忙","。"],["你","也","好","吗","？"]]},
+ {nw:"有",   lines:[["我","有","……"]]},
+ {nw:"一",   lines:[["我","有","一","……"]]},
+ {nw:"只",   lines:[["我","有","一","只","……"]]},
+ {nw:"猫",   lines:[["我","有","一","只","猫","！！！"]]},
+ {nw:"它",   lines:[["它","很","好","。","它","也","不","忙","。"]]},
+ {nw:"叫",   lines:[["它","叫","……"]]},
+ {nw:"包子", lines:[["它","叫","包子","！"],["你好","，","包子","！"]]},
+ {nw:"的",   lines:[["包子","是","我","的","猫","。"],["我","的","猫","叫","包子","。"]]},
+ {nw:"爱",   lines:[["我","爱","包子","。"],["包子","爱","我","吗","？","……"]]},
+ {nw:"吃",   lines:[["包子","爱","吃","！","它","很","爱","吃","。"]]},
+ {nw:"睡觉", lines:[["包子","爱","吃","，","也","爱","睡觉","。"],["吃","，","睡觉","，","吃","，","睡觉","。","它","不","忙","！"]]},
+ {nw:"住",   lines:[["我","住","……"]]},
+ {nw:"在",   lines:[["我","住","在","……"]]},
+ {nw:"上海", lines:[["我","住","在","上海","！"],["包子","也","住","在","上海","。"]]},
+ {nw:"今天", lines:[["今天","我","不","忙","。"],["包子","也","不","忙","。","（","它","是","猫","。","）"]]},
+ {nw:"想",   lines:[["今天","我","想","……"]]},
+ {nw:"喝",   lines:[["我","想","喝","……"]]},
+ {nw:"咖啡", lines:[["我","想","喝","咖啡","！！！"]]},
+ {nw:"去",   lines:[["我","去","喝","咖啡","！"],["包子","不","去","，","它","想","睡觉","。"]]},
+ {nw:"店",   lines:[["我","去","咖啡","店","。"]]},
+ {nw:"人",   lines:[["咖啡","店","的","人","很","好","。"]]},
+ {nw:"多",   lines:[["咖啡","店","人","很","多","！","很","多","很","多","人","。"]]},
+ {nw:"手机", lines:[["我","有","手机","。","（","你","也","有","手机","吗","？","）"]]},
+ {nw:"用",   lines:[["在","上海","，","人","用","手机","。"]]},
+ {nw:"钱",   lines:[["在","上海","，","人","不","用","钱","——","用","手机","！"]]},
+ {nw:"没",   lines:[["今天","我","没","有","钱","。"],["（","在","上海","，","我","不","用","钱","！","）"]]},
+ {nw:"带",   lines:[["我","……","我","没","带","手机","！！！"],["没","有","钱","，","也","没","带","手机","！"]]},
+ {nw:"怎么办",lines:[["怎么办","？！","我","很","想","喝","咖啡","！"],["怎么办","，","怎么办","？！"]]},
+ {nw:"朋友", lines:[["我","的","朋友","！"]]},
+ {nw:"来",   lines:[["我","的","朋友","来","咖啡","店","！"]]},
+ {nw:"说",   lines:[["朋友","说","：「","小美","！","你","好","吗","？」"],["我","说","：「","你好","，","你好","！」"]]},
+ {nw:"请",   lines:[["朋友","说","：「","我","请","你","喝","咖啡","！」"]]},
+ {nw:"谢谢", lines:[["我","说","：「","谢谢","！","谢谢","，","谢谢","，","谢谢","！！」"]]},
+ {nw:"了",   lines:[["我","喝","咖啡","了","。","好","喝","！"]]},
+ {nw:"家",   lines:[["我","的","家","在","上海","。","包子","在","家","。"]]},
+ {nw:"回",   lines:[["我","回","家","！"]]},
+ {nw:"看",   lines:[["我","看","……","？"]]},
+ {nw:"门",   lines:[["我","看","我","家","的","门","——"]]},
+ {nw:"快递", lines:[["快递","！","很","多","快递","！"],["我","家","门","有","很","多","很","多","快递","！！"]]},
+ {nw:"买",   lines:[["我","用","手机","买","……"]]},
+ {nw:"东西", lines:[["我","用","手机","买","东西","。"],["我","买","很","多","东西","……"]]},
+ {nw:"太",   lines:[["太","多","了","！","我","买","太","多","东西","了","！！"]]},
+ {nw:"累",   lines:[["今天","我","很","累","。"]]},
+ {nw:"现在", lines:[["现在","我","想","睡觉","。"],["包子","也","想","睡觉","。","（","它","很","爱","睡觉","！","）"]]},
+ {nw:"明天", lines:[["明天","我","不","买","东西","！"],["（","……","明天","我","不","买","东西","吗","？","）"]]},
+ {nw:"再见", lines:[["再见","！"]]},
+ {nw:"喵",   lines:[["包子","说","：「","喵","。」"]]}
+];
+
+/* ================= RENDER ================= */
+const storyEl = document.getElementById('story');
+const total = STORY.length;
+let maxSeen = 0; // segments whose vocab is unlocked (count)
+
+STORY.forEach((seg, i) => {
+  const s = document.createElement('section');
+  s.className = 'segment';
+  s.dataset.idx = i;
+
+  const v = VOCAB[seg.nw];
+  const head = document.createElement('div');
+  head.className = 'newword';
+  const gridFontSize = seg.nw.length >= 3 ? 15 : (seg.nw.length === 2 ? 22 : 34);
+  head.innerHTML =
+    `<div class="grid-box w" data-w="${seg.nw}" tabindex="0" style="font-size:${gridFontSize}px"><span>${seg.nw}</span></div>
+     <div class="newword-meta">
+       <div class="nw-label">New word</div>
+       <div class="nw-pinyin">${v.p}</div>
+       <div class="nw-def">${v.d}</div>
+     </div>
+     <div class="nw-count">词 ${i+1} / ${total}</div>`;
+  s.appendChild(head);
+
+  const lines = document.createElement('div');
+  lines.className = 'lines';
+  seg.lines.forEach(line => {
+    const p = document.createElement('p');
+    line.forEach(tok => {
+      if (VOCAB[tok]) {
+        const span = document.createElement('span');
+        span.className = 'w' + (tok === seg.nw ? ' first' : '');
+        span.dataset.w = tok;
+        span.tabIndex = 0;
+        span.textContent = tok;
+        p.appendChild(span);
+      } else {
+        p.appendChild(document.createTextNode(tok));
+      }
+    });
+    lines.appendChild(p);
+  });
+  s.appendChild(lines);
+  storyEl.appendChild(s);
+});
+
+const endEl = document.createElement('div');
+endEl.className = 'the-end';
+endEl.innerHTML = `<div class="stamp">完</div><div>wán · the end (for now)</div>`;
+storyEl.appendChild(endEl);
+
+/* ================= TOOLTIP ================= */
+const tip = document.getElementById('tip');
+let activeWord = null;
+let hideTimer = null;
+
+function showTip(el){
+  const key = el.dataset.w;
+  const v = VOCAB[key];
+  if (!v) return;
+  clearTimeout(hideTimer);
+  if (activeWord) activeWord.classList.remove('active');
+  activeWord = el;
+  el.classList.add('active');
+
+  const isFirst = el.classList.contains('first') || el.classList.contains('grid-box');
+  tip.innerHTML =
+    `<div class="t-hanzi">${key}</div>
+     <div class="t-pinyin">${v.p}</div>
+     <div class="t-def">${v.d}</div>
+     <span class="t-tag ${isFirst ? 'new' : ''}">${isFirst ? '★ new · ' : ''}${v.l}</span>`;
+  tip.style.display = 'block';
+
+  const r = el.getBoundingClientRect();
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let left = window.scrollX + r.left + r.width/2 - 34;
+  left = Math.max(8, Math.min(left, window.scrollX + window.innerWidth - tw - 8));
+  let top = window.scrollY + r.top - th - 10;
+  tip.classList.remove('below');
+  if (r.top - th - 12 < 0) {           // not enough room above → below
+    top = window.scrollY + r.bottom + 10;
+    tip.classList.add('below');
+  }
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function hideTip(){
+  tip.style.display = 'none';
+  if (activeWord) activeWord.classList.remove('active');
+  activeWord = null;
+}
+
+const hasHover = window.matchMedia('(hover:hover)').matches;
+document.addEventListener('pointerover', e => {
+  if (!hasHover) return;
+  const el = e.target.closest('.w');
+  if (el) showTip(el);
+});
+document.addEventListener('pointerout', e => {
+  if (!hasHover) return;
+  if (e.target.closest('.w')) hideTimer = setTimeout(hideTip, 120);
+});
+document.addEventListener('click', e => {
+  const el = e.target.closest('.w');
+  if (el) {
+    if (activeWord === el) hideTip(); else showTip(el);
+    e.stopPropagation();
+  } else if (!e.target.closest('#tip')) {
+    hideTip();
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { hideTip(); closeDrawer(); }
+  if ((e.key === 'Enter' || e.key === ' ') && document.activeElement.classList?.contains('w')) {
+    e.preventDefault();
+    showTip(document.activeElement);
+  }
+});
+window.addEventListener('scroll', () => { if (activeWord) hideTip(); }, {passive:true});
+
+/* ================= PROGRESS / UNLOCK ================= */
+const btnCount = document.getElementById('btn-count');
+const dCount = document.getElementById('d-count');
+const bar = document.getElementById('progressbar');
+
+function refreshCounts(){
+  btnCount.textContent = `${maxSeen}/${total}`;
+  dCount.textContent = maxSeen;
+  bar.style.width = (maxSeen/total*100) + '%';
+}
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      const idx = +en.target.dataset.idx + 1;
+      if (idx > maxSeen) { maxSeen = idx; refreshCounts(); if (drawer.classList.contains('open')) buildVocab(); }
+    }
+  });
+}, {threshold: 0.35});
+document.querySelectorAll('.segment').forEach(s => io.observe(s));
+refreshCounts();
+
+/* ================= VOCAB DRAWER ================= */
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('overlay');
+const vlist = document.getElementById('vlist');
+
+function buildVocab(){
+  vlist.innerHTML = '';
+  for (let i = 0; i < maxSeen; i++) {
+    const key = STORY[i].nw;
+    const v = VOCAB[key];
+    const isName = v.l === 'name' || v.l === 'place' || v.l === 'sound';
+    const item = document.createElement('div');
+    item.className = 'v-item';
+    item.innerHTML =
+      `<div class="v-hanzi">${key}</div>
+       <div class="v-mid">
+         <div class="v-pinyin">${v.p}</div>
+         <div class="v-def">${v.d}</div>
+       </div>
+       <span class="v-lvl ${isName ? 'name' : ''}">${v.l}</span>`;
+    vlist.appendChild(item);
+  }
+  if (maxSeen === 0) {
+    vlist.innerHTML = '<div style="padding:24px 20px;color:var(--ink-soft);font-size:13.5px;">Scroll the story to start collecting words.</div>';
+  }
+}
+function openDrawer(){ buildVocab(); drawer.classList.add('open'); overlay.classList.add('show'); }
+function closeDrawer(){ drawer.classList.remove('open'); overlay.classList.remove('show'); }
+
+document.getElementById('vocab-btn').addEventListener('click', openDrawer);
+document.getElementById('d-close').addEventListener('click', closeDrawer);
+overlay.addEventListener('click', closeDrawer);
+</script>
+</body>
+</html>
