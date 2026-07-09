@@ -128,15 +128,39 @@ svg#board.panning{cursor:grabbing}
 
 /* ---- victory ---- */
 #victory{
-  position:fixed;inset:0;z-index:90;background:rgba(247,243,234,.94);
-  display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:26px;
+  position:fixed;inset:0;z-index:90;background:rgba(247,243,234,.96);
+  display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;
 }
 #victory.show{display:flex}
-#victory .v-seal{width:86px;height:86px;border:3px solid var(--jade);color:var(--jade);
-  display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:18px}
-#victory h2{font-weight:400;font-size:26px;letter-spacing:.1em;margin-bottom:8px}
-#victory p{color:var(--ink-soft);font-size:14px;margin-bottom:20px}
-#victory button{font-family:inherit;font-size:13.5px;padding:10px 22px;cursor:pointer;background:var(--seal);color:#fff;border:none}
+@keyframes vpop{0%{transform:scale(.9);opacity:0}55%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
+.v-card{
+  background:var(--card);border:1px solid var(--line);border-top:4px solid var(--jade);
+  padding:34px 40px 26px;max-width:400px;width:100%;
+  box-shadow:0 18px 50px rgba(43,38,32,.2);animation:vpop .38s cubic-bezier(.3,0,.2,1);
+}
+#victory .v-seal{width:82px;height:82px;border:3px solid var(--jade);color:var(--jade);
+  display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;border-radius:2px}
+.v-kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+#victory h2{font-weight:400;font-size:32px;letter-spacing:.1em;margin-bottom:5px;color:var(--jade)}
+.v-sub{color:var(--ink-soft);font-size:13px;font-style:italic;margin-bottom:24px}
+.v-stats{display:flex;justify-content:center;gap:14px;margin-bottom:22px}
+.v-stat{flex:1;padding:14px 6px;background:var(--paper);border:1px solid var(--line)}
+.v-stat b{display:block;font-size:26px;color:var(--jade);line-height:1;margin-bottom:5px}
+.v-stat span{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.v-site{font-size:11px;letter-spacing:.08em;color:#b0a795;border-top:1px dashed var(--line);padding-top:14px}
+.v-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;justify-content:center}
+#victory button{font-family:inherit;font-size:13.5px;padding:11px 20px;cursor:pointer;border:none;transition:all .13s}
+#shareBtn{background:var(--jade);color:#fff}
+#shareBtn:hover{background:var(--jade-soft)}
+#victoryBtn{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
+#victoryBtn:hover{background:var(--seal);color:#fff}
+.v-copied{margin-top:14px;font-size:12.5px;color:var(--jade);opacity:0;transition:opacity .2s;height:16px}
+.v-copied.show{opacity:1}
+@media (max-width:440px){
+  .v-card{padding:28px 22px 22px}
+  #victory h2{font-size:27px}
+  .v-stat b{font-size:22px}
+}
 
 #credit-badge{
   position:fixed;left:14px;bottom:64px;z-index:52;
@@ -198,10 +222,23 @@ svg#board.panning{cursor:grabbing}
 </div>
 
 <div id="victory">
-  <div class="v-seal hanzi">完</div>
-  <h2 class="hanzi">全绿了！</h2>
-  <p id="victoryText"></p>
-  <button id="victoryBtn">再来一局 · play again</button>
+  <div class="v-card" id="vCard">
+    <div class="v-seal hanzi">完</div>
+    <div class="v-kicker">一字一格 · the tile game</div>
+    <h2 class="hanzi">全绿了！</h2>
+    <div class="v-sub">quán lǜ le — the whole board is green</div>
+    <div class="v-stats">
+      <div class="v-stat"><b id="vTiles">0</b><span>tiles cleared</span></div>
+      <div class="v-stat"><b id="vBest">0</b><span>best streak</span></div>
+      <div class="v-stat"><b id="vMisses">0</b><span>misses</span></div>
+    </div>
+    <div class="v-site">chinesereader.net · @pourteaux</div>
+  </div>
+  <div class="v-actions">
+    <button id="shareBtn">📷 Share result</button>
+    <button id="victoryBtn">再来一局 · play again</button>
+  </div>
+  <div class="v-copied" id="vCopied">Copied to clipboard!</div>
 </div>
 
 <a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener" title="Created by @pourteaux on X">
@@ -842,7 +879,8 @@ const cells=[];
 const svg=$('#board');
 let tiles=new Map();          // key -> {q,r,word,el,state}
 let lastCorrect=null;         // key of last correct tile
-let streak=0, cleared=0;
+let clearedOrder=[];          // keys in the order they were cleared (for partial rollback)
+let streak=0, cleared=0, misses=0;
 let best=parseInt(localStorage.getItem('yzyg-best')||'0',10)||0;
 let selectedKey=null, revealing=false;
 
@@ -851,7 +889,7 @@ let VB={x:0,y:0,w:100,h:100};          // current viewBox
 function applyVB(){ svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
 
 function buildBoard(){
-  tiles.clear(); lastCorrect=null; streak=0; cleared=0; selectedKey=null; revealing=false;
+  tiles.clear(); lastCorrect=null; clearedOrder=[]; streak=0; cleared=0; misses=0; selectedKey=null; revealing=false;
   hideReveal(); $('#victory').classList.remove('show');
 
   /* assign words: cells already come in ring order; shuffle WITHIN each ring,
@@ -961,14 +999,18 @@ function neighborsOf(k){
   return NBR.map(([dq,dr])=>tiles.get(key(t.q+dq,t.r+dr))).filter(Boolean);
 }
 function eligibleKeys(){
+  // no tiles cleared yet -> any tile is a valid start
   if(cleared===0) return [...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
-  let elig=neighborsOf(lastCorrect).filter(t=>t.state!=='correct').map(t=>key(t.q,t.r));
+  // normal case: neighbors of the last-cleared tile
+  let elig=lastCorrect ? neighborsOf(lastCorrect).filter(t=>t.state!=='correct').map(t=>key(t.q,t.r)) : [];
   if(!elig.length){
-    // dead end: allow branching from any green tile
+    // boxed in: allow branching from ANY green tile's free neighbors
     const set=new Set();
     tiles.forEach((t,k)=>{ if(t.state==='correct') neighborsOf(k).forEach(n=>{ if(n.state!=='correct') set.add(key(n.q,n.r)); }); });
     elig=[...set];
   }
+  // total dead end (e.g. a fully-surrounded pocket) -> free-pick anywhere on the board
+  if(!elig.length) elig=[...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
   return elig;
 }
 function refreshEligibility(){
@@ -1066,7 +1108,8 @@ function handleTap(targetEl){
   const elig=new Set(eligibleKeys());
   if(!elig.has(k)){
     g.classList.add('shake'); setTimeout(()=>g.classList.remove('shake'),380);
-    showHint(cleared===0?'Pick any tile to start':'Pick a tile touching your last green one');
+    const anyStart=(cleared===0) || !neighborsOf(lastCorrect||'').some(n=>n.state!=='correct');
+    showHint(anyStart?'Pick any tile to start a new path':'Pick a tile touching your last green one');
     return;
   }
   if(selectedKey===k){
@@ -1098,6 +1141,7 @@ $('#btnRight').addEventListener('click',()=>{
   titleEl.textContent=v.p+' — '+v.d;
   t.el.appendChild(titleEl);
   setTimeout(()=>t.el.classList.remove('pop'),320);
+  clearedOrder.push(selectedKey);
   lastCorrect=selectedKey; selectedKey=null; revealing=false;
   streak++; cleared++;
   if(streak>best){ best=streak; try{ localStorage.setItem('yzyg-best',best); }catch(e){} }
@@ -1108,23 +1152,73 @@ $('#btnRight').addEventListener('click',()=>{
 
 $('#btnWrong').addEventListener('click',()=>{
   const t=tiles.get(selectedKey); if(!t) return;
+  misses++;
   t.el.classList.remove('selected');
   t.el.classList.add('wrong');
   hideReveal();
-  showHint('重新开始 — starting over!');
+
+  // lose the most-recent third of your cleared path (at least 1 tile)
+  const lose=Math.max(1, Math.ceil(clearedOrder.length/3));
+  const doomed=clearedOrder.slice(-lose);
+  doomed.forEach(k=>{ const x=tiles.get(k); if(x){ x.el.classList.add('wrong'); } });
+  streak=0;                                   // streak always resets on a miss
+
+  showHint(clearedOrder.length ? `lost the last ${lose} tile${lose>1?'s':''} — streak reset` : 'try another tile');
+
   setTimeout(()=>{
+    // clear the wrong-flash tile (the guess) back to idle
     t.el.classList.remove('wrong');
-    tiles.forEach(x=>{ x.state='idle'; x.el.classList.remove('correct','lastcorrect'); const ti=x.el.querySelector('title'); if(ti) ti.remove(); });
-    lastCorrect=null; selectedKey=null; revealing=false;
-    streak=0; cleared=0;
+    // revert the doomed tiles to idle
+    doomed.forEach(k=>{
+      const x=tiles.get(k); if(!x) return;
+      x.state='idle';
+      x.el.classList.remove('correct','lastcorrect','wrong');
+      const ti=x.el.querySelector('title'); if(ti) ti.remove();
+    });
+    clearedOrder=clearedOrder.slice(0, clearedOrder.length-lose);
+    cleared=clearedOrder.length;
+    lastCorrect=clearedOrder.length ? clearedOrder[clearedOrder.length-1] : null;
+    selectedKey=null; revealing=false;
     updateBar(); refreshEligibility();
+    if(lastCorrect) panToTile(tiles.get(lastCorrect));
   },650);
 });
 
 function victory(){
-  $('#victoryText').textContent=`${tiles.size} tiles, all green — 你太厉害了！ Best streak: ${best}.`;
+  $('#vTiles').textContent=tiles.size;
+  $('#vBest').textContent=best;
+  $('#vMisses').textContent=misses;
   $('#victory').classList.add('show');
 }
+
+/* share: use Web Share API where available, otherwise copy a text summary */
+function shareText(){
+  const tail = misses===0
+    ? `Best streak: ${best} — flawless, zero misses!`
+    : `Best streak: ${best}, with ${misses} miss${misses===1?'':'es'}.`;
+  return `一字一世界 · the tile game\n`+
+         `I cleared all ${tiles.size} Chinese characters! ${tail}\n`+
+         `Play at chinesereader.net`;
+}
+$('#shareBtn').addEventListener('click',async ()=>{
+  const text=shareText();
+  try{
+    if(navigator.share){
+      await navigator.share({title:'一字一世界 · the tile game', text, url:'https://chinesereader.net'});
+      return;
+    }
+  }catch(e){ /* user cancelled or share failed — fall through to copy */ }
+  try{
+    await navigator.clipboard.writeText(text);
+    const c=$('#vCopied'); c.classList.add('show');
+    clearTimeout(shareBtn._t); shareBtn._t=setTimeout(()=>c.classList.remove('show'),2200);
+  }catch(e){
+    // last resort: show the text in a prompt so it can be copied manually
+    window.prompt('Copy your result:', text.replace(/\n/g,' '));
+  }
+});
+const shareBtn=$('#shareBtn');
+
 $('#victoryBtn').addEventListener('click',buildBoard);
 $('#newBoardBtn').addEventListener('click',buildBoard);
 
