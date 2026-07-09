@@ -46,9 +46,17 @@ svg#board.panning{cursor:grabbing}
   width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
   background:var(--card);color:var(--seal);cursor:pointer;font-size:17px;font-family:Georgia,serif;
   box-shadow:0 2px 10px rgba(43,38,32,.14);transition:all .13s;line-height:1;
+  display:flex;align-items:center;justify-content:center;padding:0;text-align:center;
 }
 #zoomctl button:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
 .pan-hint{text-align:center;font-size:11.5px;color:var(--ink-soft);font-style:italic;margin-top:6px;letter-spacing:.04em}
+
+/* ---- fullscreen board mode ---- */
+body.board-fs header,
+body.board-fs .pan-hint{display:none}
+body.board-fs .board-wrap{padding:6px 6px 84px}
+body.board-fs svg#board{height:calc(100vh - 96px)}
+#fsBtn.active{background:var(--seal);color:#fff;border-color:var(--seal)}
 @media (max-width:560px){ #zoomctl{right:10px} #zoomctl button{width:36px;height:36px;font-size:15px} }
 .hex{cursor:pointer}
 .hex polygon{fill:var(--card);stroke:var(--line);stroke-width:1.6;transition:fill .18s, stroke .18s}
@@ -182,15 +190,16 @@ svg#board.panning{cursor:grabbing}
     <h1 class="hanzi">一字一格</h1>
     <span class="brand-pinyin">yī zì yī gé · the tile game</span>
   </div>
-  <p class="how">Pick a tile you think you know. Tap it again to reveal — then be honest. Right: it turns green and you move to a neighbor. Wrong: the run resets. Easy words in the middle, harder toward the rim.</p>
+  <p class="how">Pick a tile you think you know. Tap it again to reveal — then be honest. Right: it turns green and you move to a neighbor. Wrong: you lose only your most recent tiles. Easy words in the middle, harder toward the rim.</p>
   <a class="back-link" href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a class="back-link" href="read.html">读书 · the reader →</a>
 </header>
 
 <p class="pan-hint">drag to pan · scroll or pinch to zoom · easy words in the middle</p>
 <div class="board-wrap"><svg id="board"></svg></div>
 <div id="zoomctl">
-  <button id="zoomIn" title="Zoom in">＋</button>
-  <button id="zoomOut" title="Zoom out">－</button>
+  <button id="fsBtn" title="Fullscreen board">⤡</button>
+  <button id="zoomIn" title="Zoom in">+</button>
+  <button id="zoomOut" title="Zoom out">−</button>
   <button id="zoomFit" title="Fit whole board">⤢</button>
 </div>
 
@@ -1097,6 +1106,20 @@ svg.addEventListener('wheel',e=>{
 $('#zoomIn').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1/1.35, r.left+r.width/2, r.top+r.height/2); });
 $('#zoomOut').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1.35, r.left+r.width/2, r.top+r.height/2); });
 $('#zoomFit').addEventListener('click',fitView);
+
+/* ---- fullscreen board toggle ---- */
+const fsBtn=$('#fsBtn');
+function setFs(on){
+  document.body.classList.toggle('board-fs',on);
+  fsBtn.classList.toggle('active',on);
+  fsBtn.textContent=on?'⤢':'⤡';
+  fsBtn.title=on?'Exit fullscreen':'Fullscreen board';
+  // SVG size changed — re-clamp the view on the next frame so aspect ratio stays correct
+  requestAnimationFrame(()=>{ clampVB(); applyVB(); });
+}
+fsBtn.addEventListener('click',()=>setFs(!document.body.classList.contains('board-fs')));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.body.classList.contains('board-fs')) setFs(false); });
+
 window.addEventListener('resize',()=>{ clampVB(); applyVB(); });
 
 function handleTap(targetEl){
