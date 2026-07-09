@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#f7f3ea">
+<title>一字一格 · The Tile Game — 一字一世界</title>
+<meta name="description" content="A hanzi recognition game: climb across a honeycomb of Chinese characters, one word at a time. Same 500 words as the reader.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<style>
+:root{
+  color-scheme: only light;
+  --paper:#f7f3ea; --paper-deep:#efe9db; --ink:#2b2620; --ink-soft:#6b6357;
+  --seal:#b02e20; --seal-soft:#c9553f; --jade:#3e6b5a; --jade-soft:#5d8a77; --indigo:#3d4d6b;
+  --line:#d9d0bf; --card:#fffdf8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#f7f3ea !important}
+body{
+  background:#f7f3ea !important; color:#2b2620 !important;
+  font-family:Georgia,'Times New Roman',serif; line-height:1.5;
+  min-height:100vh; display:flex; flex-direction:column;
+}
+.hanzi{font-family:'Kaiti SC','KaiTi','STKaiti','Kaiti TC','Noto Serif SC',serif}
+
+header{max-width:760px;margin:0 auto;padding:34px 20px 6px;text-align:center}
+.brand{display:flex;align-items:baseline;justify-content:center;gap:12px;flex-wrap:wrap}
+h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.08em}
+.brand-pinyin{color:var(--seal);font-style:italic;font-size:14.5px;letter-spacing:.1em}
+.how{margin-top:8px;color:var(--ink-soft);font-size:13.5px;font-style:italic}
+.back-link{display:inline-block;margin-top:9px;font-size:12.5px;color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line)}
+.back-link:hover{color:var(--seal);border-color:var(--seal)}
+
+/* ---- board ---- */
+.board-wrap{flex:1;position:relative;display:flex;justify-content:center;align-items:stretch;padding:8px 8px 150px;min-height:0}
+svg#board{display:block;touch-action:none;cursor:grab;width:100%;height:calc(100vh - 275px);min-height:340px}
+svg#board.panning{cursor:grabbing}
+#zoomctl{
+  position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:55;
+  display:flex;flex-direction:column;gap:8px;
+}
+#zoomctl button{
+  width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--seal);cursor:pointer;font-size:17px;font-family:Georgia,serif;
+  box-shadow:0 2px 10px rgba(43,38,32,.14);transition:all .13s;line-height:1;
+}
+#zoomctl button:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
+.pan-hint{text-align:center;font-size:11.5px;color:var(--ink-soft);font-style:italic;margin-top:6px;letter-spacing:.04em}
+@media (max-width:560px){ #zoomctl{right:10px} #zoomctl button{width:36px;height:36px;font-size:15px} }
+.hex{cursor:pointer}
+.hex polygon{fill:var(--card);stroke:var(--line);stroke-width:1.6;transition:fill .18s, stroke .18s}
+.hex text{fill:var(--ink);pointer-events:none;user-select:none}
+.hex.eligible polygon{stroke:var(--seal-soft);stroke-width:2;fill:#fdf6f0}
+.hex.selected polygon{stroke:var(--seal);stroke-width:3;fill:#fbeeec}
+.hex.correct{cursor:default}
+.hex.correct polygon{fill:var(--jade);stroke:var(--jade)}
+.hex.correct text{fill:#fdfbf5}
+.hex.lastcorrect polygon{stroke:#2c5244;stroke-width:3}
+.hex.wrong polygon{fill:var(--seal);stroke:var(--seal)}
+.hex.wrong text{fill:#fff}
+.hex.dimmed{cursor:default}
+.hex.dimmed polygon{opacity:.55}
+.hex.dimmed text{opacity:.45}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.hex.shake{animation:shake .35s}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.14)}100%{transform:scale(1)}}
+.hex.pop{animation:pop .3s}
+.hex{transform-box:fill-box;transform-origin:center}
+
+/* ---- reveal card ---- */
+#revealCard{
+  position:fixed;left:50%;bottom:86px;transform:translateX(-50%) translateY(12px);
+  z-index:60;width:min(430px,calc(100vw - 24px));
+  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--seal);
+  box-shadow:0 8px 30px rgba(43,38,32,.22);padding:15px 18px;
+  opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;
+}
+#revealCard.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+#revealCard .rc-top{display:flex;align-items:center;gap:13px}
+#revealCard .rc-hz{font-size:34px;line-height:1}
+#revealCard .rc-info{flex:1;min-width:0}
+#revealCard .rc-py{color:var(--seal);font-style:italic;font-size:16px;display:flex;align-items:center;gap:8px}
+#revealCard .rc-def{font-size:13.5px;color:var(--ink-soft);margin-top:1px}
+#revealCard .rc-lv{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#b0a795;white-space:nowrap}
+#revealCard .rc-q{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+#revealCard .rc-q span{font-size:13px;color:var(--ink-soft);font-style:italic}
+#revealCard .rc-btns{display:flex;gap:8px}
+#revealCard button{font-family:inherit;cursor:pointer;font-size:13px;padding:8px 15px;border:none;transition:all .13s}
+#btnRight{background:var(--jade);color:#fff}
+#btnRight:hover{background:var(--jade-soft)}
+#btnWrong{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
+#btnWrong:hover{background:var(--seal);color:#fff}
+.spk{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:23px;height:23px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--seal);cursor:pointer;font-size:11px;transition:all .12s;
+}
+.spk:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
+.no-tts .spk{display:none}
+
+/* ---- hint bubble ---- */
+#hint{
+  position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:55;
+  background:var(--ink);color:var(--paper);padding:8px 16px;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;max-width:calc(100vw - 30px);
+}
+#hint.show{opacity:.94}
+
+/* ---- score bar ---- */
+#scorebar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:var(--card);border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;
+  padding:12px 14px;font-size:13px;color:var(--ink-soft);
+}
+#scorebar .sc{display:flex;align-items:baseline;gap:7px;letter-spacing:.1em;text-transform:uppercase;font-size:10.5px}
+#scorebar .sc b{font-size:19px;letter-spacing:0;color:var(--seal);font-family:Georgia,serif}
+#scorebar .sc.jade b{color:var(--jade)}
+#newBoardBtn{
+  font-family:inherit;font-size:12px;letter-spacing:.05em;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);color:var(--ink-soft);padding:7px 14px;transition:all .14s;
+}
+#newBoardBtn:hover{border-color:var(--seal);color:var(--seal)}
+
+/* ---- victory ---- */
+#victory{
+  position:fixed;inset:0;z-index:90;background:rgba(247,243,234,.94);
+  display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:26px;
+}
+#victory.show{display:flex}
+#victory .v-seal{width:86px;height:86px;border:3px solid var(--jade);color:var(--jade);
+  display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:18px}
+#victory h2{font-weight:400;font-size:26px;letter-spacing:.1em;margin-bottom:8px}
+#victory p{color:var(--ink-soft);font-size:14px;margin-bottom:20px}
+#victory button{font-family:inherit;font-size:13.5px;padding:10px 22px;cursor:pointer;background:var(--seal);color:#fff;border:none}
+
+#credit-badge{
+  position:fixed;left:14px;bottom:64px;z-index:52;
+  display:flex;align-items:center;gap:6px;
+  padding:6px 11px 6px 9px;background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--seal);border-radius:20px;
+  font-size:11.5px;color:var(--ink-soft);text-decoration:none;box-shadow:0 2px 10px rgba(43,38,32,.12);
+}
+#credit-badge .cb-seal{width:17px;height:17px;flex:none;border:1.5px solid var(--seal);color:var(--seal);
+  border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;line-height:1}
+#credit-badge b{color:var(--seal)}
+@media (max-width:560px){ #credit-badge{display:none} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1 class="hanzi">一字一格</h1>
+    <span class="brand-pinyin">yī zì yī gé · the tile game</span>
+  </div>
+  <p class="how">Pick a tile you think you know. Tap it again to reveal — then be honest. Right: it turns green and you move to a neighbor. Wrong: the run resets. Easy words in the middle, harder toward the rim.</p>
+  <a class="back-link" href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a class="back-link" href="read.html">读书 · the reader →</a>
+</header>
+
+<p class="pan-hint">drag to pan · scroll or pinch to zoom · easy words in the middle</p>
+<div class="board-wrap"><svg id="board"></svg></div>
+<div id="zoomctl">
+  <button id="zoomIn" title="Zoom in">＋</button>
+  <button id="zoomOut" title="Zoom out">－</button>
+  <button id="zoomFit" title="Fit whole board">⤢</button>
+</div>
+
+<div id="revealCard">
+  <div class="rc-top">
+    <div class="rc-hz hanzi" id="rcHz"></div>
+    <div class="rc-info">
+      <div class="rc-py"><span id="rcPy"></span><button class="spk" id="rcSpk" aria-label="Play pronunciation">🔊</button></div>
+      <div class="rc-def" id="rcDef"></div>
+    </div>
+    <div class="rc-lv" id="rcLv"></div>
+  </div>
+  <div class="rc-q">
+    <span>Did you know it?</span>
+    <div class="rc-btns">
+      <button id="btnRight">✓ 对了</button>
+      <button id="btnWrong">✗ 错了</button>
+    </div>
+  </div>
+</div>
+
+<div id="hint"></div>
+
+<div id="scorebar">
+  <div class="sc">streak <b id="scStreak">0</b></div>
+  <div class="sc jade">cleared <b id="scCleared">0</b><span id="scTotal"></span></div>
+  <div class="sc">best <b id="scBest">0</b></div>
+  <button id="newBoardBtn">↺ 新的一局 · new board</button>
+</div>
+
+<div id="victory">
+  <div class="v-seal hanzi">完</div>
+  <h2 class="hanzi">全绿了！</h2>
+  <p id="victoryText"></p>
+  <button id="victoryBtn">再来一局 · play again</button>
+</div>
+
+<a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener" title="Created by @pourteaux on X">
+  <span class="cb-seal hanzi">字</span> by <b>@pourteaux</b>
+</a>
+
+<script>
+const VOCAB = {
+/* ===== Ch.1 初次见面 ===== */
+"你好":{p:"nǐ hǎo",d:"hello (你 + 好)",l:"bonus"},
+"我":{p:"wǒ",d:"I; me",l:"HSK 1"},
+"是":{p:"shì",d:"to be (am / is / are)",l:"HSK 1"},
+"小美":{p:"Xiǎoměi",d:"Xiaomei (given name — “little beautiful”)",l:"name"},
+"你":{p:"nǐ",d:"you",l:"HSK 1"},
+"好":{p:"hǎo",d:"good; well; fine",l:"HSK 1"},
+"吗":{p:"ma",d:"question particle (makes a yes/no question)",l:"HSK 1"},
+"很":{p:"hěn",d:"very",l:"HSK 1"},
+"呢":{p:"ne",d:"and you? / what about…? (bounce-back particle)",l:"HSK 1"},
+"叫":{p:"jiào",d:"to be called; to call",l:"HSK 1"},
+"什么":{p:"shénme",d:"what",l:"HSK 1"},
+"名字":{p:"míngzi",d:"name",l:"HSK 1"},
+"姓":{p:"xìng",d:"surname; to be surnamed",l:"HSK 2"},
+"李":{p:"Lǐ",d:"Li (a common surname)",l:"name"},
+"他":{p:"tā",d:"he; him",l:"HSK 1"},
+"她":{p:"tā",d:"she; her",l:"HSK 1"},
+"谁":{p:"shéi",d:"who",l:"HSK 1"},
+"的":{p:"de",d:"possessive particle (’s / of)",l:"HSK 1"},
+"朋友":{p:"péngyou",d:"friend",l:"HSK 1"},
+"大卫":{p:"Dàwèi",d:"David (a name)",l:"name"},
+"说":{p:"shuō",d:"to say; to speak",l:"HSK 1"},
+"也":{p:"yě",d:"also; too",l:"HSK 2"},
+/* ===== Ch.2 我的猫 ===== */
+"有":{p:"yǒu",d:"to have; there is",l:"HSK 1"},
+"一":{p:"yī",d:"one",l:"HSK 1"},
+"只":{p:"zhī",d:"measure word for animals",l:"bonus"},
+"猫":{p:"māo",d:"cat",l:"HSK 1"},
+"包子":{p:"Bāozi",d:"Baozi (the cat — lit. “steamed bun”)",l:"name"},
+"它":{p:"tā",d:"it (animals & things)",l:"HSK 2"},
+"不":{p:"bù",d:"not; no",l:"HSK 1"},
+"大":{p:"dà",d:"big",l:"HSK 1"},
+"小":{p:"xiǎo",d:"small; little",l:"HSK 1"},
+"爱":{p:"ài",d:"to love",l:"HSK 1"},
+"喜欢":{p:"xǐhuan",d:"to like",l:"HSK 1"},
+"狗":{p:"gǒu",d:"dog",l:"HSK 1"},
+"和":{p:"hé",d:"and; with",l:"HSK 1"},
+"都":{p:"dōu",d:"all; both",l:"HSK 1"},
+"睡觉":{p:"shuìjiào",d:"to sleep",l:"HSK 1"},
+"了":{p:"le",d:"particle: completed action / change of state",l:"HSK 1"},
+"认识":{p:"rènshi",d:"to know (a person); to meet",l:"HSK 1"},
+"高兴":{p:"gāoxìng",d:"happy; glad",l:"HSK 1"},
+"谢谢":{p:"xièxie",d:"thank you",l:"HSK 1"},
+"不客气":{p:"bú kèqi",d:"you’re welcome",l:"HSK 1"},
+"家":{p:"jiā",d:"home; family",l:"HSK 1"},
+"里":{p:"lǐ",d:"inside; in",l:"HSK 1"},
+/* ===== Ch.3 一、二、三 ===== */
+"二":{p:"èr",d:"two",l:"HSK 1"},
+"三":{p:"sān",d:"three",l:"HSK 1"},
+"四":{p:"sì",d:"four",l:"HSK 1"},
+"五":{p:"wǔ",d:"five",l:"HSK 1"},
+"六":{p:"liù",d:"six",l:"HSK 1"},
+"七":{p:"qī",d:"seven",l:"HSK 1"},
+"八":{p:"bā",d:"eight",l:"HSK 1"},
+"九":{p:"jiǔ",d:"nine",l:"HSK 1"},
+"十":{p:"shí",d:"ten",l:"HSK 1"},
+"零":{p:"líng",d:"zero",l:"HSK 2"},
+"几":{p:"jǐ",d:"how many (small numbers)",l:"HSK 1"},
+"个":{p:"gè",d:"general measure word",l:"HSK 1"},
+"人":{p:"rén",d:"person; people",l:"HSK 1"},
+"妈妈":{p:"māma",d:"mom; mother",l:"HSK 1"},
+"爸爸":{p:"bàba",d:"dad; father",l:"HSK 1"},
+"哥哥":{p:"gēge",d:"older brother",l:"HSK 2"},
+"妹妹":{p:"mèimei",d:"younger sister",l:"HSK 2"},
+"两":{p:"liǎng",d:"two (of something) — used with measure words",l:"HSK 2"},
+"孩子":{p:"háizi",d:"child",l:"HSK 2"},
+"儿子":{p:"érzi",d:"son",l:"HSK 1"},
+"女儿":{p:"nǚ'ér",d:"daughter",l:"HSK 1"},
+"岁":{p:"suì",d:"years old",l:"HSK 1"},
+"妻子":{p:"qīzi",d:"wife",l:"HSK 2"},
+"丈夫":{p:"zhàngfu",d:"husband",l:"HSK 2"},
+"姐姐":{p:"jiějie",d:"older sister",l:"HSK 2"},
+"弟弟":{p:"dìdi",d:"younger brother",l:"HSK 2"},
+"大家":{p:"dàjiā",d:"everyone",l:"HSK 2"},
+"我们":{p:"wǒmen",d:"we; us",l:"HSK 1"},
+/* ===== Ch.4 我住在北京 ===== */
+"住":{p:"zhù",d:"to live (somewhere)",l:"HSK 1"},
+"在":{p:"zài",d:"at; in; to be located at",l:"HSK 1"},
+"北京":{p:"Běijīng",d:"Beijing",l:"HSK 1"},
+"中国":{p:"Zhōngguó",d:"China",l:"HSK 1"},
+"这":{p:"zhè",d:"this",l:"HSK 1"},
+"那":{p:"nà",d:"that",l:"HSK 1"},
+"哪":{p:"nǎ",d:"which",l:"HSK 1"},
+"哪儿":{p:"nǎr",d:"where",l:"HSK 1"},
+"房间":{p:"fángjiān",d:"room",l:"HSK 2"},
+"桌子":{p:"zhuōzi",d:"table; desk",l:"HSK 1"},
+"椅子":{p:"yǐzi",d:"chair",l:"HSK 1"},
+"杯子":{p:"bēizi",d:"cup; glass",l:"HSK 1"},
+"水":{p:"shuǐ",d:"water",l:"HSK 1"},
+"上":{p:"shàng",d:"on; on top; up",l:"HSK 1"},
+"下":{p:"xià",d:"under; below; down; next",l:"HSK 1"},
+"门":{p:"mén",d:"door",l:"HSK 2"},
+"开":{p:"kāi",d:"to open; to turn on; to drive",l:"HSK 1"},
+/* ===== Ch.5 现在几点 ===== */
+"现在":{p:"xiànzài",d:"now",l:"HSK 1"},
+"点":{p:"diǎn",d:"o’clock; a little; to order (food)",l:"HSK 1"},
+"起床":{p:"qǐchuáng",d:"to get up (out of bed)",l:"HSK 2"},
+"早上":{p:"zǎoshang",d:"(early) morning",l:"HSK 2"},
+"上午":{p:"shàngwǔ",d:"morning (before noon)",l:"HSK 1"},
+"中午":{p:"zhōngwǔ",d:"noon",l:"HSK 1"},
+"下午":{p:"xiàwǔ",d:"afternoon",l:"HSK 1"},
+"晚上":{p:"wǎnshang",d:"evening; night",l:"HSK 2"},
+"今天":{p:"jīntiān",d:"today",l:"HSK 1"},
+"昨天":{p:"zuótiān",d:"yesterday",l:"HSK 1"},
+"明天":{p:"míngtiān",d:"tomorrow",l:"HSK 1"},
+"年":{p:"nián",d:"year",l:"HSK 1"},
+"月":{p:"yuè",d:"month; moon",l:"HSK 1"},
+"日":{p:"rì",d:"day (of the month, formal); sun",l:"HSK 2"},
+"号":{p:"hào",d:"day of the month; number",l:"HSK 1"},
+"星期":{p:"xīngqī",d:"week (星期一 = Monday…)",l:"HSK 1"},
+"去年":{p:"qùnián",d:"last year",l:"HSK 2"},
+"时候":{p:"shíhou",d:"time; moment (什么时候 = when)",l:"HSK 1"},
+"时间":{p:"shíjiān",d:"time (as a resource)",l:"HSK 2"},
+"分钟":{p:"fēnzhōng",d:"minute",l:"HSK 1"},
+"小时":{p:"xiǎoshí",d:"hour",l:"HSK 2"},
+"每":{p:"měi",d:"every; each",l:"HSK 2"},
+"去":{p:"qù",d:"to go",l:"HSK 1"},
+"来":{p:"lái",d:"to come",l:"HSK 1"},
+"回":{p:"huí",d:"to return",l:"HSK 1"},
+/* ===== Ch.6 工作 ===== */
+"工作":{p:"gōngzuò",d:"to work; job",l:"HSK 1"},
+"上班":{p:"shàngbān",d:"to go to work",l:"HSK 2"},
+"公司":{p:"gōngsī",d:"company",l:"HSK 2"},
+"电脑":{p:"diànnǎo",d:"computer",l:"HSK 1"},
+"手机":{p:"shǒujī",d:"mobile phone",l:"HSK 2"},
+"忙":{p:"máng",d:"busy",l:"HSK 2"},
+"累":{p:"lèi",d:"tired",l:"HSK 2"},
+"做":{p:"zuò",d:"to do; to make",l:"HSK 1"},
+"事情":{p:"shìqing",d:"matter; thing (to do)",l:"HSK 2"},
+"多":{p:"duō",d:"many; much",l:"HSK 1"},
+"少":{p:"shǎo",d:"few; little",l:"HSK 1"},
+
+/* ===== Ch.7 吃饭 ===== */
+"吃":{p:"chī",d:"to eat",l:"HSK 1"},
+"喝":{p:"hē",d:"to drink",l:"HSK 1"},
+"茶":{p:"chá",d:"tea",l:"HSK 1"},
+"咖啡":{p:"kāfēi",d:"coffee",l:"HSK 2"},
+"牛奶":{p:"niúnǎi",d:"milk",l:"HSK 2"},
+"米饭":{p:"mǐfàn",d:"(cooked) rice",l:"HSK 1"},
+"菜":{p:"cài",d:"dish (of food); vegetable",l:"HSK 1"},
+"鸡蛋":{p:"jīdàn",d:"(chicken) egg",l:"HSK 2"},
+"面条":{p:"miàntiáo",d:"noodles",l:"HSK 2"},
+"鱼":{p:"yú",d:"fish",l:"HSK 2"},
+"羊肉":{p:"yángròu",d:"lamb; mutton",l:"HSK 2"},
+"水果":{p:"shuǐguǒ",d:"fruit",l:"HSK 1"},
+"苹果":{p:"píngguǒ",d:"apple",l:"HSK 1"},
+"西瓜":{p:"xīguā",d:"watermelon",l:"HSK 2"},
+"好吃":{p:"hǎochī",d:"tasty; delicious",l:"HSK 2"},
+"想":{p:"xiǎng",d:"to want to; to think; to miss",l:"HSK 1"},
+"要":{p:"yào",d:"to want; will; to need",l:"HSK 2"},
+"饭店":{p:"fàndiàn",d:"restaurant; hotel",l:"HSK 1"},
+"服务员":{p:"fúwùyuán",d:"waiter; waitress",l:"HSK 2"},
+"请":{p:"qǐng",d:"please; to invite; to treat",l:"HSK 1"},
+"给":{p:"gěi",d:"to give; for; to",l:"HSK 2"},
+"还":{p:"hái",d:"still; also; in addition",l:"HSK 2"},
+"再":{p:"zài",d:"again; more; then",l:"HSK 2"},
+"对不起":{p:"duìbuqǐ",d:"sorry",l:"HSK 1"},
+"没有":{p:"méiyǒu",d:"to not have; did not (negates 有 and past actions)",l:"HSK 1"},
+"没关系":{p:"méi guānxi",d:"it doesn’t matter; no problem",l:"HSK 1"},
+"吧":{p:"ba",d:"particle: suggestion (…let’s / …okay?)",l:"HSK 2"},
+/* ===== Ch.8 大卫学汉语 ===== */
+"学习":{p:"xuéxí",d:"to study; to learn",l:"HSK 1"},
+"汉语":{p:"Hànyǔ",d:"Chinese (language)",l:"HSK 1"},
+"学生":{p:"xuésheng",d:"student",l:"HSK 1"},
+"学校":{p:"xuéxiào",d:"school",l:"HSK 1"},
+"老师":{p:"lǎoshī",d:"teacher",l:"HSK 1"},
+"同学":{p:"tóngxué",d:"classmate",l:"HSK 1"},
+"课":{p:"kè",d:"class; lesson",l:"HSK 2"},
+"教室":{p:"jiàoshì",d:"classroom",l:"HSK 2"},
+"读":{p:"dú",d:"to read (aloud); to study",l:"HSK 1"},
+"书":{p:"shū",d:"book",l:"HSK 1"},
+"本":{p:"běn",d:"measure word for books",l:"HSK 1"},
+"写":{p:"xiě",d:"to write",l:"HSK 1"},
+"字":{p:"zì",d:"(written) character; word",l:"HSK 1"},
+"铅笔":{p:"qiānbǐ",d:"pencil",l:"HSK 2"},
+"听":{p:"tīng",d:"to listen",l:"HSK 1"},
+"会":{p:"huì",d:"can (learned skill); will",l:"HSK 1"},
+"能":{p:"néng",d:"can; to be able to",l:"HSK 1"},
+"可以":{p:"kěyǐ",d:"can; may (permission)",l:"HSK 2"},
+"懂":{p:"dǒng",d:"to understand",l:"HSK 2"},
+"问":{p:"wèn",d:"to ask",l:"HSK 2"},
+"问题":{p:"wèntí",d:"question; problem",l:"HSK 2"},
+"知道":{p:"zhīdào",d:"to know (a fact)",l:"HSK 2"},
+"觉得":{p:"juéde",d:"to feel; to think (opinion)",l:"HSK 2"},
+"意思":{p:"yìsi",d:"meaning",l:"HSK 2"},
+"介绍":{p:"jièshào",d:"to introduce",l:"HSK 2"},
+"帮助":{p:"bāngzhù",d:"to help",l:"HSK 2"},
+"说话":{p:"shuōhuà",d:"to speak; to talk",l:"HSK 2"},
+"一下":{p:"yīxià",d:"(verb +) a bit; briefly",l:"HSK 2"},
+"真":{p:"zhēn",d:"really; truly",l:"HSK 2"},
+"太":{p:"tài",d:"too (excessively) — 太…了!",l:"HSK 1"},
+"非常":{p:"fēicháng",d:"extremely; very",l:"HSK 2"},
+"一点儿":{p:"yīdiǎnr",d:"a little (bit)",l:"HSK 1"},
+"慢":{p:"màn",d:"slow",l:"HSK 2"},
+"快":{p:"kuài",d:"fast; quick; soon",l:"HSK 2"},
+/* ===== Ch.9 考试 ===== */
+"考试":{p:"kǎoshì",d:"exam; to take an exam",l:"HSK 2"},
+"题":{p:"tí",d:"(exam) question; problem",l:"HSK 2"},
+"对":{p:"duì",d:"correct; right; also: towards (对我说 = say to me)",l:"HSK 2"},
+"错":{p:"cuò",d:"wrong; mistake",l:"HSK 2"},
+"第一":{p:"dì-yī",d:"first; number one",l:"HSK 2"},
+"次":{p:"cì",d:"time (occurrence); 第一次 = first time",l:"HSK 2"},
+"开始":{p:"kāishǐ",d:"to begin; to start",l:"HSK 2"},
+"准备":{p:"zhǔnbèi",d:"to prepare; to plan to",l:"HSK 2"},
+"得":{p:"de",d:"particle: verb + 得 + how well (说得好 = speaks well)",l:"HSK 2"},
+"就":{p:"jiù",d:"then; right away; only; exactly",l:"HSK 2"},
+"已经":{p:"yǐjīng",d:"already",l:"HSK 2"},
+"别":{p:"bié",d:"don’t (do something)",l:"HSK 2"},
+"让":{p:"ràng",d:"to let; to make (someone do something)",l:"HSK 2"},
+"告诉":{p:"gàosu",d:"to tell; to inform",l:"HSK 2"},
+"最":{p:"zuì",d:"most; -est",l:"HSK 2"},
+
+/* ===== Ch.10 买东西 ===== */
+"东西":{p:"dōngxi",d:"thing; stuff",l:"HSK 1"},
+"买":{p:"mǎi",d:"to buy",l:"HSK 1"},
+"商店":{p:"shāngdiàn",d:"shop; store",l:"HSK 1"},
+"钱":{p:"qián",d:"money",l:"HSK 1"},
+"块":{p:"kuài",d:"yuan (colloquial unit of money)",l:"HSK 1"},
+"百":{p:"bǎi",d:"hundred",l:"HSK 2"},
+"千":{p:"qiān",d:"thousand",l:"HSK 2"},
+"多少":{p:"duōshao",d:"how much; how many",l:"HSK 1"},
+"贵":{p:"guì",d:"expensive",l:"HSK 2"},
+"便宜":{p:"piányi",d:"cheap",l:"HSK 2"},
+"卖":{p:"mài",d:"to sell",l:"HSK 2"},
+"衣服":{p:"yīfu",d:"clothes",l:"HSK 1"},
+"穿":{p:"chuān",d:"to wear; to put on",l:"HSK 2"},
+"件":{p:"jiàn",d:"measure word for clothes & matters",l:"HSK 2"},
+"新":{p:"xīn",d:"new",l:"HSK 2"},
+"颜色":{p:"yánsè",d:"color",l:"HSK 2"},
+"红":{p:"hóng",d:"red",l:"HSK 2"},
+"白":{p:"bái",d:"white",l:"HSK 2"},
+"黑":{p:"hēi",d:"black",l:"HSK 2"},
+"漂亮":{p:"piàoliang",d:"pretty; beautiful",l:"HSK 1"},
+"些":{p:"xiē",d:"some; several (这些 = these)",l:"HSK 1"},
+"找":{p:"zhǎo",d:"to look for; to give change",l:"HSK 2"},
+"手表":{p:"shǒubiǎo",d:"wristwatch",l:"HSK 2"},
+"报纸":{p:"bàozhǐ",d:"newspaper",l:"HSK 2"},
+"洗":{p:"xǐ",d:"to wash",l:"HSK 2"},
+/* ===== Ch.11 在路上 ===== */
+"走":{p:"zǒu",d:"to walk; to go; to leave",l:"HSK 2"},
+"路":{p:"lù",d:"road; way",l:"HSK 2"},
+"远":{p:"yuǎn",d:"far",l:"HSK 2"},
+"近":{p:"jìn",d:"near; close",l:"HSK 2"},
+"到":{p:"dào",d:"to arrive; to (a place)",l:"HSK 2"},
+"从":{p:"cóng",d:"from",l:"HSK 2"},
+"离":{p:"lí",d:"(distance) from; away from",l:"HSK 2"},
+"往":{p:"wǎng",d:"towards; to go toward",l:"HSK 2"},
+"出":{p:"chū",d:"to go out; to come out",l:"HSK 2"},
+"进":{p:"jìn",d:"to enter; to come in",l:"HSK 2"},
+"外":{p:"wài",d:"outside",l:"HSK 2"},
+"前面":{p:"qiánmiàn",d:"front; ahead",l:"HSK 1"},
+"后面":{p:"hòumiàn",d:"back; behind",l:"HSK 1"},
+"旁边":{p:"pángbiān",d:"beside; next to",l:"HSK 2"},
+"左边":{p:"zuǒbian",d:"left side",l:"HSK 2"},
+"右边":{p:"yòubian",d:"right side",l:"HSK 2"},
+"坐":{p:"zuò",d:"to sit; to take (a bus, plane…)",l:"HSK 1"},
+"出租车":{p:"chūzūchē",d:"taxi",l:"HSK 1"},
+"公共汽车":{p:"gōnggòng qìchē",d:"(public) bus",l:"HSK 2"},
+"火车站":{p:"huǒchēzhàn",d:"train station",l:"HSK 2"},
+"等":{p:"děng",d:"to wait (for)",l:"HSK 2"},
+"看见":{p:"kànjiàn",d:"to see; to catch sight of",l:"HSK 1"},
+"看":{p:"kàn",d:"to look at; to watch; to read",l:"HSK 1"},
+"长":{p:"cháng",d:"long",l:"HSK 2"},
+"高":{p:"gāo",d:"tall; high",l:"HSK 2"},
+"男":{p:"nán",d:"male",l:"HSK 2"},
+"女":{p:"nǚ",d:"female",l:"HSK 2"},
+"您":{p:"nín",d:"you (polite)",l:"HSK 2"},
+"先生":{p:"xiānsheng",d:"Mr.; sir; husband",l:"HSK 1"},
+"小姐":{p:"xiǎojiě",d:"Miss; young lady",l:"HSK 1"},
+/* ===== Ch.12 天气 ===== */
+"天气":{p:"tiānqì",d:"weather",l:"HSK 1"},
+"怎么样":{p:"zěnmeyàng",d:"how is it? how about…?",l:"HSK 1"},
+"怎么":{p:"zěnme",d:"how; why",l:"HSK 1"},
+"冷":{p:"lěng",d:"cold",l:"HSK 1"},
+"热":{p:"rè",d:"hot",l:"HSK 1"},
+"下雨":{p:"xiàyǔ",d:"to rain",l:"HSK 1"},
+"雪":{p:"xuě",d:"snow",l:"HSK 2"},
+"晴":{p:"qíng",d:"sunny; clear",l:"HSK 2"},
+"阴":{p:"yīn",d:"overcast; cloudy",l:"HSK 2"},
+"比":{p:"bǐ",d:"than; to compare (A 比 B + adj.)",l:"HSK 2"},
+/* ===== Ch.13 生病 ===== */
+"身体":{p:"shēntǐ",d:"body; health",l:"HSK 2"},
+"生病":{p:"shēngbìng",d:"to get sick",l:"HSK 2"},
+"医院":{p:"yīyuàn",d:"hospital",l:"HSK 1"},
+"医生":{p:"yīshēng",d:"doctor",l:"HSK 1"},
+"药":{p:"yào",d:"medicine",l:"HSK 2"},
+"眼睛":{p:"yǎnjing",d:"eye(s)",l:"HSK 2"},
+"休息":{p:"xiūxi",d:"to rest",l:"HSK 2"},
+/* ===== Ch.14 周末 ===== */
+"玩":{p:"wán",d:"to play; to have fun",l:"HSK 2"},
+"电视":{p:"diànshì",d:"television",l:"HSK 1"},
+"电影":{p:"diànyǐng",d:"movie",l:"HSK 1"},
+"唱歌":{p:"chànggē",d:"to sing (songs)",l:"HSK 2"},
+"跳舞":{p:"tiàowǔ",d:"to dance",l:"HSK 2"},
+"游泳":{p:"yóuyǒng",d:"to swim",l:"HSK 2"},
+"跑步":{p:"pǎobù",d:"to run; to jog",l:"HSK 2"},
+"运动":{p:"yùndòng",d:"sports; exercise",l:"HSK 2"},
+"打篮球":{p:"dǎ lánqiú",d:"to play basketball",l:"HSK 2"},
+"踢足球":{p:"tī zúqiú",d:"to play soccer",l:"HSK 2"},
+"快乐":{p:"kuàilè",d:"happy (生日快乐 = happy birthday)",l:"HSK 2"},
+"笑":{p:"xiào",d:"to laugh; to smile",l:"HSK 2"},
+"一起":{p:"yīqǐ",d:"together",l:"HSK 2"},
+/* ===== Ch.15 打电话 ===== */
+"打电话":{p:"dǎ diànhuà",d:"to make a phone call",l:"HSK 1"},
+"喂":{p:"wèi",d:"hello? (on the phone)",l:"HSK 1"},
+"为什么":{p:"wèishénme",d:"why",l:"HSK 2"},
+"因为":{p:"yīnwèi",d:"because (因为…所以…)",l:"HSK 2"},
+"所以":{p:"suǒyǐ",d:"so; therefore (因为…所以…)",l:"HSK 2"},
+"虽然":{p:"suīrán",d:"although (虽然…但是…)",l:"HSK 2"},
+"但是":{p:"dànshì",d:"but; however (虽然…但是…)",l:"HSK 2"},
+"可能":{p:"kěnéng",d:"maybe; possibly",l:"HSK 2"},
+"正在":{p:"zhèngzài",d:"in the middle of (doing)",l:"HSK 2"},
+"着":{p:"zhe",d:"particle: ongoing state (-ing)",l:"HSK 2"},
+"过":{p:"guo",d:"particle: have done before (experience)",l:"HSK 2"},
+"生日":{p:"shēngrì",d:"birthday",l:"HSK 2"},
+"送":{p:"sòng",d:"to give (a gift); to see someone off",l:"HSK 2"},
+"希望":{p:"xīwàng",d:"to hope; hope",l:"HSK 2"},
+/* ===== Ch.16 去旅游 ===== */
+"旅游":{p:"lǚyóu",d:"to travel; tourism",l:"HSK 2"},
+"飞机":{p:"fēijī",d:"airplane",l:"HSK 1"},
+"机场":{p:"jīchǎng",d:"airport",l:"HSK 2"},
+"票":{p:"piào",d:"ticket",l:"HSK 2"},
+"宾馆":{p:"bīnguǎn",d:"hotel; guesthouse",l:"HSK 2"},
+"完":{p:"wán",d:"to finish; (verb +) done",l:"HSK 2"},
+"再见":{p:"zàijiàn",d:"goodbye",l:"HSK 1"},
+"喵":{p:"miāo",d:"meow",l:"bonus"}
+};
+
+const VOCAB2 = {
+/* ===== Ch.17 数字生活 ===== */
+"用":{p:"yòng",d:"to use",l:"HSK 3+"},
+"网":{p:"wǎng",d:"the internet; net (网上 = online)",l:"HSK 3+"},
+"上网":{p:"shàngwǎng",d:"to go online",l:"HSK 3+"},
+"发":{p:"fā",d:"to send (a message)",l:"HSK 3+"},
+"信息":{p:"xìnxī",d:"message; information",l:"HSK 3+"},
+"照片":{p:"zhàopiàn",d:"photo",l:"HSK 3+"},
+"视频":{p:"shìpín",d:"video",l:"HSK 3+"},
+"音乐":{p:"yīnyuè",d:"music",l:"HSK 3+"},
+"聊天":{p:"liáotiān",d:"to chat",l:"HSK 3+"},
+"微信":{p:"Wēixìn",d:"WeChat (the app everyone in China uses)",l:"name"},
+"扫码":{p:"sǎomǎ",d:"to scan a QR code",l:"HSK 3+"},
+"密码":{p:"mìmǎ",d:"password",l:"HSK 3+"},
+"号码":{p:"hàomǎ",d:"number (phone number etc.)",l:"HSK 3+"},
+"声音":{p:"shēngyīn",d:"sound; voice",l:"HSK 3+"},
+"需要":{p:"xūyào",d:"to need",l:"HSK 3+"},
+"应该":{p:"yīnggāi",d:"should; ought to",l:"HSK 3+"},
+/* ===== Ch.18 在城市里 ===== */
+"车":{p:"chē",d:"vehicle; car",l:"HSK 3+"},
+"地铁":{p:"dìtiě",d:"subway; metro",l:"HSK 3+"},
+"站":{p:"zhàn",d:"station; stop",l:"HSK 3+"},
+"打车":{p:"dǎchē",d:"to hail a ride; take a taxi",l:"HSK 3+"},
+"骑":{p:"qí",d:"to ride (a bike)",l:"HSK 3+"},
+"自行车":{p:"zìxíngchē",d:"bicycle",l:"HSK 3+"},
+"城市":{p:"chéngshì",d:"city",l:"HSK 3+"},
+"地方":{p:"dìfang",d:"place",l:"HSK 3+"},
+"附近":{p:"fùjìn",d:"nearby; vicinity",l:"HSK 3+"},
+"地图":{p:"dìtú",d:"map",l:"HSK 3+"},
+"街":{p:"jiē",d:"street",l:"HSK 3+"},
+"楼":{p:"lóu",d:"building; floor (三楼 = 3rd floor)",l:"HSK 3+"},
+"电梯":{p:"diàntī",d:"elevator",l:"HSK 3+"},
+"超市":{p:"chāoshì",d:"supermarket",l:"HSK 3+"},
+"银行":{p:"yínháng",d:"bank",l:"HSK 3+"},
+"卡":{p:"kǎ",d:"card (bank card etc.)",l:"HSK 3+"},
+"付钱":{p:"fùqián",d:"to pay",l:"HSK 3+"},
+/* ===== Ch.19 好吃的 2.0 ===== */
+"饭":{p:"fàn",d:"meal; food; cooked rice (吃饭 = to eat)",l:"HSK 3+"},
+"饿":{p:"è",d:"hungry",l:"HSK 3+"},
+"渴":{p:"kě",d:"thirsty",l:"HSK 3+"},
+"菜单":{p:"càidān",d:"menu",l:"HSK 3+"},
+"辣":{p:"là",d:"spicy",l:"HSK 3+"},
+"甜":{p:"tián",d:"sweet",l:"HSK 3+"},
+"汤":{p:"tāng",d:"soup",l:"HSK 3+"},
+"肉":{p:"ròu",d:"meat",l:"HSK 3+"},
+"面包":{p:"miànbāo",d:"bread",l:"HSK 3+"},
+"蛋糕":{p:"dàngāo",d:"cake",l:"HSK 3+"},
+"筷子":{p:"kuàizi",d:"chopsticks",l:"HSK 3+"},
+"碗":{p:"wǎn",d:"bowl",l:"HSK 3+"},
+"味道":{p:"wèidào",d:"taste; flavor",l:"HSK 3+"},
+"饱":{p:"bǎo",d:"full (after eating)",l:"HSK 3+"},
+"啤酒":{p:"píjiǔ",d:"beer",l:"HSK 3+"},
+"干杯":{p:"gānbēi",d:"cheers! (lit. dry the cup)",l:"HSK 3+"},
+"外卖":{p:"wàimài",d:"food delivery; takeout",l:"HSK 3+"},
+/* ===== Ch.20 在家 ===== */
+"快递":{p:"kuàidì",d:"package delivery; courier",l:"HSK 3+"},
+"关":{p:"guān",d:"to close; to turn off",l:"HSK 3+"},
+"灯":{p:"dēng",d:"lamp; light",l:"HSK 3+"},
+"空调":{p:"kōngtiáo",d:"air conditioner",l:"HSK 3+"},
+"洗澡":{p:"xǐzǎo",d:"to shower; to bathe",l:"HSK 3+"},
+"洗手间":{p:"xǐshǒujiān",d:"restroom; bathroom",l:"HSK 3+"},
+"房子":{p:"fángzi",d:"house; apartment",l:"HSK 3+"},
+"厨房":{p:"chúfáng",d:"kitchen",l:"HSK 3+"},
+"舒服":{p:"shūfu",d:"comfortable",l:"HSK 3+"},
+"干净":{p:"gānjìng",d:"clean",l:"HSK 3+"},
+"半":{p:"bàn",d:"half (三点半 = 3:30)",l:"HSK 3+"},
+"早":{p:"zǎo",d:"early; morning! (as a greeting)",l:"HSK 3+"},
+"先":{p:"xiān",d:"first; before",l:"HSK 3+"},
+"然后":{p:"ránhòu",d:"then; after that",l:"HSK 3+"},
+"马上":{p:"mǎshàng",d:"right away; immediately",l:"HSK 3+"},
+"一直":{p:"yīzhí",d:"all along; continuously",l:"HSK 3+"},
+"有点儿":{p:"yǒudiǎnr",d:"a little; somewhat (before adjectives)",l:"HSK 3+"},
+/* ===== Ch.21 会说话 ===== */
+"明白":{p:"míngbai",d:"to understand; clear",l:"HSK 3+"},
+"忘":{p:"wàng",d:"to forget",l:"HSK 3+"},
+"记得":{p:"jìde",d:"to remember",l:"HSK 3+"},
+"英语":{p:"Yīngyǔ",d:"English (language)",l:"HSK 3+"},
+"翻译":{p:"fānyì",d:"to translate; translator",l:"HSK 3+"},
+"词":{p:"cí",d:"word",l:"HSK 3+"},
+"句子":{p:"jùzi",d:"sentence",l:"HSK 3+"},
+"练习":{p:"liànxí",d:"to practice; exercise",l:"HSK 3+"},
+"还是":{p:"háishi",d:"or (in questions); still",l:"HSK 3+"},
+"或者":{p:"huòzhě",d:"or (in statements)",l:"HSK 3+"},
+"如果":{p:"rúguǒ",d:"if",l:"HSK 3+"},
+"可是":{p:"kěshì",d:"but; however",l:"HSK 3+"},
+"其实":{p:"qíshí",d:"actually; in fact",l:"HSK 3+"},
+"当然":{p:"dāngrán",d:"of course",l:"HSK 3+"},
+"一定":{p:"yīdìng",d:"definitely; certainly",l:"HSK 3+"},
+"好像":{p:"hǎoxiàng",d:"to seem; as if",l:"HSK 3+"},
+"听说":{p:"tīngshuō",d:"to have heard (that…)",l:"HSK 3+"},
+/* ===== Ch.22 春节回家 ===== */
+"最近":{p:"zuìjìn",d:"recently; lately",l:"HSK 3+"},
+"以前":{p:"yǐqián",d:"before; in the past",l:"HSK 3+"},
+"以后":{p:"yǐhòu",d:"after; from now on",l:"HSK 3+"},
+"打算":{p:"dǎsuàn",d:"to plan to",l:"HSK 3+"},
+"决定":{p:"juédìng",d:"to decide",l:"HSK 3+"},
+"火车":{p:"huǒchē",d:"train",l:"HSK 3+"},
+"行李":{p:"xíngli",d:"luggage",l:"HSK 3+"},
+"春节":{p:"Chūnjié",d:"Spring Festival; Chinese New Year",l:"HSK 3+"},
+"礼物":{p:"lǐwù",d:"gift; present",l:"HSK 3+"},
+"红包":{p:"hóngbāo",d:"red envelope (with money inside!)",l:"HSK 3+"},
+"欢迎":{p:"huānyíng",d:"welcome",l:"HSK 3+"},
+"开心":{p:"kāixīn",d:"happy; delighted",l:"HSK 3+"},
+"担心":{p:"dānxīn",d:"to worry",l:"HSK 3+"},
+"放心":{p:"fàngxīn",d:"to relax; rest assured",l:"HSK 3+"},
+"加油":{p:"jiāyóu",d:"come on! you can do it! (lit. add oil)",l:"HSK 3+"},
+"厉害":{p:"lìhai",d:"awesome; impressive",l:"HSK 3+"}
+};
+Object.assign(VOCAB, VOCAB2);
+
+const VOCAB3 = {
+/* ===== Ch.23 上班的一天 ===== */
+"老板":{p:"lǎobǎn",d:"boss; shop owner",l:"HSK 3+"},
+"同事":{p:"tóngshì",d:"colleague; coworker",l:"HSK 3+"},
+"会议":{p:"huìyì",d:"meeting",l:"HSK 3+"},
+"开会":{p:"kāihuì",d:"to have a meeting",l:"HSK 3+"},
+"邮件":{p:"yóujiàn",d:"email",l:"HSK 3+"},
+"加班":{p:"jiābān",d:"to work overtime",l:"HSK 3+"},
+"请假":{p:"qǐngjià",d:"to ask for leave (from work)",l:"HSK 3+"},
+"办公室":{p:"bàngōngshì",d:"office",l:"HSK 3+"},
+"项目":{p:"xiàngmù",d:"project",l:"HSK 3+"},
+"报告":{p:"bàogào",d:"report",l:"HSK 3+"},
+"完成":{p:"wánchéng",d:"to complete; to finish",l:"HSK 3+"},
+"迟到":{p:"chídào",d:"to be late",l:"HSK 3+"},
+"下班":{p:"xiàbān",d:"to get off work",l:"HSK 3+"},
+/* ===== Ch.24 找房子 ===== */
+"房东":{p:"fángdōng",d:"landlord",l:"HSK 3+"},
+"房租":{p:"fángzū",d:"rent",l:"HSK 3+"},
+"押金":{p:"yājīn",d:"(security) deposit",l:"HSK 3+"},
+"合同":{p:"hétong",d:"contract",l:"HSK 3+"},
+"签":{p:"qiān",d:"to sign",l:"HSK 3+"},
+"搬家":{p:"bānjiā",d:"to move (house)",l:"HSK 3+"},
+"小区":{p:"xiǎoqū",d:"residential complex; neighborhood",l:"HSK 3+"},
+"层":{p:"céng",d:"floor; story (of a building)",l:"HSK 3+"},
+"水电费":{p:"shuǐdiànfèi",d:"utility bill (water & electricity)",l:"HSK 3+"},
+"邻居":{p:"línjū",d:"neighbor",l:"HSK 3+"},
+"安静":{p:"ānjìng",d:"quiet",l:"HSK 3+"},
+"阳台":{p:"yángtái",d:"balcony",l:"HSK 3+"},
+"换":{p:"huàn",d:"to change; to exchange; to swap",l:"HSK 3+"},
+/* ===== Ch.25 网上买东西 ===== */
+"淘宝":{p:"Táobǎo",d:"Taobao (China's biggest shopping app)",l:"HSK 3+"},
+"支付宝":{p:"Zhīfùbǎo",d:"Alipay (payment app)",l:"HSK 3+"},
+"下单":{p:"xiàdān",d:"to place an order",l:"HSK 3+"},
+"订单":{p:"dìngdān",d:"an order (that you placed)",l:"HSK 3+"},
+"打折":{p:"dǎzhé",d:"to give a discount; on sale",l:"HSK 3+"},
+"优惠":{p:"yōuhuì",d:"discount; special offer",l:"HSK 3+"},
+"免费":{p:"miǎnfèi",d:"free (of charge)",l:"HSK 3+"},
+"收到":{p:"shōudào",d:"to receive",l:"HSK 3+"},
+"快递员":{p:"kuàidìyuán",d:"delivery person",l:"HSK 3+"},
+"质量":{p:"zhìliàng",d:"quality",l:"HSK 3+"},
+"评价":{p:"píngjià",d:"review; rating; to review",l:"HSK 3+"},
+"退货":{p:"tuìhuò",d:"to return an item (for refund)",l:"HSK 3+"},
+/* ===== Ch.26 包子红了 ===== */
+"朋友圈":{p:"péngyǒuquān",d:"WeChat Moments (social feed)",l:"HSK 3+"},
+"点赞":{p:"diǎnzàn",d:"to like (a post)",l:"HSK 3+"},
+"可爱":{p:"kě'ài",d:"cute; adorable",l:"HSK 3+"},
+"帅":{p:"shuài",d:"handsome; cool",l:"HSK 3+"},
+"关注":{p:"guānzhù",d:"to follow (an account); to pay attention to",l:"HSK 3+"},
+"粉丝":{p:"fěnsī",d:"fan; follower (lit. 'vermicelli')",l:"HSK 3+"},
+"直播":{p:"zhíbō",d:"livestream; to livestream",l:"HSK 3+"},
+"网红":{p:"wǎnghóng",d:"internet celebrity; influencer",l:"HSK 3+"},
+"男朋友":{p:"nánpéngyou",d:"boyfriend",l:"HSK 3+"},
+"女朋友":{p:"nǚpéngyou",d:"girlfriend",l:"HSK 3+"},
+"分手":{p:"fēnshǒu",d:"to break up",l:"HSK 3+"},
+"结婚":{p:"jiéhūn",d:"to get married",l:"HSK 3+"},
+/* ===== Ch.27 身体是第一 ===== */
+"胖":{p:"pàng",d:"fat; plump",l:"HSK 3+"},
+"瘦":{p:"shòu",d:"thin; to lose weight",l:"HSK 3+"},
+"减肥":{p:"jiǎnféi",d:"to go on a diet; to lose weight",l:"HSK 3+"},
+"健身":{p:"jiànshēn",d:"to work out",l:"HSK 3+"},
+"健身房":{p:"jiànshēnfáng",d:"gym",l:"HSK 3+"},
+"压力":{p:"yālì",d:"pressure; stress",l:"HSK 3+"},
+"睡":{p:"shuì",d:"to sleep (the short form of 睡觉)",l:"HSK 3+"},
+"失眠":{p:"shīmián",d:"insomnia; can't fall asleep",l:"HSK 3+"},
+"疼":{p:"téng",d:"to hurt; to ache",l:"HSK 3+"},
+"体检":{p:"tǐjiǎn",d:"physical examination; checkup",l:"HSK 3+"},
+"挂号":{p:"guàhào",d:"to register (at a hospital)",l:"HSK 3+"},
+"习惯":{p:"xíguàn",d:"habit; to be used to",l:"HSK 3+"},
+/* ===== Ch.28 假期 ===== */
+"假期":{p:"jiàqī",d:"vacation; holiday period",l:"HSK 3+"},
+"放假":{p:"fàngjià",d:"to have time off; to go on break",l:"HSK 3+"},
+"国庆节":{p:"Guóqìngjié",d:"National Day (Oct 1 holiday week)",l:"HSK 3+"},
+"中秋节":{p:"Zhōngqiūjié",d:"Mid-Autumn Festival",l:"HSK 3+"},
+"月饼":{p:"yuèbǐng",d:"mooncake",l:"HSK 3+"},
+"计划":{p:"jìhuà",d:"plan; to plan",l:"HSK 3+"},
+"订":{p:"dìng",d:"to book; to reserve",l:"HSK 3+"},
+"酒店":{p:"jiǔdiàn",d:"hotel",l:"HSK 3+"},
+"护照":{p:"hùzhào",d:"passport",l:"HSK 3+"},
+"签证":{p:"qiānzhèng",d:"visa",l:"HSK 3+"},
+"堵车":{p:"dǔchē",d:"traffic jam; to be stuck in traffic",l:"HSK 3+"},
+"人山人海":{p:"rén shān rén hǎi",d:"huge crowds (lit. 'people mountain people sea')",l:"HSK 3+"},
+/* ===== Ch.29 出问题了 ===== */
+"钱包":{p:"qiánbāo",d:"wallet",l:"HSK 3+"},
+"丢":{p:"diū",d:"to lose (something)",l:"HSK 3+"},
+"身份证":{p:"shēnfènzhèng",d:"ID card",l:"HSK 3+"},
+"着急":{p:"zháojí",d:"anxious; worried; in a hurry",l:"HSK 3+"},
+"报警":{p:"bàojǐng",d:"to call the police",l:"HSK 3+"},
+"警察":{p:"jǐngchá",d:"police; police officer",l:"HSK 3+"},
+"帮忙":{p:"bāngmáng",d:"to help out; to lend a hand",l:"HSK 3+"},
+"没电":{p:"méidiàn",d:"out of battery; no power",l:"HSK 3+"},
+"充电":{p:"chōngdiàn",d:"to charge (a device)",l:"HSK 3+"},
+"充电宝":{p:"chōngdiànbǎo",d:"power bank",l:"HSK 3+"},
+"坏":{p:"huài",d:"broken; bad",l:"HSK 3+"},
+"修":{p:"xiū",d:"to repair; to fix",l:"HSK 3+"},
+/* ===== Ch.30 你的故事 ===== */
+"看法":{p:"kànfǎ",d:"opinion; view",l:"HSK 3+"},
+"同意":{p:"tóngyì",d:"to agree",l:"HSK 3+"},
+"建议":{p:"jiànyì",d:"to suggest; suggestion",l:"HSK 3+"},
+"讨论":{p:"tǎolùn",d:"to discuss",l:"HSK 3+"},
+"选择":{p:"xuǎnzé",d:"to choose; choice",l:"HSK 3+"},
+"机会":{p:"jīhuì",d:"opportunity; chance",l:"HSK 3+"},
+"努力":{p:"nǔlì",d:"to work hard; effort",l:"HSK 3+"},
+"成功":{p:"chénggōng",d:"to succeed; success",l:"HSK 3+"},
+"变":{p:"biàn",d:"to change; to become",l:"HSK 3+"},
+"越来越":{p:"yuèláiyuè",d:"more and more (越来越好 = better and better)",l:"HSK 3+"},
+"梦想":{p:"mèngxiǎng",d:"dream (aspiration)",l:"HSK 3+"},
+"世界":{p:"shìjiè",d:"world",l:"HSK 3+"},
+"未来":{p:"wèilái",d:"future",l:"HSK 3+"},
+"故事":{p:"gùshi",d:"story",l:"HSK 3+"}
+};
+Object.assign(VOCAB, VOCAB3);
+
+
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+
+/* ---------- audio (same voice ranking as the reader) ---------- */
+let ttsVoices=[];
+let ttsRate=parseFloat(localStorage.getItem('manmandu-rate')||'0.92')||0.92;
+let ttsVoiceName=null;
+try{ ttsVoiceName=localStorage.getItem('manmandu-voice-name'); }catch(e){}
+function voiceScore(v){
+  let s=0; const lang=(v.lang||'').toLowerCase();
+  if(lang.startsWith('zh')) s+=100; else return -1;
+  if(lang==='zh-cn') s+=20;
+  if(!v.localService) s+=15;
+  if(/google/i.test(v.name)) s+=12;
+  if(/neural|natural|enhanced|premium|online|wavenet/i.test(v.name)) s+=10;
+  return s;
+}
+function bestVoices(){ return ttsVoices.map(v=>({v,s:voiceScore(v)})).filter(x=>x.s>=0).sort((a,b)=>b.s-a.s).map(x=>x.v); }
+function loadVoices(){ try{ ttsVoices=window.speechSynthesis.getVoices()||[]; }catch(e){} }
+if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+else{ document.documentElement.classList.add('no-tts'); }
+function speak(hanzi){
+  if(!hanzi || !('speechSynthesis' in window)) return;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  try{
+    const u=new SpeechSynthesisUtterance(hanzi);
+    u.lang='zh-CN'; u.rate=ttsRate;
+    try{
+      const chosen=ttsVoices.find(v=>v.name===ttsVoiceName);
+      const v=chosen || bestVoices()[0] || ttsVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith('zh'));
+      if(v) u.voice=v;
+    }catch(e){}
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- word pools by tier ---------- */
+const tiers={1:[],2:[],3:[]};
+Object.entries(VOCAB).forEach(([w,v])=>{
+  if(v.l==='name') return;              // skip proper names
+  if(v.l==='HSK 1' || v.l==='bonus') tiers[1].push(w);
+  else if(v.l==='HSK 2') tiers[2].push(w);
+  else tiers[3].push(w);
+});
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* ---------- hex grid (pointy-top, axial coords) sized to hold EVERY word ---------- */
+const SIZE=33;
+const SQ3=Math.sqrt(3);
+const NBR=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+function key(q,r){ return q+','+r; }
+const TOTAL_WORDS=tiers[1].length+tiers[2].length+tiers[3].length;
+
+/* build full rings until we can hold all words, then an evenly-spaced partial outer ring */
+function ringCells(n){
+  if(n===0) return [{q:0,r:0,ring:0}];
+  const out=[]; let q=n, r=-n; // start at the NE corner of ring n
+  const dirs=[[-1,0],[-1,1],[0,1],[1,0],[1,-1],[0,-1]]; // W,SW,SE,E,NE,NW — stays on the ring
+  for(const [dq,dr] of dirs){ for(let i=0;i<n;i++){ out.push({q,r,ring:n}); q+=dq; r+=dr; } }
+  return out;
+}
+const cells=[];
+{
+  let ring=0;
+  while(cells.length + ringCells(ring).length <= TOTAL_WORDS){
+    cells.push(...ringCells(ring)); ring++;
+  }
+  const remaining=TOTAL_WORDS-cells.length;
+  if(remaining>0){
+    const rc=ringCells(ring);
+    // pick `remaining` cells evenly spaced around the ring for an organic rim
+    const step=rc.length/remaining;
+    for(let i=0;i<remaining;i++) cells.push(rc[Math.round(i*step)%rc.length]);
+  }
+}
+
+const svg=$('#board');
+let tiles=new Map();          // key -> {q,r,word,el,state}
+let lastCorrect=null;         // key of last correct tile
+let streak=0, cleared=0;
+let best=parseInt(localStorage.getItem('yzyg-best')||'0',10)||0;
+let selectedKey=null, revealing=false;
+
+let FULL={x:0,y:0,w:100,h:100};       // full board extents
+let VB={x:0,y:0,w:100,h:100};          // current viewBox
+function applyVB(){ svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
+
+function buildBoard(){
+  tiles.clear(); lastCorrect=null; streak=0; cleared=0; selectedKey=null; revealing=false;
+  hideReveal(); $('#victory').classList.remove('show');
+
+  /* assign words: cells already come in ring order; shuffle WITHIN each ring,
+     then pour tier1 words into the first cells, tier2 next, tier3 last.
+     -> clean center-out difficulty bands, random placement inside each band. */
+  const byRing={};
+  cells.forEach(c=>{ (byRing[c.ring]=byRing[c.ring]||[]).push(c); });
+  const ordered=[];
+  Object.keys(byRing).map(Number).sort((a,b)=>a-b).forEach(r=>ordered.push(...shuffle(byRing[r].slice())));
+  const words=[...shuffle(tiers[1].slice()), ...shuffle(tiers[2].slice()), ...shuffle(tiers[3].slice())];
+
+  svg.innerHTML='';
+  let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+  const frag=document.createDocumentFragment();
+
+  ordered.forEach((c,i)=>{
+    const word=words[i];
+    const x=SIZE*SQ3*(c.q + c.r/2), y=SIZE*1.5*c.r;
+    const pts=[];
+    for(let k2=0;k2<6;k2++){
+      const a=Math.PI/180*(60*k2-30);
+      pts.push((x+SIZE*.94*Math.cos(a)).toFixed(1)+','+(y+SIZE*.94*Math.sin(a)).toFixed(1));
+    }
+    minX=Math.min(minX,x-SIZE); maxX=Math.max(maxX,x+SIZE);
+    minY=Math.min(minY,y-SIZE); maxY=Math.max(maxY,y+SIZE);
+
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','hex');
+    g.dataset.key=key(c.q,c.r);
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points',pts.join(' '));
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',x); txt.setAttribute('y',y);
+    txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
+    txt.setAttribute('class','hanzi');
+    const fs = word.length===1?24 : word.length===2?17 : word.length===3?12 : 10;
+    txt.setAttribute('font-size',fs);
+    txt.textContent=word;
+    g.appendChild(poly); g.appendChild(txt);
+    frag.appendChild(g);
+    tiles.set(g.dataset.key,{q:c.q,r:c.r,word,el:g,state:'idle',cx:x,cy:y});
+  });
+  svg.appendChild(frag);
+
+  const pad=SIZE;
+  FULL={x:minX-pad,y:minY-pad,w:(maxX-minX)+pad*2,h:(maxY-minY)+pad*2};
+  startView();
+  $('#scTotal').textContent='/'+tiles.size;
+  updateBar(); refreshEligibility();
+}
+
+/* ---------- viewBox helpers ---------- */
+function svgAspect(){ const r=svg.getBoundingClientRect(); return r.width/Math.max(1,r.height); }
+function clampVB(){
+  const MINW=SIZE*SQ3*5;                       // max zoom-in: ~5 hexes across
+  const MAXW=Math.max(FULL.w, FULL.h*svgAspect());
+  VB.w=Math.min(Math.max(VB.w,MINW),MAXW);
+  VB.h=VB.w/svgAspect();
+  const cx=Math.min(Math.max(VB.x+VB.w/2, FULL.x), FULL.x+FULL.w);
+  const cy=Math.min(Math.max(VB.y+VB.h/2, FULL.y), FULL.y+FULL.h);
+  VB.x=cx-VB.w/2; VB.y=cy-VB.h/2;
+}
+function startView(){
+  // begin zoomed into the easy center: ~11 hexes across
+  VB.w=SIZE*SQ3*11; VB.h=VB.w/svgAspect();
+  VB.x=-VB.w/2; VB.y=-VB.h/2;
+  clampVB(); applyVB();
+}
+function fitView(){
+  VB.w=Math.max(FULL.w, FULL.h*svgAspect()); VB.h=VB.w/svgAspect();
+  VB.x=FULL.x+FULL.w/2-VB.w/2; VB.y=FULL.y+FULL.h/2-VB.h/2;
+  clampVB(); applyVB();
+}
+function zoomAt(factor, px, py){
+  // (px,py) in client coords; keep that point stationary while zooming
+  const r=svg.getBoundingClientRect();
+  const mx=VB.x+(px-r.left)/r.width*VB.w;
+  const my=VB.y+(py-r.top)/r.height*VB.h;
+  VB.w*=factor; clampVB();
+  VB.h=VB.w/svgAspect();
+  VB.x=mx-(px-r.left)/r.width*VB.w;
+  VB.y=my-(py-r.top)/r.height*VB.h;
+  clampVB(); applyVB();
+}
+function panToTile(t){
+  // keep the action in view: recenter if tile is outside the middle 55% of the viewport
+  const fx=(t.cx-VB.x)/VB.w, fy=(t.cy-VB.y)/VB.h;
+  if(fx<0.225||fx>0.775||fy<0.225||fy>0.775){
+    animatePan(t.cx-VB.w/2, t.cy-VB.h/2);
+  }
+}
+let panAnim=null;
+function animatePan(tx,ty){
+  cancelAnimationFrame(panAnim);
+  const sx=VB.x, sy=VB.y, t0=performance.now(), D=260;
+  function step(now){
+    const p=Math.min(1,(now-t0)/D), e=1-Math.pow(1-p,3);
+    VB.x=sx+(tx-sx)*e; VB.y=sy+(ty-sy)*e;
+    clampVB(); applyVB();
+    if(p<1) panAnim=requestAnimationFrame(step);
+  }
+  panAnim=requestAnimationFrame(step);
+}
+
+function neighborsOf(k){
+  const t=tiles.get(k); if(!t) return [];
+  return NBR.map(([dq,dr])=>tiles.get(key(t.q+dq,t.r+dr))).filter(Boolean);
+}
+function eligibleKeys(){
+  if(cleared===0) return [...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
+  let elig=neighborsOf(lastCorrect).filter(t=>t.state!=='correct').map(t=>key(t.q,t.r));
+  if(!elig.length){
+    // dead end: allow branching from any green tile
+    const set=new Set();
+    tiles.forEach((t,k)=>{ if(t.state==='correct') neighborsOf(k).forEach(n=>{ if(n.state!=='correct') set.add(key(n.q,n.r)); }); });
+    elig=[...set];
+  }
+  return elig;
+}
+function refreshEligibility(){
+  const elig=new Set(eligibleKeys());
+  tiles.forEach((t,k)=>{
+    t.el.classList.remove('eligible','dimmed','lastcorrect');
+    if(t.state==='correct'){ if(k===lastCorrect) t.el.classList.add('lastcorrect'); return; }
+    if(elig.has(k)) t.el.classList.add('eligible');
+    else if(cleared>0) t.el.classList.add('dimmed');
+  });
+  if(elig.size===0 && cleared>0 && cleared===tiles.size) victory();
+}
+
+function showHint(msg){
+  const h=$('#hint'); h.textContent=msg; h.classList.add('show');
+  clearTimeout(showHint._t); showHint._t=setTimeout(()=>h.classList.remove('show'),1600);
+}
+function hideReveal(){ $('#revealCard').classList.remove('show'); }
+
+function updateBar(){
+  $('#scStreak').textContent=streak;
+  $('#scCleared').textContent=cleared;
+  $('#scBest').textContent=best;
+}
+
+/* ---------- pointer interaction: tap to play, drag to pan, pinch to zoom ---------- */
+const pointers=new Map();
+let panStart=null, pinchStart=null, moved=false;
+
+svg.addEventListener('pointerdown',e=>{
+  svg.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  moved=false;
+  if(pointers.size===1){
+    panStart={x:e.clientX,y:e.clientY,vx:VB.x,vy:VB.y,target:e.target};
+  }else if(pointers.size===2){
+    const [a,b]=[...pointers.values()];
+    pinchStart={d:Math.hypot(a.x-b.x,a.y-b.y),w:VB.w,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
+    panStart=null;
+  }
+});
+svg.addEventListener('pointermove',e=>{
+  if(!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2 && pinchStart){
+    const [a,b]=[...pointers.values()];
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(Math.abs(d-pinchStart.d)>4){
+      moved=true;
+      const factor=pinchStart.d/Math.max(1,d);
+      VB.w=pinchStart.w*factor;
+      zoomAt(1,(a.x+b.x)/2,(a.y+b.y)/2);   // clamp + re-anchor around midpoint
+    }
+    return;
+  }
+  if(panStart){
+    const dx=e.clientX-panStart.x, dy=e.clientY-panStart.y;
+    if(Math.abs(dx)>5||Math.abs(dy)>5) moved=true;
+    if(moved){
+      svg.classList.add('panning');
+      const r=svg.getBoundingClientRect();
+      VB.x=panStart.vx-dx/r.width*VB.w;
+      VB.y=panStart.vy-dy/r.height*VB.h;
+      clampVB(); applyVB();
+    }
+  }
+});
+function endPointer(e){
+  const wasTap=!moved && pointers.size===1 && panStart;
+  const target=panStart?panStart.target:null;
+  pointers.delete(e.pointerId);
+  if(pointers.size<2) pinchStart=null;
+  if(pointers.size===0){ svg.classList.remove('panning'); panStart=null; }
+  if(wasTap && target) handleTap(target);
+}
+svg.addEventListener('pointerup',endPointer);
+svg.addEventListener('pointercancel',endPointer);
+
+svg.addEventListener('wheel',e=>{
+  e.preventDefault();
+  zoomAt(e.deltaY>0?1.18:1/1.18, e.clientX, e.clientY);
+},{passive:false});
+
+$('#zoomIn').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1/1.35, r.left+r.width/2, r.top+r.height/2); });
+$('#zoomOut').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1.35, r.left+r.width/2, r.top+r.height/2); });
+$('#zoomFit').addEventListener('click',fitView);
+window.addEventListener('resize',()=>{ clampVB(); applyVB(); });
+
+function handleTap(targetEl){
+  if(revealing) return;                       // must answer the card first
+  const g=targetEl.closest ? targetEl.closest('.hex') : null; if(!g) return;
+  const k=g.dataset.key, t=tiles.get(k);
+  if(!t || t.state==='correct') return;
+
+  const elig=new Set(eligibleKeys());
+  if(!elig.has(k)){
+    g.classList.add('shake'); setTimeout(()=>g.classList.remove('shake'),380);
+    showHint(cleared===0?'Pick any tile to start':'Pick a tile touching your last green one');
+    return;
+  }
+  if(selectedKey===k){
+    revealing=true;
+    $('#rcHz').textContent=t.word;
+    const v=VOCAB[t.word];
+    $('#rcPy').textContent=v.p;
+    $('#rcDef').textContent=v.d;
+    $('#rcLv').textContent=v.l;
+    $('#rcSpk').dataset.w=t.word;
+    $('#revealCard').classList.add('show');
+    speak(t.word);
+  }else{
+    if(selectedKey && tiles.get(selectedKey)) tiles.get(selectedKey).el.classList.remove('selected');
+    selectedKey=k;
+    g.classList.add('selected');
+  }
+}
+
+$('#rcSpk').addEventListener('click',e=>{ speak(e.currentTarget.dataset.w); });
+
+$('#btnRight').addEventListener('click',()=>{
+  const t=tiles.get(selectedKey); if(!t) return;
+  t.state='correct';
+  t.el.classList.remove('selected');
+  t.el.classList.add('correct','pop');
+  const v=VOCAB[t.word];
+  const titleEl=document.createElementNS('http://www.w3.org/2000/svg','title');
+  titleEl.textContent=v.p+' — '+v.d;
+  t.el.appendChild(titleEl);
+  setTimeout(()=>t.el.classList.remove('pop'),320);
+  lastCorrect=selectedKey; selectedKey=null; revealing=false;
+  streak++; cleared++;
+  if(streak>best){ best=streak; try{ localStorage.setItem('yzyg-best',best); }catch(e){} }
+  hideReveal(); updateBar(); refreshEligibility();
+  panToTile(t);
+  if(cleared===tiles.size) victory();
+});
+
+$('#btnWrong').addEventListener('click',()=>{
+  const t=tiles.get(selectedKey); if(!t) return;
+  t.el.classList.remove('selected');
+  t.el.classList.add('wrong');
+  hideReveal();
+  showHint('重新开始 — starting over!');
+  setTimeout(()=>{
+    t.el.classList.remove('wrong');
+    tiles.forEach(x=>{ x.state='idle'; x.el.classList.remove('correct','lastcorrect'); const ti=x.el.querySelector('title'); if(ti) ti.remove(); });
+    lastCorrect=null; selectedKey=null; revealing=false;
+    streak=0; cleared=0;
+    updateBar(); refreshEligibility();
+  },650);
+});
+
+function victory(){
+  $('#victoryText').textContent=`${tiles.size} tiles, all green — 你太厉害了！ Best streak: ${best}.`;
+  $('#victory').classList.add('show');
+}
+$('#victoryBtn').addEventListener('click',buildBoard);
+$('#newBoardBtn').addEventListener('click',buildBoard);
+
+buildBoard();
+})();
+</script>
+</body>
+</html>
