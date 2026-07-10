@@ -20,10 +20,36 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{background:#f7f3ea !important}
 body{
-  background:#f7f3ea !important; color:#2b2620 !important;
+  background:var(--bg,#f7f3ea) !important; color:#2b2620 !important;
   font-family:Georgia,'Times New Roman',serif; line-height:1.5;
   min-height:100vh; display:flex; flex-direction:column;
+  transition:background .8s ease;
 }
+
+/* ---- heat levels: background + accent escalate with streak & depth ---- */
+:root{ --bg:#f7f3ea; --heat-a:#b02e20; --heat-b:#3e6b5a; --tile-fill:#3e6b5a; --tile-stroke:#3e6b5a; }
+body[data-heat="0"]{ --bg:#f7f3ea; --heat-a:#b02e20; --heat-b:#3e6b5a; --tile-fill:#3e6b5a; --tile-stroke:#3e6b5a; }
+body[data-heat="1"]{ --bg:#f4ead9; --heat-a:#c9553f; --heat-b:#3e8a6b; --tile-fill:#3e8a6b; --tile-stroke:#357a5d; }
+body[data-heat="2"]{ --bg:#f7e6c8; --heat-a:#e0662a; --heat-b:#2f9e6f; --tile-fill:#22a06b; --tile-stroke:#1c8a5b; }
+body[data-heat="3"]{ --bg:#fde3b0; --heat-a:#f5721a; --heat-b:#16b37e; --tile-fill:#12bd7a; --tile-stroke:#0aa268; }
+body[data-heat="4"]{ --bg:#ffd98f; --heat-a:#ff5a1f; --heat-b:#00c98a; --tile-fill:#0dd487; --tile-stroke:#08b873; }
+body[data-heat="5"]{ --bg:#ffcf6b; --heat-a:#ff3d81; --heat-b:#00e0a0; --tile-fill:#12e39a; --tile-stroke:#00c98a; }
+body[data-heat="6"]{ --bg:#ffb84d; --heat-a:#ff1f9c; --heat-b:#26ffb0; --tile-fill:#00f5b0; --tile-stroke:#00d9a0; }
+body[data-heat="7"]{ --bg:#ff9a3d; --heat-a:#ff00b8; --heat-b:#4dffd0; --tile-fill:#3dffce; --tile-stroke:#00f0c0; }
+body[data-heat="8"]{ --bg:#b93dff; --heat-a:#ff2ec4; --heat-b:#6effe0; --tile-fill:#6bffe6; --tile-stroke:#2ff5d0; }
+body[data-heat="9"]{ --bg:#7b1fff; --heat-a:#ff29d7; --heat-b:#8affe8; --tile-fill:#9dffee; --tile-stroke:#4dffdd; }
+/* level 10+: full rave with animated hue-shift background */
+body[data-heat="10"]{ --heat-a:#ff2ee6; --heat-b:#a6ffff; --tile-fill:#c4ffff; --tile-stroke:#7dffff;
+  animation:rave 3.2s linear infinite; }
+@keyframes rave{
+  0%{ background:#8a1fff !important; }
+  25%{ background:#ff1f9c !important; }
+  50%{ background:#1fb0ff !important; }
+  75%{ background:#00e88a !important; }
+  100%{ background:#8a1fff !important; }
+}
+/* at high heat, dim the scholarly header chrome so the color takes over */
+body[data-heat="8"] header, body[data-heat="9"] header, body[data-heat="10"] header{ opacity:.5; }
 .hanzi{font-family:'Kaiti SC','KaiTi','STKaiti','Kaiti TC','Noto Serif SC',serif}
 
 header{max-width:760px;margin:0 auto;padding:34px 20px 6px;text-align:center}
@@ -64,9 +90,9 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
 .hex.eligible polygon{stroke:var(--seal-soft);stroke-width:2;fill:#fdf6f0}
 .hex.selected polygon{stroke:var(--seal);stroke-width:3;fill:#fbeeec}
 .hex.correct{cursor:default}
-.hex.correct polygon{fill:var(--jade);stroke:var(--jade)}
+.hex.correct polygon{fill:var(--tile-fill);stroke:var(--tile-stroke);transition:fill .5s, stroke .5s}
 .hex.correct text{fill:#fdfbf5}
-.hex.lastcorrect polygon{stroke:#2c5244;stroke-width:3}
+.hex.lastcorrect polygon{stroke:#fff;stroke-width:3}
 .hex.wrong polygon{fill:var(--seal);stroke:var(--seal)}
 .hex.wrong text{fill:#fff}
 .hex.dimmed{cursor:default}
@@ -76,7 +102,68 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
 .hex.shake{animation:shake .35s}
 @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.14)}100%{transform:scale(1)}}
 .hex.pop{animation:pop .3s}
+@keyframes popbig{0%{transform:scale(1)}35%{transform:scale(1.35)}100%{transform:scale(1)}}
+.hex.popbig{animation:popbig .42s cubic-bezier(.3,1.4,.5,1)}
 .hex{transform-box:fill-box;transform-origin:center}
+
+/* ---- screen shake on correct (intensity scales with streak) ---- */
+@keyframes screenshake{
+  0%,100%{transform:translate(0,0)}
+  20%{transform:translate(var(--shx,3px),var(--shy,-2px))}
+  40%{transform:translate(calc(var(--shx,3px)*-1),var(--shy,2px))}
+  60%{transform:translate(var(--shx,3px),var(--shy,2px))}
+  80%{transform:translate(calc(var(--shx,3px)*-1),var(--shy,-2px))}
+}
+.board-wrap.shake{animation:screenshake .32s}
+
+/* ---- combo / streak popup ---- */
+#comboPop{
+  position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.5);z-index:80;
+  pointer-events:none;text-align:center;opacity:0;
+  font-family:Georgia,serif;
+}
+#comboPop.show{animation:combo .9s cubic-bezier(.2,1.3,.4,1) forwards}
+@keyframes combo{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-6deg)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(2deg)}
+  70%{opacity:1;transform:translate(-50%,-52%) scale(1) rotate(0)}
+  100%{opacity:0;transform:translate(-50%,-64%) scale(1)}
+}
+#comboPop .combo-x{font-size:64px;font-weight:700;line-height:1;
+  color:var(--heat-a);text-shadow:0 3px 0 rgba(0,0,0,.12),0 0 30px var(--heat-a)}
+#comboPop .combo-label{font-size:15px;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--heat-b);margin-top:4px;font-weight:700}
+
+/* ---- milestone banner ---- */
+#milestone{
+  position:fixed;left:0;right:0;top:0;z-index:82;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;opacity:0;
+}
+#milestone.show{animation:milebanner 1.8s ease forwards}
+@keyframes milebanner{
+  0%{opacity:0;transform:translateY(-40px) scale(.85)}
+  15%{opacity:1;transform:translateY(0) scale(1)}
+  80%{opacity:1;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(-10px) scale(1)}
+}
+#milestone .mile-inner{
+  background:linear-gradient(90deg,var(--heat-a),var(--heat-b));
+  color:#fff;padding:14px 34px;border-radius:40px;
+  font-size:20px;font-weight:700;letter-spacing:.06em;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);white-space:nowrap;
+}
+#milestone .mile-inner .mile-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;opacity:.9;display:block;text-align:center;margin-top:2px;font-weight:600}
+
+/* ---- coins / confetti layer ---- */
+#coinLayer{position:fixed;inset:0;z-index:78;pointer-events:none;overflow:hidden}
+.coin{position:absolute;top:-40px;will-change:transform;font-size:26px;line-height:1;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}
+@keyframes coinfall{
+  0%{transform:translateY(-40px) rotate(0deg);opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(105vh) rotate(var(--spin,360deg));opacity:.85}
+}
 
 /* ---- reveal card ---- */
 #revealCard{
@@ -197,11 +284,16 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
 <p class="pan-hint">drag to pan · scroll or pinch to zoom · easy words in the middle</p>
 <div class="board-wrap"><svg id="board"></svg></div>
 <div id="zoomctl">
+  <button id="sfxBtn" title="Sound on/off">🔊</button>
   <button id="fsBtn" title="Fullscreen board">⤡</button>
   <button id="zoomIn" title="Zoom in">+</button>
   <button id="zoomOut" title="Zoom out">−</button>
   <button id="zoomFit" title="Fit whole board">⤢</button>
 </div>
+
+<div id="coinLayer"></div>
+<div id="comboPop"><div class="combo-x"></div><div class="combo-label"></div></div>
+<div id="milestone"><div class="mile-inner"></div></div>
 
 <div id="revealCard">
   <div class="rc-top">
@@ -845,6 +937,52 @@ function speak(hanzi){
   }catch(e){}
 }
 
+/* ---------- sound effects (Web Audio, synthesized — no files) ---------- */
+let audioCtx=null, sfxOn=(localStorage.getItem('yzyg-sfx')!=='off');
+function ac(){
+  if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, t0, dur, {type='sine', gain=0.18, glideTo=null}={}){
+  const c=ac(); if(!c) return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq, t0);
+  if(glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t0+dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(t0); o.stop(t0+dur+0.02);
+}
+// rising ding whose pitch climbs with the current streak — the core dopamine hit
+function sfxCorrect(streakVal){
+  if(!sfxOn) return; const c=ac(); if(!c) return;
+  const t=c.currentTime;
+  // pentatonic ladder so higher streaks sound "up" and pleasant
+  const scale=[523.25,587.33,659.25,783.99,880,1046.5,1174.7,1318.5,1567.98,1760];
+  const idx=Math.min(scale.length-1, streakVal-1<0?0:streakVal-1);
+  const base=scale[idx];
+  tone(base, t, 0.16, {type:'triangle', gain:0.2});
+  tone(base*1.5, t+0.045, 0.16, {type:'sine', gain:0.13});     // sparkle harmony
+}
+function sfxWrong(){
+  if(!sfxOn) return; const c=ac(); if(!c) return;
+  const t=c.currentTime;
+  tone(311.13, t, 0.22, {type:'sawtooth', gain:0.15, glideTo:174.61}); // descending "aww"
+}
+function sfxMilestone(){
+  if(!sfxOn) return; const c=ac(); if(!c) return;
+  const t=c.currentTime;
+  [523.25,659.25,783.99,1046.5].forEach((f,i)=> tone(f, t+i*0.08, 0.3, {type:'triangle', gain:0.2})); // fanfare arpeggio
+}
+function sfxCoin(){
+  if(!sfxOn) return; const c=ac(); if(!c) return;
+  const t=c.currentTime;
+  tone(987.77, t, 0.07, {type:'square', gain:0.06});
+  tone(1318.5, t+0.05, 0.09, {type:'square', gain:0.06});
+}
+
 /* ---------- word pools by tier ---------- */
 const tiers={1:[],2:[],3:[]};
 Object.entries(VOCAB).forEach(([w,v])=>{
@@ -897,9 +1035,90 @@ let FULL={x:0,y:0,w:100,h:100};       // full board extents
 let VB={x:0,y:0,w:100,h:100};          // current viewBox
 function applyVB(){ svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
 
+/* ---------- juice: heat level, coins, combos, milestones, shake ---------- */
+let heat=0, coinTimer=null;
+// heat is driven by BOTH streak and total cleared (they stack)
+function computeHeat(){
+  const fromStreak=streak/4;                         // +1 heat per 4 streak
+  const fromDepth=cleared/60;                        // +1 heat per 60 cleared
+  return Math.max(0, Math.min(10, Math.floor(fromStreak+fromDepth)));
+}
+function updateHeat(){
+  const h=computeHeat();
+  if(h!==heat){
+    heat=h;
+    document.body.setAttribute('data-heat', heat);
+    manageCoinRain();
+  }
+}
+
+/* coins rain, frequency rising with heat/streak */
+function spawnCoin(){
+  const layer=$('#coinLayer'); if(!layer) return;
+  const glyphs=heat>=8?['🧧','🏮','🀄','🐉','🥟','🐼']:heat>=4?['🧧','🏮','🀄','🥟']:['🧧','🏮'];
+  const el=document.createElement('div');
+  el.className='coin';
+  el.textContent=glyphs[Math.floor(Math.random()*glyphs.length)];
+  const dur=2.2+Math.random()*1.6;
+  el.style.left=Math.random()*100+'vw';
+  el.style.fontSize=(18+Math.random()*20)+'px';
+  el.style.setProperty('--spin',(Math.random()*720-360)+'deg');
+  el.style.animation=`coinfall ${dur}s linear forwards`;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), dur*1000+100);
+}
+function coinBurst(n){ for(let i=0;i<n;i++) setTimeout(spawnCoin, i*45); }
+function manageCoinRain(){
+  clearInterval(coinTimer); coinTimer=null;
+  if(heat<1) return;                                 // no ambient rain until warmed up
+  const interval=Math.max(120, 900-heat*80);         // faster as heat climbs
+  coinTimer=setInterval(()=>{ spawnCoin(); if(heat>=6) spawnCoin(); }, interval);
+}
+
+/* combo popup — shows the multiplier/streak with escalating flair */
+const comboWords=['','NICE','GOOD','SWEET','HOT!','ON FIRE','BLAZING','UNREAL','INSANE','GODLIKE','LEGENDARY'];
+function showCombo(streakVal){
+  if(streakVal<3) return;                            // only start hyping at 3+
+  const pop=$('#comboPop');
+  const tier=Math.min(comboWords.length-1, Math.floor(streakVal/3)+1);
+  pop.querySelector('.combo-x').textContent=streakVal+'×';
+  pop.querySelector('.combo-label').textContent=comboWords[tier];
+  pop.classList.remove('show'); void pop.offsetWidth; pop.classList.add('show');
+}
+
+/* milestone banner every 10/25/50 and each 25 after */
+const shownMilestones=new Set();
+function checkMilestone(){
+  const marks=[10,25,50,75,100,150,200,300,400,503];
+  if(marks.includes(cleared) && !shownMilestones.has(cleared)){
+    shownMilestones.add(cleared);
+    const m=$('#milestone');
+    const msg = cleared>=503?'完 · ALL 503 CLEARED!'
+      : cleared>=100?`${cleared} WORDS!`
+      : `${cleared} CLEARED`;
+    m.querySelector('.mile-inner').innerHTML=`${msg}<span class="mile-sub">keep the streak alive</span>`;
+    m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
+    sfxMilestone();
+    coinBurst(Math.min(40, 12+cleared/8));
+  }
+}
+
+/* screen shake, intensity scaling with streak */
+function screenShake(streakVal){
+  const wrap=$('.board-wrap');
+  const mag=Math.min(9, 2+streakVal*0.5);
+  wrap.style.setProperty('--shx', mag.toFixed(1)+'px');
+  wrap.style.setProperty('--shy', (mag*0.7).toFixed(1)+'px');
+  wrap.classList.remove('shake'); void wrap.offsetWidth; wrap.classList.add('shake');
+}
+
 function buildBoard(){
   tiles.clear(); lastCorrect=null; clearedOrder=[]; streak=0; cleared=0; misses=0; selectedKey=null; revealing=false;
   hideReveal(); $('#victory').classList.remove('show');
+  // reset juice
+  heat=0; document.body.setAttribute('data-heat','0'); manageCoinRain();
+  shownMilestones.clear();
+  const cl=$('#coinLayer'); if(cl) cl.innerHTML='';
 
   /* assign words: cells already come in ring order; shuffle WITHIN each ring,
      then pour tier1 words into the first cells, tier2 next, tier3 last.
@@ -1107,6 +1326,19 @@ $('#zoomIn').addEventListener('click',()=>{ const r=svg.getBoundingClientRect();
 $('#zoomOut').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1.35, r.left+r.width/2, r.top+r.height/2); });
 $('#zoomFit').addEventListener('click',fitView);
 
+/* sound toggle + unlock audio on first user gesture */
+const sfxBtn=$('#sfxBtn');
+function paintSfx(){ sfxBtn.textContent=sfxOn?'🔊':'🔇'; sfxBtn.title=sfxOn?'Sound on':'Sound off'; }
+paintSfx();
+sfxBtn.addEventListener('click',()=>{
+  sfxOn=!sfxOn;
+  try{ localStorage.setItem('yzyg-sfx', sfxOn?'on':'off'); }catch(e){}
+  paintSfx();
+  if(sfxOn){ ac(); sfxCoin(); }              // little confirmation blip
+});
+// browsers require a gesture before audio can play — prime it on first pointer down
+window.addEventListener('pointerdown',()=>{ ac(); }, {once:true});
+
 /* ---- fullscreen board toggle ---- */
 const fsBtn=$('#fsBtn');
 function setFs(on){
@@ -1158,18 +1390,28 @@ $('#btnRight').addEventListener('click',()=>{
   const t=tiles.get(selectedKey); if(!t) return;
   t.state='correct';
   t.el.classList.remove('selected');
-  t.el.classList.add('correct','pop');
+  const bigPop = streak>=4;                    // bigger pop when hot
+  t.el.classList.add('correct', bigPop?'popbig':'pop');
   const v=VOCAB[t.word];
   const titleEl=document.createElementNS('http://www.w3.org/2000/svg','title');
   titleEl.textContent=v.p+' — '+v.d;
   t.el.appendChild(titleEl);
-  setTimeout(()=>t.el.classList.remove('pop'),320);
+  setTimeout(()=>t.el.classList.remove('pop','popbig'),440);
   clearedOrder.push(selectedKey);
   lastCorrect=selectedKey; selectedKey=null; revealing=false;
   streak++; cleared++;
   if(streak>best){ best=streak; try{ localStorage.setItem('yzyg-best',best); }catch(e){} }
   hideReveal(); updateBar(); refreshEligibility();
   panToTile(t);
+
+  // ---- JUICE ----
+  sfxCorrect(streak);
+  updateHeat();
+  showCombo(streak);
+  if(streak>=3) screenShake(streak);
+  coinBurst(Math.min(14, 2+Math.floor(streak/2)));   // a little spray per correct, more when hot
+  checkMilestone();
+
   if(cleared===tiles.size) victory();
 });
 
@@ -1179,12 +1421,14 @@ $('#btnWrong').addEventListener('click',()=>{
   t.el.classList.remove('selected');
   t.el.classList.add('wrong');
   hideReveal();
+  sfxWrong();
 
   // lose the most-recent third of your cleared path (at least 1 tile)
   const lose=Math.max(1, Math.ceil(clearedOrder.length/3));
   const doomed=clearedOrder.slice(-lose);
   doomed.forEach(k=>{ const x=tiles.get(k); if(x){ x.el.classList.add('wrong'); } });
   streak=0;                                   // streak always resets on a miss
+  updateHeat();                               // cool the colors back down
 
   showHint(clearedOrder.length ? `lost the last ${lose} tile${lose>1?'s':''} — streak reset` : 'try another tile');
 
@@ -1202,7 +1446,7 @@ $('#btnWrong').addEventListener('click',()=>{
     cleared=clearedOrder.length;
     lastCorrect=clearedOrder.length ? clearedOrder[clearedOrder.length-1] : null;
     selectedKey=null; revealing=false;
-    updateBar(); refreshEligibility();
+    updateBar(); refreshEligibility(); updateHeat();
     if(lastCorrect) panToTile(tiles.get(lastCorrect));
   },650);
 });
