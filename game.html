@@ -131,8 +131,10 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
 }
 #comboPop .combo-x{font-size:64px;font-weight:700;line-height:1;
   color:var(--heat-a);text-shadow:0 3px 0 rgba(0,0,0,.12),0 0 30px var(--heat-a)}
-#comboPop .combo-label{font-size:15px;letter-spacing:.25em;text-transform:uppercase;
-  color:var(--heat-b);margin-top:4px;font-weight:700}
+#comboPop .combo-label{margin-top:6px;display:flex;flex-direction:column;align-items:center;gap:1px}
+#comboPop .combo-hz{font-size:30px;font-weight:700;line-height:1.1;color:var(--heat-b);
+  text-shadow:0 2px 0 rgba(0,0,0,.1),0 0 22px var(--heat-b)}
+#comboPop .combo-py{font-size:13px;letter-spacing:.18em;color:var(--heat-b);font-style:italic;opacity:.9}
 
 /* ---- milestone banner ---- */
 #milestone{
@@ -153,7 +155,8 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
   font-size:20px;font-weight:700;letter-spacing:.06em;
   box-shadow:0 8px 30px rgba(0,0,0,.25);white-space:nowrap;
 }
-#milestone .mile-inner .mile-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;opacity:.9;display:block;text-align:center;margin-top:2px;font-weight:600}
+#milestone .mile-inner .mile-sub{font-size:12px;letter-spacing:.12em;opacity:.92;display:block;text-align:center;margin-top:3px;font-weight:600}
+#milestone .mile-inner .mile-sub .hanzi{font-size:14px;margin-right:2px}
 
 /* ---- coins / confetti layer ---- */
 #coinLayer{position:fixed;inset:0;z-index:78;pointer-events:none;overflow:hidden}
@@ -1076,13 +1079,28 @@ function manageCoinRain(){
 }
 
 /* combo popup — shows the multiplier/streak with escalating flair */
-const comboWords=['','NICE','GOOD','SWEET','HOT!','ON FIRE','BLAZING','UNREAL','INSANE','GODLIKE','LEGENDARY'];
+// escalating Chinese hype: [hanzi, pinyin] — an encouraging ladder as the streak climbs
+const comboWords=[
+  ['',''],
+  ['不错','bùcuò'],          // not bad
+  ['很好','hěn hǎo'],        // very good
+  ['真棒','zhēn bàng'],      // awesome
+  ['厉害','lìhai'],          // impressive
+  ['太厉害了','tài lìhai le'],// amazing!
+  ['火了','huǒ le'],         // on fire
+  ['无敌','wúdí'],           // unstoppable
+  ['牛逼','niúbī'],          // badass (slang)
+  ['神了','shén le'],        // godlike
+  ['太神了','tài shén le'],  // insane
+  ['传奇','chuánqí']         // legendary
+];
 function showCombo(streakVal){
   if(streakVal<3) return;                            // only start hyping at 3+
   const pop=$('#comboPop');
   const tier=Math.min(comboWords.length-1, Math.floor(streakVal/3)+1);
+  const [hz,py]=comboWords[tier];
   pop.querySelector('.combo-x').textContent=streakVal+'×';
-  pop.querySelector('.combo-label').textContent=comboWords[tier];
+  pop.querySelector('.combo-label').innerHTML=`<span class="combo-hz hanzi">${hz}</span><span class="combo-py">${py}</span>`;
   pop.classList.remove('show'); void pop.offsetWidth; pop.classList.add('show');
 }
 
@@ -1093,10 +1111,9 @@ function checkMilestone(){
   if(marks.includes(cleared) && !shownMilestones.has(cleared)){
     shownMilestones.add(cleared);
     const m=$('#milestone');
-    const msg = cleared>=503?'完 · ALL 503 CLEARED!'
-      : cleared>=100?`${cleared} WORDS!`
-      : `${cleared} CLEARED`;
-    m.querySelector('.mile-inner').innerHTML=`${msg}<span class="mile-sub">keep the streak alive</span>`;
+    const msg = cleared>=503 ? `<span class="hanzi">全部通关！</span> · all 503 cleared`
+      : `<span class="hanzi">${cleared} 个词</span> · ${cleared} words`;
+    m.querySelector('.mile-inner').innerHTML=`${msg}<span class="mile-sub"><span class="hanzi">加油</span> jiāyóu · keep going</span>`;
     m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
     sfxMilestone();
     coinBurst(Math.min(40, 12+cleared/8));
