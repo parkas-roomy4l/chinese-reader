@@ -175,24 +175,25 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
 
 /* ---- reveal card ---- */
 #revealCard{
-  position:fixed;left:50%;bottom:86px;transform:translateX(-50%) translateY(12px);
-  z-index:60;width:min(430px,calc(100vw - 24px));
-  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--seal);
-  box-shadow:0 8px 30px rgba(43,38,32,.22);padding:15px 18px;
-  opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;
+  position:fixed;left:0;top:0;
+  z-index:60;width:min(280px,calc(100vw - 20px));
+  background:var(--card);border:1px solid var(--line);border-top:3px solid var(--seal);
+  box-shadow:0 8px 30px rgba(43,38,32,.28);padding:11px 13px;
+  opacity:0;pointer-events:none;transition:opacity .12s, transform .12s;
+  transform:scale(.94);transform-origin:center top;
 }
-#revealCard.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
-#revealCard .rc-top{display:flex;align-items:center;gap:13px}
-#revealCard .rc-hz{font-size:34px;line-height:1}
+#revealCard.show{opacity:1;pointer-events:auto;transform:scale(1)}
+#revealCard .rc-top{display:flex;align-items:center;gap:10px}
+#revealCard .rc-hz{font-size:27px;line-height:1;white-space:nowrap}
 #revealCard .rc-info{flex:1;min-width:0}
-#revealCard .rc-py{color:var(--seal);font-style:italic;font-size:16px;display:flex;align-items:center;gap:8px}
-#revealCard .rc-def{font-size:13.5px;color:var(--ink-soft);margin-top:1px}
-#revealCard .rc-lv{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#b0a795;white-space:nowrap}
-#revealCard .rc-q{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);
-  display:flex;align-items:center;justify-content:space-between;gap:10px}
-#revealCard .rc-q span{font-size:13px;color:var(--ink-soft);font-style:italic}
-#revealCard .rc-btns{display:flex;gap:8px}
-#revealCard button{font-family:inherit;cursor:pointer;font-size:13px;padding:8px 15px;border:none;transition:all .13s}
+#revealCard .rc-py{color:var(--seal);font-style:italic;font-size:14.5px;display:flex;align-items:center;gap:7px}
+#revealCard .rc-def{font-size:12.5px;color:var(--ink-soft);margin-top:1px;line-height:1.35}
+#revealCard .rc-lv{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#b0a795;white-space:nowrap}
+#revealCard .rc-q{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);
+  display:flex;align-items:center;gap:7px}
+#revealCard .rc-btns{display:flex;gap:7px;width:100%}
+#revealCard button{font-family:inherit;cursor:pointer;font-size:13px;padding:9px 10px;border:none;transition:all .12s;flex:1;white-space:nowrap}
+#revealCard .rc-key{display:block;font-size:9px;opacity:.75;letter-spacing:.08em;margin-top:1px}
 #btnRight{background:var(--jade);color:#fff}
 #btnRight:hover{background:var(--jade-soft)}
 #btnWrong{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
@@ -285,11 +286,11 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
     <h1 class="hanzi">一字一格</h1>
     <span class="brand-pinyin">yī zì yī gé · the tile game</span>
   </div>
-  <p class="how">Pick a tile you think you know. Tap it again to reveal — then be honest. Right: it turns green and you move to a neighbor. Wrong: you lose only your most recent tiles. Easy words in the middle, harder toward the rim.</p>
+  <p class="how">Decide if you know a tile, then tap it to reveal — and be honest. Right: it turns green and you move to a neighbor. Wrong: you lose only your most recent tiles. Easy words in the middle, harder toward the rim.</p>
   <a class="back-link" href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a class="back-link" href="read.html">读书 · the reader →</a>
 </header>
 
-<p class="pan-hint">drag to pan · scroll or pinch to zoom · easy words in the middle</p>
+<p class="pan-hint">drag to pan · scroll or pinch to zoom · keys: <b>↵</b> knew it · <b>␣</b> missed · <b>R</b> replay audio</p>
 <div class="board-wrap"><svg id="board"></svg></div>
 <div id="zoomctl">
   <button id="sfxBtn" title="Sound on/off">🔊</button>
@@ -313,10 +314,9 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
     <div class="rc-lv" id="rcLv"></div>
   </div>
   <div class="rc-q">
-    <span>Did you know it?</span>
     <div class="rc-btns">
-      <button id="btnRight">✓ 对了</button>
-      <button id="btnWrong">✗ 错了</button>
+      <button id="btnRight">✓ 对了<span class="rc-key">knew it &nbsp;·&nbsp; ↵ / →</span></button>
+      <button id="btnWrong">✗ 错了<span class="rc-key">missed &nbsp;·&nbsp; ␣ / ←</span></button>
     </div>
   </div>
 </div>
@@ -1393,7 +1393,21 @@ function setFs(on){
   requestAnimationFrame(()=>{ clampVB(); applyVB(); });
 }
 fsBtn.addEventListener('click',()=>setFs(!document.body.classList.contains('board-fs')));
-document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.body.classList.contains('board-fs')) setFs(false); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && document.body.classList.contains('board-fs')) setFs(false);
+
+  // fast answering: while the reveal card is up, grade without touching the mouse
+  if(revealing){
+    if(e.key==='Enter' || e.key==='ArrowRight' || e.key.toLowerCase()==='j'){
+      e.preventDefault(); $('#btnRight').click();
+    }else if(e.key===' ' || e.key==='ArrowLeft' || e.key.toLowerCase()==='f'){
+      e.preventDefault(); $('#btnWrong').click();
+    }else if(e.key.toLowerCase()==='r'){
+      e.preventDefault(); speak($('#rcSpk').dataset.w);   // replay audio
+    }
+    return;
+  }
+});
 
 window.addEventListener('resize',()=>{ clampVB(); applyVB(); });
 
@@ -1410,21 +1424,50 @@ function handleTap(targetEl){
     showHint(anyStart?'Pick any tile to start a new path':'Pick a tile touching your last green one');
     return;
   }
-  if(selectedKey===k){
-    revealing=true;
-    $('#rcHz').textContent=t.word;
-    const v=VOCAB[t.word];
-    $('#rcPy').textContent=v.p;
-    $('#rcDef').textContent=v.d;
-    $('#rcLv').textContent=v.l;
-    $('#rcSpk').dataset.w=t.word;
-    $('#revealCard').classList.add('show');
-    speak(t.word);
-  }else{
-    if(selectedKey && tiles.get(selectedKey)) tiles.get(selectedKey).el.classList.remove('selected');
-    selectedKey=k;
-    g.classList.add('selected');
+  // single tap: select AND reveal immediately
+  if(selectedKey && tiles.get(selectedKey)) tiles.get(selectedKey).el.classList.remove('selected');
+  selectedKey=k;
+  g.classList.add('selected');
+
+  revealing=true;
+  $('#rcHz').textContent=t.word;
+  const v=VOCAB[t.word];
+  $('#rcPy').textContent=v.p;
+  $('#rcDef').textContent=v.d;
+  $('#rcLv').textContent=v.l;
+  $('#rcSpk').dataset.w=t.word;
+  positionReveal(g);                 // anchor the card right next to this tile
+  $('#revealCard').classList.add('show');
+  speak(t.word);
+}
+
+/* place the reveal popover adjacent to the tile, flipping to stay on-screen */
+function positionReveal(tileEl){
+  const card=$('#revealCard');
+  card.style.visibility='hidden';
+  card.classList.add('show');          // measure with real dimensions
+  const cw=card.offsetWidth, ch=card.offsetHeight;
+  card.classList.remove('show');
+  card.style.visibility='';
+
+  const r=tileEl.getBoundingClientRect();
+  const gap=10, pad=8;
+  const vw=document.documentElement.clientWidth;
+  const vh=document.documentElement.clientHeight;
+  const scoreH=90;                     // keep clear of the bottom score bar
+
+  // prefer directly below the tile; flip above if there's no room
+  let top=r.bottom+gap;
+  if(top+ch > vh-scoreH){
+    const above=r.top-gap-ch;
+    top = above>=pad ? above : Math.max(pad, Math.min(top, vh-scoreH-ch));
   }
+  // horizontally center on the tile, clamped to the viewport
+  let left=r.left+r.width/2-cw/2;
+  left=Math.max(pad, Math.min(left, vw-cw-pad));
+
+  card.style.left=Math.round(left)+'px';
+  card.style.top=Math.round(top)+'px';
 }
 
 $('#rcSpk').addEventListener('click',e=>{ speak(e.currentTarget.dataset.w); });
