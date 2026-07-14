@@ -147,6 +147,27 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 .spk:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
 .no-tts .spk{display:none}
 .nw-py-row{display:flex;align-items:center;gap:8px}
+/* ---- mark-for-review star ---- */
+.star{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:24px;height:24px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:#c3b9a5;cursor:pointer;font-size:12px;line-height:1;
+  transition:all .12s;padding:0;
+}
+.star:hover{border-color:#e0a92b;color:#e0a92b;background:#fdf6e6}
+.star.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+.dr-item .star{width:21px;height:21px;font-size:10px}
+@media (max-width:520px){ .star{width:27px;height:27px;font-size:13px} }
+/* review filter toggle in the drawer */
+#dr-filter{padding:0 24px 8px;display:flex;gap:8px;align-items:center}
+#reviewToggle{
+  font-family:inherit;font-size:11.5px;letter-spacing:.04em;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);color:var(--ink-soft);
+  padding:6px 12px;transition:all .13s;display:flex;align-items:center;gap:6px;
+}
+#reviewToggle:hover{border-color:#e0a92b;color:#e0a92b}
+#reviewToggle.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+#reviewCount{font-size:11px;color:var(--ink-soft)}
 .dr-item .spk{width:21px;height:21px;font-size:10px}
 @media (max-width:520px){ .spk{width:27px;height:27px;font-size:12.5px} }
 .line-spk{
@@ -355,6 +376,10 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     <button id="dr-close">✕</button>
   </div>
   <input id="dr-search" type="text" placeholder="Search hanzi, pinyin, or English…">
+  <div id="dr-filter">
+    <button id="reviewToggle">★ <span>Review list</span></button>
+    <span id="reviewCount"></span>
+  </div>
   <div id="dr-list"></div>
   <div id="dr-lock">Keep reading — words appear here as you meet them in the story.</div>
 </aside>
@@ -1602,7 +1627,7 @@ STORY.forEach(item=>{
     <div class="newword">
       <div class="nw-count">New word<b>#${segIdx}</b></div>
       <div class="gridchars">${boxes}</div>
-      <div class="nw-info"><div class="nw-py-row"><div class="nw-py">${v.p}</div><button class="spk" data-w="${item.nw}" aria-label="Play pronunciation">🔊</button></div><div class="nw-def">${v.d}</div></div>
+      <div class="nw-info"><div class="nw-py-row"><div class="nw-py">${v.p}</div><button class="spk" data-w="${item.nw}" aria-label="Play pronunciation">🔊</button><button class="star" data-star="${item.nw}" aria-label="Mark for review" title="Mark for review">★</button></div><div class="nw-def">${v.d}</div></div>
       <div class="nw-tag ${tagCls}">${tagTxt}</div>
     </div>` +
     item.lines.map(line=>'<p class="storyline hanzi">'+lineSpkBtn(line)+line.map(tok=>{
@@ -1651,6 +1676,8 @@ if(isHover){
 document.addEventListener('click',e=>{
   const lspk=e.target.closest('.line-spk');
   if(lspk){ speak(lspk.dataset.t); e.stopPropagation(); return; }
+  const star=e.target.closest('.star');
+  if(star){ toggleReview(star.dataset.star); e.stopPropagation(); return; }
   const spk=e.target.closest('.spk');
   if(spk){ speak(spk.dataset.w); e.stopPropagation(); return; }
   const w=e.target.closest('.w');
@@ -1707,6 +1734,25 @@ window.addEventListener('scroll',()=>{
   $('#progressbar').style.width=p+'%';
 },{passive:true});
 
+/* ---------- mark-for-review ---------- */
+const REVIEW_KEY='manmandu-review-v1';
+let review=new Set();
+try{ const raw=localStorage.getItem(REVIEW_KEY); if(raw) review=new Set(JSON.parse(raw)); }catch(e){}
+function saveReview(){ try{ localStorage.setItem(REVIEW_KEY, JSON.stringify([...review])); }catch(e){} }
+function toggleReview(w){
+  if(review.has(w)) review.delete(w); else review.add(w);
+  saveReview();
+  // sync every star for this word across the page + drawer
+  document.querySelectorAll(`.star[data-star="${w}"]`).forEach(b=>b.classList.toggle('on', review.has(w)));
+  updateReviewCount();
+  if(reviewOnly) { drawerDirty=true; renderDrawer(); }
+}
+function updateReviewCount(){
+  const c=$('#reviewCount');
+  if(c) c.textContent = review.size ? `${review.size} marked` : '';
+}
+let reviewOnly=false;
+
 /* ---------- drawer ---------- */
 const drawer=$('#drawer'),settingsPanel=$('#settingsPanel'),scrim=$('#scrim'),drList=$('#dr-list'),drSearch=$('#dr-search');
 let drawerDirty=true;
@@ -1721,12 +1767,13 @@ function renderDrawer(){
   let html='',lastCh='';
   order.forEach(w=>{
     const v=VOCAB[w];
+    if(reviewOnly && !review.has(w)) return;
     if(q && !(w.includes(q)||v.p.toLowerCase().includes(q)||v.d.toLowerCase().includes(q)))return;
     const ch=segChapter(w);
     if(ch!==lastCh){html+=`<div class="dr-ch hanzi">${ch}</div>`;lastCh=ch;}
-    html+=`<div class="dr-item"><span class="hz hanzi">${w}</span><button class="spk" data-w="${w}" aria-label="Play pronunciation">🔊</button><span class="py">${v.p}</span><span class="df">${v.d}</span><span class="lv">${v.l}</span></div>`;
+    html+=`<div class="dr-item"><span class="hz hanzi">${w}</span><button class="spk" data-w="${w}" aria-label="Play pronunciation">🔊</button><button class="star${review.has(w)?' on':''}" data-star="${w}" aria-label="Mark for review" title="Mark for review">★</button><span class="py">${v.p}</span><span class="df">${v.d}</span><span class="lv">${v.l}</span></div>`;
   });
-  drList.innerHTML=html||'<div style="padding:20px 0;color:var(--ink-soft);font-style:italic">Nothing yet — or no matches.</div>';
+  drList.innerHTML=html||`<div style="padding:20px 0;color:var(--ink-soft);font-style:italic">${reviewOnly?'No words marked for review yet — tap ★ next to any word.':'Nothing yet — or no matches.'}</div>`;
   drawerDirty=false;
 }
 function closePanels(){
@@ -1745,6 +1792,16 @@ $('#settings-btn').addEventListener('click',()=>openPanel(settingsPanel));
 $('#settings-close').addEventListener('click',closePanels);
 scrim.addEventListener('click',closePanels);
 drSearch.addEventListener('input',()=>{drawerDirty=true;renderDrawer();});
+
+/* review filter toggle */
+$('#reviewToggle').addEventListener('click',()=>{
+  reviewOnly=!reviewOnly;
+  $('#reviewToggle').classList.toggle('on', reviewOnly);
+  drawerDirty=true; renderDrawer();
+});
+updateReviewCount();
+// paint any already-marked stars in the story on load
+document.querySelectorAll('.star').forEach(b=>{ if(review.has(b.dataset.star)) b.classList.add('on'); });
 
 /* ---------- restore saved progress ---------- */
 const savedProgress=loadProgress();

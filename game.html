@@ -83,6 +83,19 @@ body.board-fs .pan-hint{display:none}
 body.board-fs .board-wrap{padding:6px 6px 84px}
 body.board-fs svg#board{height:calc(100vh - 96px)}
 #fsBtn.active{background:var(--seal);color:#fff;border-color:var(--seal)}
+#practiceBtn{font-family:'Kaiti SC','KaiTi','STKaiti',serif;font-size:17px}
+#practiceBtn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+
+/* practice mode: strip the game down to pure study */
+body.practice .pan-hint b{color:var(--indigo)}
+#practiceBanner{
+  position:fixed;left:50%;transform:translateX(-50%);top:0;z-index:79;
+  background:var(--indigo);color:#fff;padding:5px 18px;
+  font-size:12px;letter-spacing:.1em;display:none;
+  border-radius:0 0 6px 6px;box-shadow:0 3px 12px rgba(43,38,32,.2);
+}
+body.practice #practiceBanner{display:block}
+body.practice #scorebar .sc:not(.jade){opacity:.35}
 @media (max-width:560px){ #zoomctl{right:10px} #zoomctl button{width:36px;height:36px;font-size:15px} }
 .hex{cursor:pointer}
 .hex polygon{fill:var(--card);stroke:var(--line);stroke-width:1.6;transition:fill .18s, stroke .18s}
@@ -293,12 +306,15 @@ body.board-fs svg#board{height:calc(100vh - 96px)}
 <p class="pan-hint">drag to pan · scroll or pinch to zoom · keys: <b>↵</b> knew it · <b>␣</b> missed · <b>R</b> replay audio</p>
 <div class="board-wrap"><svg id="board"></svg></div>
 <div id="zoomctl">
+  <button id="practiceBtn" title="Practice mode — no effects, no consequences">练</button>
   <button id="sfxBtn" title="Sound on/off">🔊</button>
   <button id="fsBtn" title="Fullscreen board">⤡</button>
   <button id="zoomIn" title="Zoom in">+</button>
   <button id="zoomOut" title="Zoom out">−</button>
   <button id="zoomFit" title="Fit whole board">⤢</button>
 </div>
+
+<div id="practiceBanner"><span class="hanzi">练习模式</span> liànxí móshì · practice mode — mistakes cost nothing</div>
 
 <div id="coinLayer"></div>
 <div id="comboPop"><div class="combo-x"></div><div class="combo-label"></div></div>
@@ -1035,6 +1051,7 @@ const svg=$('#board');
 let tiles=new Map();          // key -> {q,r,word,el,state}
 let lastCorrect=null;         // key of last correct tile
 let clearedOrder=[];          // keys in the order they were cleared (for partial rollback)
+let practice=(localStorage.getItem('yzyg-practice')==='on');   // practice mode: no effects, no consequences
 let protectedCount=0;         // number of leading cleared tiles that are locked/safe
 let streak=0, cleared=0, misses=0;
 let best=parseInt(localStorage.getItem('yzyg-best')||'0',10)||0;
@@ -1270,6 +1287,8 @@ function neighborsOf(k){
   return NBR.map(([dq,dr])=>tiles.get(key(t.q+dq,t.r+dr))).filter(Boolean);
 }
 function eligibleKeys(){
+  // practice: pick ANY tile, anywhere — study freely without path constraints
+  if(practice) return [...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
   // no tiles cleared yet -> any tile is a valid start
   if(cleared===0) return [...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
   // normal case: neighbors of the last-cleared tile
@@ -1368,6 +1387,30 @@ svg.addEventListener('wheel',e=>{
 $('#zoomIn').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1/1.35, r.left+r.width/2, r.top+r.height/2); });
 $('#zoomOut').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1.35, r.left+r.width/2, r.top+r.height/2); });
 $('#zoomFit').addEventListener('click',fitView);
+
+/* practice mode toggle — strips effects and consequences */
+const practiceBtn=$('#practiceBtn');
+function setPractice(on){
+  practice=on;
+  try{ localStorage.setItem('yzyg-practice', on?'on':'off'); }catch(e){}
+  document.body.classList.toggle('practice', on);
+  practiceBtn.classList.toggle('active', on);
+  practiceBtn.title = on ? 'Practice mode ON — click for normal game' : 'Practice mode — no effects, no consequences';
+  if(on){
+    // silence and de-juice everything currently running
+    clearInterval(coinTimer); coinTimer=null;
+    const cl=$('#coinLayer'); if(cl) cl.innerHTML='';
+    heat=0; document.body.setAttribute('data-heat','0');
+    $('#comboPop').classList.remove('show');
+    $('#milestone').classList.remove('show');
+    $('#victory').classList.remove('show');
+  }else{
+    updateHeat(); manageCoinRain();
+  }
+  refreshEligibility();
+}
+practiceBtn.addEventListener('click',()=>setPractice(!practice));
+setPractice(practice);          // apply persisted preference on load
 
 /* sound toggle + unlock audio on first user gesture */
 const sfxBtn=$('#sfxBtn');
@@ -1476,7 +1519,7 @@ $('#btnRight').addEventListener('click',()=>{
   const t=tiles.get(selectedKey); if(!t) return;
   t.state='correct';
   t.el.classList.remove('selected');
-  const bigPop = streak>=4;                    // bigger pop when hot
+  const bigPop = !practice && streak>=4;       // bigger pop when hot
   t.el.classList.add('correct', bigPop?'popbig':'pop');
   const v=VOCAB[t.word];
   const titleEl=document.createElementNS('http://www.w3.org/2000/svg','title');
@@ -1486,9 +1529,14 @@ $('#btnRight').addEventListener('click',()=>{
   clearedOrder.push(selectedKey);
   lastCorrect=selectedKey; selectedKey=null; revealing=false;
   streak++; cleared++;
-  if(streak>best){ best=streak; try{ localStorage.setItem('yzyg-best',best); }catch(e){} }
+  if(!practice && streak>best){ best=streak; try{ localStorage.setItem('yzyg-best',best); }catch(e){} }
   hideReveal(); updateBar(); refreshEligibility();
   panToTile(t);
+
+  if(practice){                                // practice: quiet, no effects, no win screen
+    if(cleared===tiles.size) showHint('全部完成 — every tile cleared. Nice practice run!');
+    return;
+  }
 
   // ---- JUICE ----
   sfxCorrect(streak);
@@ -1508,6 +1556,20 @@ $('#btnWrong').addEventListener('click',()=>{
   t.el.classList.remove('selected');
   t.el.classList.add('wrong');
   hideReveal();
+
+  if(practice){
+    // practice: no penalty at all. Flash the tile, then let it go idle so you can
+    // revisit it, and keep your path anchored where it was.
+    showHint('practice — no penalty. Try it again anytime.');
+    setTimeout(()=>{
+      t.el.classList.remove('wrong');
+      t.state='idle';
+      selectedKey=null; revealing=false;
+      updateBar(); refreshEligibility();
+    },500);
+    return;
+  }
+
   sfxWrong();
 
   // only UNPROTECTED tiles can be lost; lose the most-recent third of those (at least 1)
