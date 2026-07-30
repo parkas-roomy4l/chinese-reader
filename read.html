@@ -189,6 +189,9 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 }
 #tip .t-hz{font-size:19px;margin-right:8px}
 #tip .t-py-row{display:inline-flex;align-items:center;gap:7px}
+#tip .tip-star{border-color:rgba(255,255,255,.35);background:transparent;color:#c8bfae}
+#tip .tip-star:hover{background:rgba(224,169,43,.25);color:#f0c46b;border-color:#e0a92b}
+#tip .tip-star.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
 #tip .t-py{color:#e8b3a9;font-style:italic}
 #tip .spk{width:20px;height:20px;font-size:10px;border-color:rgba(255,255,255,.35);background:transparent;color:#e8b3a9}
 #tip .spk:hover{background:rgba(255,255,255,.18);color:#fff}
@@ -273,6 +276,16 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 #voiceNote{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.4}
 .no-tts #dr-voice{display:none}
 
+
+#dr-play{padding:10px 24px 12px;border-bottom:1px solid var(--line)}
+#playBtn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--jade);border:none;color:#fff;font-family:inherit;font-size:13px;
+  letter-spacing:.04em;padding:11px 14px;cursor:pointer;transition:all .14s;
+}
+#playBtn:hover{background:var(--jade-soft,#5d8a77)}
+#playBtn:disabled{background:var(--line);color:var(--ink-soft);cursor:default}
+#playBtn .hanzi{font-size:15px}
 #dr-reset{padding:14px 24px 18px;border-top:1px dashed var(--line)}
 #dr-reset button{
   width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -343,7 +356,7 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     <span><b id="st-ch">30</b> chapters</span>
     <span><b id="st-seg">0</b> segments read</span>
   </div>
-  <p class="game-link"><a href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a href="game.html"><span class="hanzi">一字一格</span> · play the tile game →</a></p>
+  <p class="game-link"><a href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a href="game.html"><span class="hanzi">一字一格</span> · the game</a> &nbsp;·&nbsp; <a href="intermediate.html"><span class="hanzi">北京有雨</span> · the novel →</a></p>
 </header>
 
 <div class="continue-bar" id="continueBar" style="display:none">
@@ -380,6 +393,7 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     <button id="reviewToggle">★ <span>Review list</span></button>
     <span id="reviewCount"></span>
   </div>
+  <div id="dr-play"><button id="playBtn"><span class="hanzi">复习</span> Play these words →</button></div>
   <div id="dr-list"></div>
   <div id="dr-lock">Keep reading — words appear here as you meet them in the story.</div>
 </aside>
@@ -1657,7 +1671,11 @@ storyEl.appendChild(fin);
 const tip=$('#tip'); let tipFor=null;
 function showTip(el){
   const v=VOCAB[el.dataset.w]; if(!v)return;
-  tip.innerHTML=`<span class="t-hz hanzi">${el.dataset.w}</span><span class="t-py-row"><span class="t-py">${v.p}</span><button class="spk" data-w="${el.dataset.w}" aria-label="Play pronunciation">🔊</button></span><span class="t-def">${v.d}</span>`;
+  const tw_=el.dataset.w;
+  tip.innerHTML=`<span class="t-hz hanzi">${tw_}</span><span class="t-py-row"><span class="t-py">${v.p}</span>`+
+    `<button class="spk" data-w="${tw_}" aria-label="Play pronunciation">🔊</button>`+
+    `<button class="star tip-star${review.has(tw_)?' on':''}" data-star="${tw_}" aria-label="Mark for review" title="Mark for review">★</button>`+
+    `</span><span class="t-def">${v.d}</span>`;
   tip.style.opacity=0; tip.style.display='block'; tip.style.pointerEvents='auto';
   const r=el.getBoundingClientRect(), tw=tip.offsetWidth;
   let x=r.left+window.scrollX+r.width/2-24;
@@ -1669,15 +1687,20 @@ function showTip(el){
   tip.style.opacity=1; tipFor=el; el.classList.add('active');
 }
 function hideTip(){tip.style.opacity=0; tip.style.pointerEvents='none'; if(tipFor){tipFor.classList.remove('active');tipFor=null;}}
+let hideTimer=null;
+function cancelHide(){ clearTimeout(hideTimer); hideTimer=null; }
+function scheduleHide(){ cancelHide(); hideTimer=setTimeout(hideTip,260); }
 if(isHover){
-  document.addEventListener('mouseover',e=>{const w=e.target.closest('.w'); if(w)showTip(w);});
-  document.addEventListener('mouseout',e=>{if(e.target.closest('.w'))hideTip();});
+  document.addEventListener('mouseover',e=>{const w=e.target.closest('.w'); if(w){ cancelHide(); showTip(w); }});
+  document.addEventListener('mouseout',e=>{ if(e.target.closest('.w')) scheduleHide(); });
+  tip.addEventListener('mouseenter',cancelHide);
+  tip.addEventListener('mouseleave',scheduleHide);
 }
 document.addEventListener('click',e=>{
   const lspk=e.target.closest('.line-spk');
   if(lspk){ speak(lspk.dataset.t); e.stopPropagation(); return; }
   const star=e.target.closest('.star');
-  if(star){ toggleReview(star.dataset.star); e.stopPropagation(); return; }
+  if(star){ toggleReview(star.dataset.star); cancelHide(); e.stopPropagation(); return; }
   const spk=e.target.closest('.spk');
   if(spk){ speak(spk.dataset.w); e.stopPropagation(); return; }
   const w=e.target.closest('.w');
@@ -1775,7 +1798,33 @@ function renderDrawer(){
   });
   drList.innerHTML=html||`<div style="padding:20px 0;color:var(--ink-soft);font-style:italic">${reviewOnly?'No words marked for review yet — tap ★ next to any word.':'Nothing yet — or no matches.'}</div>`;
   drawerDirty=false;
+  refreshPlayBtn();
 }
+const DRAWER_LABEL='the reader';
+/* ---------- launch a review game from the current drawer contents ---------- */
+function currentDrawerWords(){
+  return [...drList.querySelectorAll('.dr-item .hz')].map(e=>e.textContent);
+}
+function refreshPlayBtn(){
+  const btn=document.getElementById('playBtn'); if(!btn) return;
+  const n=currentDrawerWords().length;
+  btn.disabled=n===0;
+  btn.innerHTML=n?`<span class="hanzi">复习</span> Play these ${n} word${n===1?'':'s'} →`
+                 :`<span class="hanzi">复习</span> No words to play yet`;
+}
+(function(){
+  const btn=document.getElementById('playBtn'); if(!btn) return;
+  btn.addEventListener('click',()=>{
+    const words=currentDrawerWords();
+    if(!words.length) return;
+    let label=DRAWER_LABEL;
+    if(typeof reviewOnly!=='undefined' && reviewOnly) label='your review list';
+    else if(drSearch && drSearch.value.trim()) label='“'+drSearch.value.trim()+'”';
+    try{ localStorage.setItem('yzyg-custom-set', JSON.stringify({words,label})); }catch(e){}
+    location.href='game.html?custom=1';
+  });
+})();
+
 function closePanels(){
   drawer.classList.remove('open');
   settingsPanel.classList.remove('open');

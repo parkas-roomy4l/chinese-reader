@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#f7f3ea">
+<title>北京有雨 · The Intermediate Reader — 一字一世界</title>
+<meta name="description" content="An adult graded reader in Chinese: a novel of modern Beijing life, told in 1000 words. Tap any word for pinyin, meaning, and audio.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<style>
+:root{
+  color-scheme: only light;
+  --paper:#f7f3ea; --paper-deep:#efe9db; --ink:#2b2620; --ink-soft:#6b6357;
+  --seal:#b02e20; --seal-soft:#c9553f; --jade:#3e6b5a; --indigo:#3d4d6b;
+  --line:#d9d0bf; --card:#fffdf8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#f7f3ea !important;scroll-behavior:smooth}
+body{
+  background:#f7f3ea !important; color:#2b2620 !important;
+  font-family:Georgia,'Times New Roman',serif; line-height:1.6;
+}
+.hanzi{font-family:'Kaiti SC','KaiTi','STKaiti','Kaiti TC','Noto Serif SC',serif}
+
+#progressbar{position:fixed;top:0;left:0;height:3px;background:var(--seal);z-index:120;width:0;transition:width .1s}
+
+header{max-width:760px;margin:0 auto;padding:52px 22px 10px;text-align:center}
+h1{font-size:clamp(34px,7vw,50px);font-weight:400;letter-spacing:.1em}
+.brand-pinyin{display:block;color:var(--seal);font-style:italic;font-size:15px;letter-spacing:.12em;margin-top:8px}
+.tagline{margin-top:16px;color:var(--ink-soft);font-size:14.5px;font-style:italic}
+.rating{
+  display:inline-block;margin-top:14px;padding:4px 12px;border:1px solid var(--line);
+  font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+}
+.navlinks{margin-top:14px;font-size:12.5px}
+.navlinks a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line)}
+.navlinks a:hover{color:var(--seal);border-color:var(--seal)}
+
+.howbox{
+  max-width:620px;margin:26px auto 0;padding:18px 22px;
+  background:var(--card);border:1px solid var(--line);font-size:13.5px;color:var(--ink-soft);
+}
+.howbox b{color:var(--ink)}
+
+/* ---- table of contents ---- */
+.toc-wrap{max-width:620px;margin:22px auto 0;background:var(--card);border:1px solid var(--line)}
+.toc-wrap summary{padding:13px 20px;cursor:pointer;list-style:none;font-size:14px;letter-spacing:.08em;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;gap:8px}
+.toc-wrap summary::-webkit-details-marker{display:none}
+.toc-wrap summary .hanzi{color:var(--seal);font-size:16px}
+.toc-list{padding:4px 18px 16px;display:grid;grid-template-columns:1fr 1fr;gap:2px;max-height:300px;overflow-y:auto}
+.toc-list a{padding:7px 10px;text-decoration:none;color:var(--ink);font-size:13px;border-bottom:1px solid #f1ece1}
+.toc-list a:hover{background:var(--paper-deep);color:var(--seal)}
+.toc-list a .n{color:var(--seal);font-size:11px;margin-right:7px}
+@media (max-width:560px){ .toc-list{grid-template-columns:1fr} }
+
+/* ---- story ---- */
+main{max-width:680px;margin:0 auto;padding:30px 22px 140px}
+.chapter-head{margin:64px 0 30px;text-align:center}
+.chapter-head:first-child{margin-top:20px}
+.chapter-head .rule{width:56px;height:1px;background:var(--seal);margin:0 auto 20px}
+.chapter-head h2{font-size:27px;font-weight:400;letter-spacing:.08em}
+.chapter-head .cp{color:var(--seal);font-style:italic;font-size:13.5px;margin-top:6px}
+.chapter-head .en{color:var(--ink-soft);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:5px}
+
+p.para{margin:0 0 19px;font-size:20.5px;line-height:2.05;text-indent:0}
+.w{cursor:pointer;border-radius:2px;transition:background .1s,color .1s;padding:0 .5px}
+.w:hover,.w.active{background:#fbeeec;color:var(--seal)}
+.line-spk{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:20px;height:20px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--seal-soft);cursor:pointer;font-size:8.5px;
+  vertical-align:middle;margin-right:9px;margin-top:-4px;transition:all .12s;padding:0;
+}
+.line-spk:hover{background:var(--seal-soft);color:#fff;border-color:var(--seal-soft)}
+.no-tts .line-spk,.no-tts .spk{display:none}
+.line-tr{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:20px;height:20px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--indigo);cursor:pointer;font-size:9.5px;
+  vertical-align:middle;margin-right:9px;margin-top:-4px;transition:all .12s;padding:0;
+  font-family:Georgia,serif;
+}
+.line-tr:hover{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.line-tr.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.trans{
+  display:none;margin:-8px 0 20px 30px;padding:10px 14px;
+  border-left:2px solid #b6bfd0;background:#f4f6fa;
+  font-family:Georgia,serif;font-size:15px;line-height:1.55;color:#4a5468;
+}
+.trans.show{display:block}
+body.show-all-trans .trans{display:block}
+
+/* ---- word list drawer ---- */
+#wl-btn{
+  position:fixed;right:20px;bottom:88px;z-index:110;width:58px;height:58px;border-radius:50%;
+  background:var(--seal);color:#fff;border:none;cursor:pointer;font-size:23px;
+  box-shadow:0 4px 16px rgba(176,46,32,.4);transition:transform .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+#wl-btn:hover{transform:scale(1.07)}
+#wl-btn .cnt{
+  position:absolute;top:-4px;right:-4px;background:var(--ink);color:#fff;
+  font-family:Georgia,serif;font-size:10.5px;min-width:21px;height:21px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;padding:0 5px;
+}
+#dr-search{margin:12px 24px 6px;padding:9px 12px;font-family:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+#dr-filter{padding:0 24px 8px;display:flex;gap:8px;align-items:center}
+#reviewToggle{
+  font-family:inherit;font-size:11.5px;cursor:pointer;background:var(--card);
+  border:1px solid var(--line);color:var(--ink-soft);padding:6px 12px;transition:all .13s;
+}
+#reviewToggle:hover{border-color:#e0a92b;color:#e0a92b}
+#reviewToggle.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+#reviewCount{font-size:11px;color:var(--ink-soft)}
+#dr-list{flex:1;overflow-y:auto;padding:6px 24px 30px}
+.dr-item{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid #f1ece1;font-size:14px}
+.dr-item .hz{font-size:19px;min-width:62px}
+.dr-item .py{color:var(--seal);font-style:italic;min-width:78px;font-size:13px}
+.dr-item .df{color:var(--ink-soft);flex:1;font-size:12.5px}
+.dr-item .lv{font-size:9px;letter-spacing:.1em;color:#b0a795;text-transform:uppercase;white-space:nowrap}
+.dr-item .spk{width:20px;height:20px;font-size:9.5px;border-color:var(--line);background:var(--card);color:var(--seal)}
+.dr-item .spk:hover{background:var(--seal);color:#fff}
+.star{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:20px;height:20px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:#c3b9a5;cursor:pointer;font-size:10px;transition:all .12s;padding:0;
+}
+.star:hover{border-color:#e0a92b;color:#e0a92b;background:#fdf6e6}
+.star.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+
+#dr-play{padding:10px 24px 12px;border-bottom:1px solid var(--line)}
+#playBtn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--jade);border:none;color:#fff;font-family:inherit;font-size:13px;
+  letter-spacing:.04em;padding:11px 14px;cursor:pointer;transition:all .14s;
+}
+#playBtn:hover{background:var(--jade-soft,#5d8a77)}
+#playBtn:disabled{background:var(--line);color:var(--ink-soft);cursor:default}
+#playBtn .hanzi{font-size:15px}
+.dr-empty{padding:22px 0;color:var(--ink-soft);font-style:italic;font-size:13.5px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.toggle-row label{font-size:12.5px;color:var(--ink)}
+.toggle-row input{width:17px;height:17px;accent-color:var(--seal)}
+
+/* ---- tooltip ---- */
+#tip{
+  position:absolute;z-index:100;background:var(--ink);color:var(--paper);
+  padding:9px 13px;font-size:14px;max-width:290px;line-height:1.45;
+  box-shadow:0 6px 22px rgba(43,38,32,.3);opacity:0;pointer-events:none;
+  transition:opacity .12s;display:none;
+}
+#tip .t-hz{font-size:19px;margin-right:8px}
+#tip .t-py-row{display:inline-flex;align-items:center;gap:7px}
+#tip .t-py{color:#e8b3a9;font-style:italic}
+#tip .t-def{display:block;margin-top:3px;color:#cfc8bc;font-size:13px}
+#tip .t-lv{display:block;margin-top:4px;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:#8f8676}
+.spk{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.35);
+  background:transparent;color:#e8b3a9;cursor:pointer;font-size:10px;transition:all .12s;padding:0;
+}
+.spk:hover{background:rgba(255,255,255,.18);color:#fff}
+#tip .tip-star{border-color:rgba(255,255,255,.35);background:transparent;color:#c8bfae}
+#tip .tip-star:hover{background:rgba(224,169,43,.25);color:#f0c46b;border-color:#e0a92b}
+#tip .tip-star.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+
+/* ---- floating buttons + settings ---- */
+#settings-btn{
+  position:fixed;right:20px;bottom:20px;z-index:110;width:58px;height:58px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:22px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+#settings-btn:hover{transform:scale(1.07) rotate(28deg);background:var(--seal);color:#fff;border-color:var(--seal)}
+#scrim{position:fixed;inset:0;background:rgba(43,38,32,.35);z-index:95;opacity:0;pointer-events:none;transition:opacity .25s}
+#scrim.on{opacity:1;pointer-events:auto}
+.side-panel{
+  position:fixed;top:0;right:0;bottom:0;width:min(390px,100vw);background:var(--card);z-index:100;
+  transform:translateX(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+  box-shadow:-6px 0 30px rgba(43,38,32,.18);display:flex;flex-direction:column;
+}
+.side-panel.open{transform:translateX(0)}
+.dr-head{padding:22px 24px 14px;border-bottom:1px solid var(--line);position:relative}
+.dr-head h2{font-weight:400;font-size:20px;letter-spacing:.06em}
+.dr-head .dr-sub{font-size:12px;color:var(--ink-soft);margin-top:4px}
+.dr-head button{position:absolute;right:18px;top:20px;background:none;border:none;font-size:19px;color:var(--ink-soft);cursor:pointer}
+#dr-voice{padding:16px 24px}
+.dr-voice-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dr-voice-row label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);min-width:44px}
+.dr-voice-row select{flex:1;font-family:inherit;font-size:12.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);padding:5px 8px;min-width:0}
+.dr-voice-row input[type=range]{flex:1;accent-color:var(--seal)}
+.dr-voice-row #rateVal{font-size:11.5px;color:var(--seal);min-width:34px;text-align:right}
+#voiceTestBtn{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--seal-soft);background:var(--card);color:var(--seal-soft);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0}
+#voiceTestBtn:hover{background:var(--seal-soft);color:#fff}
+#voiceNote{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.4}
+#dr-reset{padding:14px 24px 18px;border-top:1px dashed var(--line);margin-top:auto}
+#dr-reset button{width:100%;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-family:inherit;font-size:12.5px;padding:10px 14px;cursor:pointer;transition:all .15s}
+#dr-reset button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
+
+/* ---- continue banner ---- */
+.continue-bar{
+  max-width:560px;margin:20px auto 0;padding:12px 18px;
+  border:1px solid #dcb6ae;background:#fbeeec;color:var(--ink);
+  display:none;align-items:center;justify-content:space-between;gap:14px;font-size:13.5px;
+}
+.continue-bar b{color:var(--seal)}
+.continue-bar .cb-actions{display:flex;align-items:center;gap:8px;flex:none}
+#continueBtn{background:var(--seal);color:#fff;border:none;padding:7px 15px;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap}
+#continueDismiss{background:none;border:none;color:var(--ink-soft);font-size:16px;cursor:pointer}
+@media (max-width:560px){ .continue-bar{flex-direction:column;align-items:stretch;text-align:center} .continue-bar .cb-actions{justify-content:center} }
+
+#credit-badge{
+  position:fixed;left:14px;bottom:18px;z-index:52;
+  display:flex;align-items:center;gap:6px;padding:6px 11px 6px 9px;
+  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--seal);
+  border-radius:20px;font-size:11.5px;color:var(--ink-soft);text-decoration:none;box-shadow:0 2px 10px rgba(43,38,32,.12);
+}
+#credit-badge .cb-seal{width:17px;height:17px;flex:none;border:1.5px solid var(--seal);color:var(--seal);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px}
+#credit-badge b{color:var(--seal)}
+@media (max-width:640px){ #credit-badge{display:none} }
+.endmark{text-align:center;margin:70px 0 40px}
+.endmark .seal{width:74px;height:74px;border:3px solid var(--seal);color:var(--seal);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px}
+.endmark p{color:var(--ink-soft);font-size:13.5px;font-style:italic}
+</style>
+</head>
+<body>
+<div id="progressbar"></div>
+
+<header>
+  <h1 class="hanzi">北京有雨</h1>
+  <span class="brand-pinyin">Běijīng yǒu yǔ · It Rains in Beijing</span>
+  <p class="tagline">A novel of modern Beijing — ambition, marriage, and the year everything came apart.</p>
+  <div class="rating">Adult themes · 成人内容</div>
+  <p class="navlinks">
+    <a href="index.html">← 主页 · home</a> &nbsp;·&nbsp;
+    <a href="read.html">读书 · the beginner reader</a> &nbsp;·&nbsp;
+    <a href="game.html">一字一格 · the game →</a>
+  </p>
+</header>
+
+<div class="continue-bar" id="continueBar">
+  <span id="continueText"></span>
+  <div class="cb-actions">
+    <button id="continueBtn">Continue →</button>
+    <button id="continueDismiss" title="Dismiss">✕</button>
+  </div>
+</div>
+
+<div class="howbox">
+  <b>How it works:</b> unlike the beginner reader, this story doesn't stop to teach. It just tells itself, in about 1,000 words of Chinese. Tap any word for pinyin, meaning, and audio — tap ▶ to hear a whole line read aloud.
+</div>
+
+<details class="toc-wrap" id="tocWrap">
+  <summary><span class="hanzi">目录</span> Chapters <span id="tocCount"></span> ⌄</summary>
+  <div class="toc-list" id="tocList"></div>
+</details>
+
+<main id="story"></main>
+
+<div id="tip"></div>
+<div id="scrim"></div>
+
+<button id="wl-btn" title="Words you've read"><span class="hanzi">词</span><span class="cnt" id="wl-cnt">0</span></button>
+<button id="settings-btn" title="Settings">⚙</button>
+
+<aside id="drawer" class="side-panel">
+  <div class="dr-head">
+    <h2><span class="hanzi">词表</span> · Words You've Read</h2>
+    <div class="dr-sub"><b id="dr-tot">0</b> of 1,000 collected</div>
+    <button id="dr-close">✕</button>
+  </div>
+  <input id="dr-search" type="text" placeholder="Search hanzi, pinyin, or English…">
+  <div id="dr-filter">
+    <button id="reviewToggle">★ Review list</button>
+    <span id="reviewCount"></span>
+  </div>
+  <div id="dr-play"><button id="playBtn"><span class="hanzi">复习</span> Play these words →</button></div>
+  <div id="dr-list"></div>
+</aside>
+<aside id="settingsPanel" class="side-panel">
+  <div class="dr-head">
+    <h2><span class="hanzi">设置</span> · Settings</h2>
+    <div class="dr-sub">Voice, playback speed, and progress</div>
+    <button id="settings-close">✕</button>
+  </div>
+  <div id="dr-voice">
+    <div class="dr-voice-row">
+      <label for="voiceSelect">Voice</label>
+      <select id="voiceSelect"></select>
+      <button id="voiceTestBtn" title="Test this voice">▶</button>
+    </div>
+    <div class="dr-voice-row">
+      <label for="rateRange">Speed</label>
+      <input type="range" id="rateRange" min="0.6" max="1.2" step="0.02">
+      <span id="rateVal"></span>
+    </div>
+    <div id="voiceNote"></div>
+  </div>
+  <div id="dr-voice" style="padding-top:0">
+    <div class="toggle-row">
+      <label for="allTrans">Always show English translations</label>
+      <input type="checkbox" id="allTrans">
+    </div>
+  </div>
+  <div id="dr-reset"><button id="resetBtn">↺ Clear history (words, stars, progress)</button></div>
+</aside>
+
+<a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener">
+  <span class="cb-seal hanzi">字</span> by <b>@pourteaux</b>
+</a>
+
+<script>
+__DATA__
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+
+/* ---------- audio ---------- */
+let ttsVoices=[];
+let ttsRate=parseFloat(localStorage.getItem('manmandu-rate')||'0.92')||0.92;
+let ttsVoiceName=null;
+try{ ttsVoiceName=localStorage.getItem('manmandu-voice-name'); }catch(e){}
+function voiceScore(v){
+  let s=0; const lang=(v.lang||'').toLowerCase();
+  if(lang.startsWith('zh')) s+=100; else return -1;
+  if(lang==='zh-cn') s+=20;
+  if(!v.localService) s+=15;
+  if(/google/i.test(v.name)) s+=12;
+  if(/neural|natural|enhanced|premium|online|wavenet/i.test(v.name)) s+=10;
+  return s;
+}
+function bestVoices(){ return ttsVoices.map(v=>({v,s:voiceScore(v)})).filter(x=>x.s>=0).sort((a,b)=>b.s-a.s).map(x=>x.v); }
+function populateVoiceSelect(){
+  const sel=$('#voiceSelect'); if(!sel) return;
+  const zh=bestVoices(), note=$('#voiceNote');
+  if(!zh.length){ sel.innerHTML='<option value="">(no Chinese voice found)</option>'; sel.disabled=true;
+    if(note) note.textContent='Your browser has no Chinese voice installed — try Chrome or Edge.'; return; }
+  sel.disabled=false;
+  sel.innerHTML=zh.map(v=>`<option value="${v.name}">${v.name}${v.localService?'':' \u2601'}</option>`).join('');
+  const match=zh.find(v=>v.name===ttsVoiceName);
+  sel.value=match?match.name:zh[0].name;
+  if(!match) ttsVoiceName=sel.value;
+  if(note) note.textContent=zh.length>1?`${zh.length} Chinese voices found (\u2601 = higher-quality cloud voice).`:'';
+}
+function loadVoices(){ try{ ttsVoices=window.speechSynthesis.getVoices()||[]; }catch(e){} populateVoiceSelect(); }
+if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+else{ document.documentElement.classList.add('no-tts'); }
+function speak(text){
+  if(!text || !('speechSynthesis' in window)) return;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='zh-CN'; u.rate=ttsRate;
+    try{
+      const chosen=ttsVoices.find(v=>v.name===ttsVoiceName);
+      const v=chosen || bestVoices()[0] || ttsVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith('zh'));
+      if(v) u.voice=v;
+    }catch(e){}
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- build the story ---------- */
+const PUNCT=new Set(['，','。','！','？','：','；','、','…','—','「','」','『','』','（','）','《','》','·','“','”','‘','’']);
+const storyEl=$('#story'), tocList=$('#tocList');
+let chIdx=0; const chapters=[];
+const frag=document.createDocumentFragment();
+
+STORY.forEach(item=>{
+  if(item.ch){
+    chIdx++;
+    const id='ch'+chIdx;
+    chapters.push({id,ch:item.ch,cp:item.cp,en:item.en,n:chIdx});
+    const h=document.createElement('div');
+    h.className='chapter-head'; h.id=id;
+    h.innerHTML=`<div class="rule"></div><h2 class="hanzi">${item.ch}</h2>
+                 <div class="cp">${item.cp||''}</div><div class="en">${item.en||''}</div>`;
+    frag.appendChild(h);
+    return;
+  }
+  const p=document.createElement('p');
+  p.className='para hanzi';
+  const plain=item.p.filter(t=>!['「','」','『','』','（','）'].includes(t)).join('');
+  const esc=x=>x.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  let html=`<button class="line-spk" data-t="${esc(plain)}" aria-label="Play line">\u25b6</button>`;
+  if(item.en) html+=`<button class="line-tr" aria-label="Show translation" title="Translate this line">A</button>`;
+  html+=item.p.map(tok=>{
+    if(PUNCT.has(tok)) return tok;
+    if(VOCAB[tok]) return `<span class="w" data-w="${tok}">${tok}</span>`;
+    return tok;
+  }).join('');
+  p.innerHTML=html;
+  p.dataset.words=item.p.filter(t=>VOCAB[t]).join(',');
+  frag.appendChild(p);
+  if(item.en){
+    const tr=document.createElement('div');
+    tr.className='trans'; tr.textContent=item.en;
+    frag.appendChild(tr);
+  }
+});
+storyEl.appendChild(frag);
+
+/* table of contents */
+$('#tocCount').textContent='('+chapters.length+')';
+tocList.innerHTML=chapters.map(c=>`<a href="#${c.id}"><span class="n">${c.n}</span>${c.ch}</a>`).join('');
+tocList.addEventListener('click',()=>{ $('#tocWrap').open=false; });
+
+/* ---------- tooltip ---------- */
+const tip=$('#tip'); let tipFor=null;
+const isHover=window.matchMedia('(hover:hover)').matches;
+function showTip(el){
+  const v=VOCAB[el.dataset.w]; if(!v) return;
+  const w=el.dataset.w;
+  tip.innerHTML=`<span class="t-hz hanzi">${w}</span>`+
+    `<span class="t-py-row"><span class="t-py">${v.p}</span>`+
+    `<button class="spk" data-w="${w}" aria-label="Play pronunciation">🔊</button>`+
+    `<button class="star tip-star${review.has(w)?' on':''}" data-star="${w}" `+
+    `aria-label="Mark for review" title="Mark for review">★</button></span>`+
+    `<span class="t-def">${v.d}</span><span class="t-lv">${v.l}</span>`;
+  tip.style.opacity=0; tip.style.display='block'; tip.style.pointerEvents='auto';
+  const r=el.getBoundingClientRect(), tw=tip.offsetWidth;
+  let x=r.left+window.scrollX+r.width/2-30;
+  x=Math.max(8,Math.min(x,window.scrollX+document.documentElement.clientWidth-tw-8));
+  const above=r.top>120;
+  tip.style.left=x+'px';
+  tip.style.top=above?(r.top+window.scrollY-tip.offsetHeight-9)+'px':(r.bottom+window.scrollY+9)+'px';
+  tip.style.opacity=1; tipFor=el; el.classList.add('active');
+}
+function hideTip(){ tip.style.opacity=0; tip.style.pointerEvents='none'; if(tipFor){tipFor.classList.remove('active');tipFor=null;} }
+let hideTimer=null;
+function cancelHide(){ clearTimeout(hideTimer); hideTimer=null; }
+function scheduleHide(){ cancelHide(); hideTimer=setTimeout(hideTip,260); }
+if(isHover){
+  document.addEventListener('mouseover',e=>{const w=e.target.closest('.w'); if(w){ cancelHide(); showTip(w); }});
+  document.addEventListener('mouseout',e=>{ if(e.target.closest('.w')) scheduleHide(); });
+  // keep the tooltip alive while the pointer is inside it, so its buttons are usable
+  tip.addEventListener('mouseenter',cancelHide);
+  tip.addEventListener('mouseleave',scheduleHide);
+}
+document.addEventListener('click',e=>{
+  const ltr=e.target.closest('.line-tr');
+  if(ltr){
+    const tr=ltr.closest('.para').nextElementSibling;
+    if(tr && tr.classList.contains('trans')){
+      const on=tr.classList.toggle('show');
+      ltr.classList.toggle('on',on);
+    }
+    e.stopPropagation(); return;
+  }
+  const star=e.target.closest('.star');
+  if(star){ toggleReview(star.dataset.star); cancelHide(); e.stopPropagation(); return; }
+  const lspk=e.target.closest('.line-spk');
+  if(lspk){ speak(lspk.dataset.t); e.stopPropagation(); return; }
+  const spk=e.target.closest('.spk');
+  if(spk){ speak(spk.dataset.w); e.stopPropagation(); return; }
+  const w=e.target.closest('.w');
+  if(w){
+    speak(w.dataset.w);
+    if(!isHover && tipFor===w){ hideTip(); } else { hideTip(); showTip(w); }
+    e.stopPropagation();
+  } else hideTip();
+});
+window.addEventListener('scroll',()=>{ if(tipFor)hideTip(); },{passive:true});
+
+/* ---------- collected words + review stars ---------- */
+const COLL_KEY='yzyg-int-collected-v1', REV_KEY='yzyg-int-review-v1';
+let collected=new Set(), review=new Set();
+try{ const r=localStorage.getItem(COLL_KEY); if(r) collected=new Set(JSON.parse(r)); }catch(e){}
+try{ const r=localStorage.getItem(REV_KEY);  if(r) review=new Set(JSON.parse(r)); }catch(e){}
+let collDirty=true, saveCollTimer=null, collPending=false;
+function writeCollected(){ try{ localStorage.setItem(COLL_KEY,JSON.stringify([...collected])); }catch(e){} }
+function saveCollected(){
+  // throttle (not debounce) — a long smooth scroll fires this continuously and a
+  // debounce would keep deferring the write until the user stopped, losing data on reload
+  if(collPending) return;
+  collPending=true;
+  saveCollTimer=setTimeout(()=>{ collPending=false; writeCollected(); },400);
+}
+function saveReview(){ try{ localStorage.setItem(REV_KEY,JSON.stringify([...review])); }catch(e){} }
+function updateCounts(){
+  $('#wl-cnt').textContent=collected.size;
+  $('#dr-tot').textContent=collected.size;
+  const c=$('#reviewCount'); if(c) c.textContent=review.size?review.size+' marked':'';
+}
+function toggleReview(w){
+  if(review.has(w)) review.delete(w); else review.add(w);
+  saveReview();
+  document.querySelectorAll(`.star[data-star="${w}"]`).forEach(b=>b.classList.toggle('on',review.has(w)));
+  updateCounts();
+  if(reviewOnly){ collDirty=true; renderDrawer(); }
+}
+
+/* collect words as their paragraph scrolls into view */
+const io=new IntersectionObserver(entries=>{
+  let added=false;
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const ws=en.target.dataset.words;
+    if(ws) ws.split(',').forEach(w=>{ if(w && !collected.has(w)){ collected.add(w); added=true; } });
+    io.unobserve(en.target);
+  });
+  if(added){ saveCollected(); updateCounts(); collDirty=true; }
+},{rootMargin:'0px 0px -20% 0px'});
+document.querySelectorAll('.para').forEach(p=>io.observe(p));
+
+/* ---------- word drawer ---------- */
+const drawer=$('#drawer'), drList=$('#dr-list'), drSearch=$('#dr-search');
+let reviewOnly=false;
+const ORDER=Object.keys(VOCAB);
+function renderDrawer(){
+  const q=drSearch.value.trim().toLowerCase();
+  if(!collDirty && !q) return;
+  let html='';
+  ORDER.forEach(w=>{
+    if(!collected.has(w)) return;
+    if(reviewOnly && !review.has(w)) return;
+    const v=VOCAB[w];
+    if(q && !(w.includes(q)||v.p.toLowerCase().includes(q)||v.d.toLowerCase().includes(q))) return;
+    html+=`<div class="dr-item"><span class="hz hanzi">${w}</span>`+
+          `<button class="spk" data-w="${w}" aria-label="Play">🔊</button>`+
+          `<button class="star${review.has(w)?' on':''}" data-star="${w}" aria-label="Mark for review">★</button>`+
+          `<span class="py">${v.p}</span><span class="df">${v.d}</span><span class="lv">${v.l}</span></div>`;
+  });
+  drList.innerHTML=html||`<div class="dr-empty">${reviewOnly?'No words marked yet — tap ★ on any word.':'Keep reading — words you pass are collected here.'}</div>`;
+  collDirty=false;
+  refreshPlayBtn();
+}
+const DRAWER_LABEL='the novel';
+/* ---------- launch a review game from the current drawer contents ---------- */
+function currentDrawerWords(){
+  return [...drList.querySelectorAll('.dr-item .hz')].map(e=>e.textContent);
+}
+function refreshPlayBtn(){
+  const btn=document.getElementById('playBtn'); if(!btn) return;
+  const n=currentDrawerWords().length;
+  btn.disabled=n===0;
+  btn.innerHTML=n?`<span class="hanzi">复习</span> Play these ${n} word${n===1?'':'s'} →`
+                 :`<span class="hanzi">复习</span> No words to play yet`;
+}
+(function(){
+  const btn=document.getElementById('playBtn'); if(!btn) return;
+  btn.addEventListener('click',()=>{
+    const words=currentDrawerWords();
+    if(!words.length) return;
+    let label=DRAWER_LABEL;
+    if(typeof reviewOnly!=='undefined' && reviewOnly) label='your review list';
+    else if(drSearch && drSearch.value.trim()) label='“'+drSearch.value.trim()+'”';
+    try{ localStorage.setItem('yzyg-custom-set', JSON.stringify({words,label})); }catch(e){}
+    location.href='game.html?custom=1';
+  });
+})();
+
+$('#wl-btn').addEventListener('click',()=>{ collDirty=true; renderDrawer(); drawer.classList.add('open'); $('#scrim').classList.add('on'); });
+$('#dr-close').addEventListener('click',()=>{ drawer.classList.remove('open'); $('#scrim').classList.remove('on'); });
+drSearch.addEventListener('input',()=>{ collDirty=true; renderDrawer(); });
+$('#reviewToggle').addEventListener('click',()=>{
+  reviewOnly=!reviewOnly;
+  $('#reviewToggle').classList.toggle('on',reviewOnly);
+  collDirty=true; renderDrawer();
+});
+updateCounts();
+
+/* ---------- progress ---------- */
+const LS='yzyg-int-progress-v1';
+const paras=[...document.querySelectorAll('.para')];
+function saveProgress(){
+  const y=window.scrollY;
+  let idx=0;
+  for(let i=0;i<paras.length;i++){ if(paras[i].offsetTop<=y+window.innerHeight*0.5) idx=i; else break; }
+  try{ localStorage.setItem(LS, JSON.stringify({idx,total:paras.length,ts:Date.now()})); }catch(e){}
+}
+let saveTimer=null, progPending=false;
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progressbar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  if(progPending) return;
+  progPending=true;
+  saveTimer=setTimeout(()=>{ progPending=false; saveProgress(); },400);
+},{passive:true});
+
+/* flush both on the way out, so nothing is lost mid-scroll */
+function flushAll(){ writeCollected(); saveProgress(); }
+window.addEventListener('pagehide',flushAll);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flushAll(); });
+
+try{
+  const raw=localStorage.getItem(LS);
+  if(raw){
+    const s=JSON.parse(raw);
+    if(s && s.idx>3 && s.idx<paras.length-1){
+      const pct=Math.round(s.idx/paras.length*100);
+      $('#continueText').innerHTML=`Welcome back — you were <b>${pct}%</b> through the story.`;
+      $('#continueBar').style.display='flex';
+      $('#continueBtn').addEventListener('click',()=>{
+        paras[s.idx].scrollIntoView({behavior:'smooth',block:'center'});
+        $('#continueBar').style.display='none';
+      });
+      $('#continueDismiss').addEventListener('click',()=>{ $('#continueBar').style.display='none'; });
+    }
+  }
+}catch(e){}
+
+/* ---------- settings panel ---------- */
+const settingsPanel=$('#settingsPanel'), scrim=$('#scrim');
+function closePanels(){ settingsPanel.classList.remove('open'); drawer.classList.remove('open'); scrim.classList.remove('on'); }
+$('#settings-btn').addEventListener('click',()=>{ settingsPanel.classList.add('open'); scrim.classList.add('on'); });
+$('#settings-close').addEventListener('click',closePanels);
+scrim.addEventListener('click',closePanels);
+
+const rateRange=$('#rateRange'), rateVal=$('#rateVal');
+rateRange.value=ttsRate; rateVal.textContent=ttsRate.toFixed(2)+'x';
+rateRange.addEventListener('input',()=>{
+  ttsRate=parseFloat(rateRange.value);
+  rateVal.textContent=ttsRate.toFixed(2)+'x';
+  try{ localStorage.setItem('manmandu-rate',ttsRate); }catch(e){}
+});
+$('#voiceSelect').addEventListener('change',e=>{
+  ttsVoiceName=e.target.value;
+  try{ localStorage.setItem('manmandu-voice-name',ttsVoiceName); }catch(e){}
+});
+$('#voiceTestBtn').addEventListener('click',()=>speak('北京又开始下雨了。'));
+$('#resetBtn').addEventListener('click',()=>{
+  if(confirm('Clear everything for this story — collected words, starred words, and your place? This cannot be undone.')){
+    try{ localStorage.removeItem(LS); localStorage.removeItem(COLL_KEY); localStorage.removeItem(REV_KEY); }catch(e){}
+    clearTimeout(saveCollTimer); clearTimeout(saveTimer);   // don't let a pending save resurrect it
+    collected.clear(); review.clear();
+    window.scrollTo(0,0);
+    location.reload();
+  }
+});
+
+/* always-show-translations preference */
+const ALL_KEY='yzyg-int-alltrans';
+const allTrans=$('#allTrans');
+allTrans.checked=(localStorage.getItem(ALL_KEY)==='on');
+document.body.classList.toggle('show-all-trans',allTrans.checked);
+allTrans.addEventListener('change',()=>{
+  document.body.classList.toggle('show-all-trans',allTrans.checked);
+  try{ localStorage.setItem(ALL_KEY, allTrans.checked?'on':'off'); }catch(e){}
+});
+
+/* ---------- end mark ---------- */
+const end=document.createElement('div');
+end.className='endmark';
+end.innerHTML='<div class="seal hanzi">完</div><p>完 · wán — the end. Thank you for reading.</p>';
+storyEl.appendChild(end);
+})();
+</script>
+</body>
+</html>

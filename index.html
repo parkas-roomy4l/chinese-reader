@@ -16,14 +16,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="一字一世界">
 <meta property="og:title" content="一字一世界 · A Graded Chinese Reader & Game">
-<meta property="og:description" content="Learn 500 words of Chinese, one at a time — read a graded story, or play a hanzi recognition game.">
+<meta property="og:description" content="The 1,000 words that carry modern Chinese life — a graded reader, a novel, and a recognition game.">
 <meta property="og:url" content="https://chinesereader.net/">
 <meta property="og:image" content="https://chinesereader.net/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="一字一世界 · A Graded Chinese Reader & Game">
-<meta name="twitter:description" content="Learn 500 words of Chinese, one at a time — read a graded story, or play a hanzi recognition game.">
+<meta name="twitter:description" content="The 1,000 words that carry modern Chinese life — a graded reader, a novel, and a recognition game.">
 <meta name="twitter:image" content="https://chinesereader.net/og-image.png">
 <meta name="twitter:creator" content="@pourteaux">
 
@@ -54,12 +54,12 @@ h1{font-size:clamp(42px,8vw,64px);font-weight:400;letter-spacing:.08em}
 /* ---- choice cards ---- */
 main{flex:1;display:flex;align-items:center;justify-content:center;padding:34px 22px 40px}
 .choices{
-  display:grid;grid-template-columns:1fr 1fr;gap:22px;
-  width:100%;max-width:840px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+  width:100%;max-width:1080px;
 }
 .choice{
   position:relative;display:flex;flex-direction:column;
-  min-height:340px;padding:34px 30px;
+  min-height:360px;padding:30px 26px;
   background:var(--card);border:1px solid var(--line);
   text-decoration:none;color:inherit;overflow:hidden;
   transition:transform .18s cubic-bezier(.3,0,.2,1), box-shadow .18s, border-color .18s;
@@ -70,6 +70,13 @@ main{flex:1;display:flex;align-items:center;justify-content:center;padding:34px 
 }
 .choice.read::before{background:var(--seal)}
 .choice.play::before{background:var(--jade)}
+.choice.adult::before{background:var(--indigo)}
+.choice.adult:hover{border-color:#5d6f8f}
+.choice.adult .glyph{color:var(--indigo)}
+.choice.adult .badge{color:var(--indigo);border-color:#b6bfd0}
+.choice.adult .h2-py{color:var(--indigo)}
+.choice.adult .go{color:var(--indigo)}
+.choice .rating-tag{display:inline-block;margin-top:10px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#9c9384;border:1px solid var(--line);padding:2px 8px}
 .choice:hover::before{width:7px}
 .choice.read:hover{border-color:var(--seal-soft)}
 .choice.play:hover{border-color:var(--jade-soft)}
@@ -104,9 +111,14 @@ main{flex:1;display:flex;align-items:center;justify-content:center;padding:34px 
 .choice:hover .go .arrow{transform:translateX(5px)}
 
 footer{text-align:center;padding:0 22px 34px;color:var(--ink-soft);font-size:13px}
+footer .mission{font-style:italic;font-size:14px;color:var(--ink-soft);margin-bottom:12px;max-width:520px;margin-left:auto;margin-right:auto}
 footer a{color:var(--seal);text-decoration:none;border-bottom:1px solid #dcb6ae}
 footer a:hover{color:var(--seal-soft)}
 
+@media (max-width:940px){
+  .choices{grid-template-columns:1fr;max-width:460px}
+  .choice{min-height:0}
+}
 @media (max-width:620px){
   header{padding-top:40px}
   .choices{grid-template-columns:1fr;gap:16px;max-width:420px}
@@ -123,11 +135,11 @@ footer a:hover{color:var(--seal-soft)}
     <h1 class="hanzi">一字一世界</h1>
     <span class="brand-pinyin">yī zì yī shìjiè · one word, one world</span>
   </div>
-  <p class="tagline">Learn Chinese one word at a time — every HSK 1 &amp; 2 word, plus 200 essentials of modern life in China. Read the story, or play the game.</p>
+  <p class="tagline">The 1,000 words that actually carry modern Chinese life. Every HSK 1, 2, and 3 word, plus the vocabulary those lists leave out — rent and mortgages, WeChat and takeout, arguments and apologies.</p>
   <div class="stat-row">
-    <span><b>500</b> words</span>
-    <span><b>31</b> chapters</span>
-    <span><b>audio</b> + pinyin</span>
+    <span><b>1,000</b> essential words</span>
+    <span><b>HSK 1–3</b> complete</span>
+    <span><b>audio</b> + pinyin throughout</span>
   </div>
 </header>
 
@@ -138,7 +150,7 @@ footer a:hover{color:var(--seal-soft)}
       <span class="badge">the reader</span>
       <h2 class="hanzi">读书</h2>
       <div class="h2-py">dú shū · read the story</div>
-      <p>Follow 李小美, her enormous cat 包子, and friend 大卫 through daily life in Beijing — a graded story that introduces exactly one new word at a time. Tap any word for pinyin, meaning, and audio.</p>
+      <p>Start from zero. Follow 李小美, her enormous cat 包子, and friend 大卫 through daily life in Beijing — a graded story that introduces exactly one new word at a time, 500 in all.</p>
       <span class="go">Start reading <span class="arrow">→</span></span>
     </a>
 
@@ -147,13 +159,24 @@ footer a:hover{color:var(--seal-soft)}
       <span class="badge">the game</span>
       <h2 class="hanzi">一字一格</h2>
       <div class="h2-py">yī zì yī gé · the tile game</div>
-      <p>A honeycomb of all 500 characters. Pick a tile you recognize, reveal it, and be honest — clear a green path outward from the easy center toward the harder rim. How long a streak can you build?</p>
+      <p>A honeycomb of all 1,000 words. Pick a tile you recognize, reveal it, and be honest — clear a green path outward from the easy center toward the harder rim. How long a streak can you build?</p>
       <span class="go">Play the game <span class="arrow">→</span></span>
+    </a>
+
+    <a class="choice adult" href="intermediate.html">
+      <span class="glyph hanzi">雨</span>
+      <span class="badge">intermediate</span>
+      <h2 class="hanzi">北京有雨</h2>
+      <div class="h2-py">Běijīng yǒu yǔ · a novel</div>
+      <p>Then read a real story. A novel of modern Beijing — ambition, marriage, and the year everything came apart. Written entirely in the 1,000 words. No stopping to teach; just tap anything you don't know.</p>
+      <span class="rating-tag">Adult themes</span>
+      <span class="go">Start the novel <span class="arrow">→</span></span>
     </a>
   </div>
 </main>
 
 <footer>
+  <p class="mission">Most word lists teach you to pass a test. This one teaches you to live somewhere.</p>
   Created by <a href="https://x.com/pourteaux" target="_blank" rel="noopener">@pourteaux</a>
 </footer>
 
