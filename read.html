@@ -197,6 +197,14 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s, background .15s, color .15s;
 }
 #settings-btn:hover{transform:scale(1.07) rotate(28deg);background:var(--seal);color:#fff;border-color:var(--seal)}
+#save-btn{
+  position:fixed;left:16px;bottom:64px;z-index:110;width:50px;height:50px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s, background .15s, color .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+#save-btn:hover{transform:scale(1.07);background:var(--seal);color:#fff;border-color:var(--seal)}
+@media (max-width:520px){ #save-btn{left:12px;bottom:56px;width:44px;height:44px;font-size:16px} }
 #credit-badge{
   position:fixed;left:16px;bottom:18px;z-index:70;
   display:flex;align-items:center;gap:7px;
@@ -374,7 +382,7 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   <p class="tagline">A graded reader of modern life in Beijing — one girl, one enormous cat, one friend with an HSK exam — 500 words from zero.</p>
   <div class="rules">
     <b>How it works:</b> the story begins absurdly easy and introduces exactly <b>one new word at a time</b> — all 150 HSK 1 words, all 150 HSK 2 words, then 200 essential modern words (WeChat, subway, rent, health, holidays…). Every word is repeated systematically after it appears.
-    <div class="hint">Hover over any word (or tap, on a phone) for pinyin and meaning. The red <span class="hanzi" style="color:var(--seal)">词</span> button collects every word you've read so far.</div>
+    <div class="hint">Hover over any word (or tap, on a phone) for pinyin and meaning. The red 📖 button collects every word you've read so far.</div>
   </div>
   <div class="statline">
     <span><b id="st-hsk">0</b> / 300 HSK words</span>
@@ -406,7 +414,8 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
   <span class="cb-seal hanzi">字</span><span class="cb-by">by</span><span class="cb-handle">@pourteaux</span>
 </a>
 <button id="settings-btn" title="Settings">⚙</button>
-<button id="wl-btn" title="Word list"><span class="hanzi">词</span><span class="cnt" id="wl-cnt">0</span></button>
+<button id="wl-btn" title="Word list">📖<span class="cnt" id="wl-cnt">0</span></button>
+<button id="save-btn" title="Save &amp; transfer progress">💾</button>
 <div id="scrim"></div>
 <aside id="drawer" class="side-panel">
   <div class="dr-head">
@@ -446,20 +455,27 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     </div>
     <div id="voiceNote"></div>
   </div>
-<div id="dr-backup">
-  <div class="bk-head"><span class="hanzi">存档</span> · Save &amp; transfer progress</div>
-  <div class="bk-stats" id="bkStats"></div>
-  <div class="bk-row">
-    <button id="bkDownload">⤓ Download backup file</button>
-    <button id="bkCode">⧉ Copy transfer code</button>
-  </div>
-  <div class="bk-row">
-    <button id="bkRestore">⤒ Restore from file or code</button>
-  </div>
-  <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
-  <div class="bk-note" id="bkNote">Your stars and known words live in this browser only. Back them up to move to another device.</div>
-</div>
   <div id="dr-reset"><button id="resetBtn"><span class="rst-icon">↺</span> Reset all progress</button></div>
+</aside>
+
+<aside id="savePanel" class="side-panel">
+  <div class="dr-head">
+    <h2><span class="hanzi">存档</span> · Save &amp; Transfer</h2>
+    <div class="dr-sub">Back up your progress or move it to another device</div>
+    <button id="save-close">✕</button>
+  </div>
+  <div id="dr-backup">
+    <div class="bk-stats" id="bkStats"></div>
+    <div class="bk-row">
+      <button id="bkDownload">⤓ Download backup file</button>
+      <button id="bkCode">⧉ Copy transfer code</button>
+    </div>
+    <div class="bk-row">
+      <button id="bkRestore">⤒ Restore from file or code</button>
+    </div>
+    <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
+    <div class="bk-note" id="bkNote">Your stars and known words live in this browser only. Back them up to move to another device.</div>
+  </div>
 </aside>
 
 <script>
@@ -1962,7 +1978,7 @@ function updateReviewCount(){
 let reviewOnly=false;
 
 /* ---------- drawer ---------- */
-const drawer=$('#drawer'),settingsPanel=$('#settingsPanel'),scrim=$('#scrim'),drList=$('#dr-list'),drSearch=$('#dr-search');
+const drawer=$('#drawer'),settingsPanel=$('#settingsPanel'),savePanel=$('#savePanel'),scrim=$('#scrim'),drList=$('#dr-list'),drSearch=$('#dr-search');
 let drawerDirty=true;
 function segChapter(w){ // find chapter label for a word
   let ch='';
@@ -2029,6 +2045,7 @@ function refreshPlayBtn(){
 function closePanels(){
   drawer.classList.remove('open');
   settingsPanel.classList.remove('open');
+  savePanel.classList.remove('open');
   scrim.classList.remove('on');
 }
 function openPanel(panel){
@@ -2040,6 +2057,8 @@ $('#wl-btn').addEventListener('click',()=>{renderDrawer();openPanel(drawer);});
 $('#dr-close').addEventListener('click',closePanels);
 $('#settings-btn').addEventListener('click',()=>openPanel(settingsPanel));
 $('#settings-close').addEventListener('click',closePanels);
+$('#save-btn').addEventListener('click',()=>openPanel(savePanel));
+$('#save-close').addEventListener('click',closePanels);
 scrim.addEventListener('click',closePanels);
 drSearch.addEventListener('input',()=>{drawerDirty=true;renderDrawer();});
 

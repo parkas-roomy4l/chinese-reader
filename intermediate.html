@@ -202,9 +202,19 @@ body.show-all-trans .trans{display:block}
 #voiceTestBtn{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--seal-soft);background:var(--card);color:var(--seal-soft);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0}
 #voiceTestBtn:hover{background:var(--seal-soft);color:#fff}
 #voiceNote{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.4}
-#dr-backup{padding:16px 24px;border-top:1px dashed var(--line)}
-.bk-head{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
-.bk-head .hanzi{color:var(--seal);font-size:14px;letter-spacing:0}
+#dr-reset{padding:14px 24px 18px;border-top:1px dashed var(--line);margin-top:auto}
+#dr-reset button{width:100%;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-family:inherit;font-size:12.5px;padding:10px 14px;cursor:pointer;transition:all .15s}
+#dr-reset button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
+
+/* ---- save & transfer ---- */
+#save-btn{
+  position:fixed;left:16px;bottom:66px;z-index:110;width:50px;height:50px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+#save-btn:hover{transform:scale(1.07);background:var(--seal);color:#fff;border-color:var(--seal)}
+#dr-backup{padding:16px 24px}
 .bk-stats{font-size:12px;color:var(--ink-soft);margin-bottom:12px}
 .bk-stats b{color:var(--seal);font-size:14px}
 .bk-row{display:flex;gap:8px;margin-bottom:8px}
@@ -214,9 +224,6 @@ body.show-all-trans .trans{display:block}
 }
 #dr-backup button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
 .bk-note{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.45;margin-top:4px}
-#dr-reset{padding:14px 24px 18px;border-top:1px dashed var(--line);margin-top:auto}
-#dr-reset button{width:100%;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-family:inherit;font-size:12.5px;padding:10px 14px;cursor:pointer;transition:all .15s}
-#dr-reset button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
 
 /* ---- continue banner ---- */
 .continue-bar{
@@ -299,8 +306,9 @@ body.show-all-trans .trans{display:block}
 <div id="tip"></div>
 <div id="scrim"></div>
 
-<button id="wl-btn" title="Words you've read"><span class="hanzi">词</span><span class="cnt" id="wl-cnt">0</span></button>
+<button id="wl-btn" title="Words you've read">📖<span class="cnt" id="wl-cnt">0</span></button>
 <button id="settings-btn" title="Settings">⚙</button>
+<button id="save-btn" title="Save &amp; transfer progress">💾</button>
 
 <aside id="drawer" class="side-panel">
   <div class="dr-head">
@@ -344,20 +352,26 @@ body.show-all-trans .trans{display:block}
       <input type="checkbox" id="allTrans">
     </div>
   </div>
-<div id="dr-backup">
-  <div class="bk-head"><span class="hanzi">存档</span> · Save &amp; transfer progress</div>
-  <div class="bk-stats" id="bkStats"></div>
-  <div class="bk-row">
-    <button id="bkDownload">⤓ Download backup file</button>
-    <button id="bkCode">⧉ Copy transfer code</button>
-  </div>
-  <div class="bk-row">
-    <button id="bkRestore">⤒ Restore from file or code</button>
-  </div>
-  <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
-  <div class="bk-note" id="bkNote">Your stars and known words live in this browser only. Back them up to move to another device.</div>
-</div>
   <div id="dr-reset"><button id="resetBtn">↺ Clear history (words, stars, progress)</button></div>
+</aside>
+<aside id="savePanel" class="side-panel">
+  <div class="dr-head">
+    <h2><span class="hanzi">存档</span> · Save &amp; Transfer</h2>
+    <div class="dr-sub">Back up your progress or move it to another device</div>
+    <button id="save-close">✕</button>
+  </div>
+  <div id="dr-backup">
+    <div class="bk-stats" id="bkStats"></div>
+    <div class="bk-row">
+      <button id="bkDownload">⤓ Download backup file</button>
+      <button id="bkCode">⧉ Copy transfer code</button>
+    </div>
+    <div class="bk-row">
+      <button id="bkRestore">⤒ Restore from file or code</button>
+    </div>
+    <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
+    <div class="bk-note" id="bkNote">Your stars and known words live in this browser only. Back them up to move to another device.</div>
+  </div>
 </aside>
 
 <a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener">
@@ -819,10 +833,12 @@ try{
 }catch(e){}
 
 /* ---------- settings panel ---------- */
-const settingsPanel=$('#settingsPanel'), scrim=$('#scrim');
-function closePanels(){ settingsPanel.classList.remove('open'); drawer.classList.remove('open'); scrim.classList.remove('on'); }
+const settingsPanel=$('#settingsPanel'), savePanel=$('#savePanel'), scrim=$('#scrim');
+function closePanels(){ settingsPanel.classList.remove('open'); savePanel.classList.remove('open'); drawer.classList.remove('open'); scrim.classList.remove('on'); }
 $('#settings-btn').addEventListener('click',()=>{ settingsPanel.classList.add('open'); scrim.classList.add('on'); });
 $('#settings-close').addEventListener('click',closePanels);
+$('#save-btn').addEventListener('click',()=>{ savePanel.classList.add('open'); scrim.classList.add('on'); });
+$('#save-close').addEventListener('click',closePanels);
 scrim.addEventListener('click',closePanels);
 
 const rateRange=$('#rateRange'), rateVal=$('#rateVal');

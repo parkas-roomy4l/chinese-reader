@@ -155,6 +155,8 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
 #done button{font-family:inherit;font-size:13.5px;padding:11px 20px;cursor:pointer;border:none}
 #againBtn{background:var(--seal);color:#fff}
 #missedBtn{background:var(--gold);color:#fff}
+#starMissedBtn{background:var(--card);color:var(--gold);border:1px solid var(--gold) !important}
+#starMissedBtn:disabled{opacity:.55;cursor:default}
 #newDeckBtn{background:var(--card);color:var(--ink-soft);border:1px solid var(--line) !important}
 
 #credit-badge{
@@ -167,6 +169,38 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
 #credit-badge b{color:var(--seal)}
 @media (max-width:700px){ #credit-badge{display:none} }
 .no-tts .needs-tts{display:none}
+
+/* ---- save & transfer ---- */
+#save-btn{
+  position:fixed;left:14px;bottom:64px;z-index:110;width:50px;height:50px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+#save-btn:hover{transform:scale(1.07);background:var(--seal);color:#fff;border-color:var(--seal)}
+#save-scrim{position:fixed;inset:0;background:rgba(43,38,32,.3);z-index:106;opacity:0;pointer-events:none;transition:opacity .2s}
+#save-scrim.on{opacity:1;pointer-events:auto}
+#savePanel{
+  position:fixed;left:14px;bottom:122px;z-index:111;width:min(320px,calc(100vw - 28px));
+  background:var(--card);border:1px solid var(--line);box-shadow:0 10px 34px rgba(43,38,32,.22);
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .16s,transform .16s;
+}
+#savePanel.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+#savePanel .sp-head{padding:14px 40px 4px 18px;position:relative}
+#savePanel .sp-close{position:absolute;right:12px;top:12px;background:none;border:none;font-size:16px;color:var(--ink-soft);cursor:pointer}
+#dr-backup{padding:16px 18px}
+.bk-head{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+.bk-head .hanzi{color:var(--seal);font-size:14px;letter-spacing:0}
+.bk-stats{font-size:12px;color:var(--ink-soft);margin-bottom:12px}
+.bk-stats b{color:var(--seal);font-size:14px}
+.bk-row{display:flex;gap:8px;margin-bottom:8px}
+#dr-backup button{
+  flex:1;font-family:inherit;font-size:12px;background:var(--paper);
+  border:1px solid var(--line);color:var(--ink-soft);padding:9px 10px;cursor:pointer;transition:all .13s;
+}
+#dr-backup button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
+.bk-note{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.45;margin-top:4px}
+@media (max-width:700px){ #save-btn{bottom:16px} #savePanel{bottom:74px} }
 </style>
 </head>
 <body>
@@ -247,6 +281,7 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
   </div>
   <div class="acts">
     <button id="missedBtn">Drill the ones I missed</button>
+    <button id="starMissedBtn">★ Star the ones I missed</button>
     <button id="againBtn">Same deck again</button>
     <button id="newDeckBtn">Choose different words</button>
   </div>
@@ -256,11 +291,114 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
   <span class="cb-seal hanzi">字</span> by <b>@pourteaux</b>
 </a>
 
+<button id="save-btn" title="Save &amp; transfer progress">💾</button>
+<div id="save-scrim"></div>
+<div id="savePanel">
+  <div class="sp-head"><button class="sp-close" id="save-close">✕</button></div>
+  <div id="dr-backup">
+    <div class="bk-head"><span class="hanzi">存档</span> · Save &amp; transfer progress</div>
+    <div class="bk-stats" id="bkStats"></div>
+    <div class="bk-row">
+      <button id="bkDownload">⤓ Download backup file</button>
+      <button id="bkCode">⧉ Copy transfer code</button>
+    </div>
+    <div class="bk-row">
+      <button id="bkRestore">⤒ Restore from file or code</button>
+    </div>
+    <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
+    <div class="bk-note" id="bkNote">Your stars and known words live in this browser only. Back them up to move to another device.</div>
+  </div>
+</div>
+
 <script>
 __DATA__
 </script>
 <script>
 __STORE__
+</script>
+<script>
+/* ---------- save / transfer panel ---------- */
+(function(){
+  const $=s=>document.querySelector(s);
+  const panel=$('#savePanel'), scrim=$('#save-scrim');
+  function openSave(){ panel.classList.add('open'); scrim.classList.add('on'); }
+  function closeSave(){ panel.classList.remove('open'); scrim.classList.remove('on'); }
+  $('#save-btn').addEventListener('click',openSave);
+  $('#save-close').addEventListener('click',closeSave);
+  $('#save-scrim').addEventListener('click',closeSave);
+
+  const note=$('#bkNote'), stats=$('#bkStats');
+  const DEFAULT_NOTE='Your stars and known words live in this browser only. Back them up to move to another device.';
+
+  function refresh(){
+    if(stats) stats.innerHTML=
+      `<b>${YZYG.starCount()}</b> starred &nbsp;·&nbsp; <b>${YZYG.knownCount()}</b> known &nbsp;·&nbsp; <b>${YZYG.seenCount()}</b> read`;
+  }
+  refresh();
+  YZYG.onChange(refresh);
+
+  let noteTimer=null;
+  function say(msg,ms=4000){
+    clearTimeout(noteTimer);
+    note.textContent=msg;
+    noteTimer=setTimeout(()=>{ note.textContent=DEFAULT_NOTE; },ms);
+  }
+
+  $('#bkDownload').addEventListener('click',()=>{
+    const data=YZYG.exportData();
+    const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const d=new Date().toISOString().slice(0,10);
+    a.href=url; a.download=`yizi-progress-${d}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    say('Saved. Keep the file somewhere safe — you can restore it on any device.');
+  });
+
+  $('#bkCode').addEventListener('click',async ()=>{
+    const code=YZYG.exportCode();
+    try{
+      await navigator.clipboard.writeText(code);
+      say('Transfer code copied. Paste it into Restore on your other device.');
+    }catch(e){
+      window.prompt('Copy your transfer code:', code);
+    }
+  });
+
+  $('#bkRestore').addEventListener('click',()=>{
+    const code=window.prompt(
+      'Paste a transfer code to restore your progress.\n\n' +
+      'Leave this empty and press OK to pick a backup file instead.');
+    if(code===null) return;
+    if(!code.trim()){ $('#bkFile').click(); return; }
+    try{
+      const r=YZYG.importCode(code);
+      say(`Restored — ${r.stars} starred, ${r.known} known, ${r.seen} read.`,6000);
+      setTimeout(()=>location.reload(),1200);
+    }catch(e){
+      say('That code could not be read. Check it was copied in full.',6000);
+    }
+  });
+
+  $('#bkFile').addEventListener('change',e=>{
+    const f=e.target.files&&e.target.files[0];
+    if(!f) return;
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{
+        const r=YZYG.importData(JSON.parse(fr.result));
+        say(`Restored — ${r.stars} starred, ${r.known} known, ${r.seen} read.`,6000);
+        setTimeout(()=>location.reload(),1200);
+      }catch(err){
+        say('That file could not be read as a backup.',6000);
+      }
+    };
+    fr.onerror=()=>say('Could not read that file.',6000);
+    fr.readAsText(f);
+    e.target.value='';
+  });
+})();
 </script>
 <script>
 (function(){
@@ -446,9 +584,21 @@ function finish(){
   $('#dMissed').textContent=missed.length;
   $('#dStarred').textContent=starsAdded;
   $('#missedBtn').style.display=missed.length?'':'none';
+  $('#starMissedBtn').style.display=missed.length?'':'none';
+  $('#starMissedBtn').disabled=false;
+  $('#starMissedBtn').textContent='★ Star the ones I missed';
 }
 $('#quitBtn').addEventListener('click',()=>{ finish(); });
 $('#missedBtn').addEventListener('click',()=>startSession(missed));
+$('#starMissedBtn').addEventListener('click',()=>{
+  if(!missed.length) return;
+  let added=0;
+  missed.forEach(w=>{ if(!YZYG.isStarred(w)){ YZYG.setStar(w,true); added++; } });
+  starsAdded+=added;
+  $('#dStarred').textContent=starsAdded;
+  $('#starMissedBtn').textContent=`★ Starred ${missed.length} word${missed.length===1?'':'s'}`;
+  $('#starMissedBtn').disabled=true;
+});
 $('#againBtn').addEventListener('click',()=>startSession(deck));
 $('#newDeckBtn').addEventListener('click',()=>{
   $('#done').classList.remove('on');
