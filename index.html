@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#f7f3ea">
-<title>一字一世界 · A Graded Chinese Reader &amp; Game</title>
+<title>一字一世界 · Learn the 1,000 Essential Words of Modern Chinese</title>
 <meta name="description" content="Learn 500 words of Chinese, one at a time — read a graded story, or play a hanzi recognition game. Every HSK 1 & 2 word plus 200 essentials of modern life in China.">
 
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -15,14 +15,14 @@
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="一字一世界">
-<meta property="og:title" content="一字一世界 · A Graded Chinese Reader & Game">
+<meta property="og:title" content="一字一世界 · Learn the 1,000 Essential Words of Modern Chinese">
 <meta property="og:description" content="The 1,000 words that carry modern Chinese life — a graded reader, a novel, and a recognition game.">
 <meta property="og:url" content="https://chinesereader.net/">
 <meta property="og:image" content="https://chinesereader.net/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="一字一世界 · A Graded Chinese Reader & Game">
+<meta name="twitter:title" content="一字一世界 · Learn the 1,000 Essential Words of Modern Chinese">
 <meta name="twitter:description" content="The 1,000 words that carry modern Chinese life — a graded reader, a novel, and a recognition game.">
 <meta name="twitter:image" content="https://chinesereader.net/og-image.png">
 <meta name="twitter:creator" content="@pourteaux">
@@ -54,12 +54,12 @@ h1{font-size:clamp(42px,8vw,64px);font-weight:400;letter-spacing:.08em}
 /* ---- choice cards ---- */
 main{flex:1;display:flex;align-items:center;justify-content:center;padding:34px 22px 40px}
 .choices{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
-  width:100%;max-width:1080px;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:18px;
+  width:100%;max-width:900px;
 }
 .choice{
   position:relative;display:flex;flex-direction:column;
-  min-height:360px;padding:30px 26px;
+  min-height:260px;padding:28px 26px;
   background:var(--card);border:1px solid var(--line);
   text-decoration:none;color:inherit;overflow:hidden;
   transition:transform .18s cubic-bezier(.3,0,.2,1), box-shadow .18s, border-color .18s;
@@ -71,12 +71,17 @@ main{flex:1;display:flex;align-items:center;justify-content:center;padding:34px 
 .choice.read::before{background:var(--seal)}
 .choice.play::before{background:var(--jade)}
 .choice.adult::before{background:var(--indigo)}
+.choice.cards::before{background:#e0a92b}
+.choice.cards:hover{border-color:#e0a92b}
+.choice.cards .glyph{color:#e0a92b}
+.choice.cards .badge{color:#b5851f;border-color:#e8d3a2}
+.choice.cards .h2-py{color:#b5851f}
+.choice.cards .go{color:#b5851f}
 .choice.adult:hover{border-color:#5d6f8f}
 .choice.adult .glyph{color:var(--indigo)}
 .choice.adult .badge{color:var(--indigo);border-color:#b6bfd0}
 .choice.adult .h2-py{color:var(--indigo)}
 .choice.adult .go{color:var(--indigo)}
-.choice .rating-tag{display:inline-block;margin-top:10px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#9c9384;border:1px solid var(--line);padding:2px 8px}
 .choice:hover::before{width:7px}
 .choice.read:hover{border-color:var(--seal-soft)}
 .choice.play:hover{border-color:var(--jade-soft)}
@@ -115,7 +120,7 @@ footer .mission{font-style:italic;font-size:14px;color:var(--ink-soft);margin-bo
 footer a{color:var(--seal);text-decoration:none;border-bottom:1px solid #dcb6ae}
 footer a:hover{color:var(--seal-soft)}
 
-@media (max-width:940px){
+@media (max-width:820px){
   .choices{grid-template-columns:1fr;max-width:460px}
   .choice{min-height:0}
 }
@@ -147,10 +152,10 @@ footer a:hover{color:var(--seal-soft)}
   <div class="choices">
     <a class="choice read" href="read.html">
       <span class="glyph hanzi">读</span>
-      <span class="badge">the reader</span>
+      <span class="badge">beginner reader</span>
       <h2 class="hanzi">读书</h2>
       <div class="h2-py">dú shū · read the story</div>
-      <p>Start from zero. Follow 李小美, her enormous cat 包子, and friend 大卫 through daily life in Beijing — a graded story that introduces exactly one new word at a time, 500 in all.</p>
+      <p>Start from zero. Follow 李小美 and her enormous cat 包子 through daily life in Beijing — a story that introduces exactly one new word at a time.</p>
       <span class="go">Start reading <span class="arrow">→</span></span>
     </a>
 
@@ -159,18 +164,26 @@ footer a:hover{color:var(--seal-soft)}
       <span class="badge">the game</span>
       <h2 class="hanzi">一字一格</h2>
       <div class="h2-py">yī zì yī gé · the tile game</div>
-      <p>A honeycomb of all 1,000 words. Pick a tile you recognize, reveal it, and be honest — clear a green path outward from the easy center toward the harder rim. How long a streak can you build?</p>
+      <p>A honeycomb of all 1,000 words. Pick a tile you recognize, reveal it, and be honest — clear a green path from the easy center toward the harder rim.</p>
       <span class="go">Play the game <span class="arrow">→</span></span>
     </a>
 
     <a class="choice adult" href="intermediate.html">
       <span class="glyph hanzi">雨</span>
-      <span class="badge">intermediate</span>
+      <span class="badge">early intermediate</span>
       <h2 class="hanzi">北京有雨</h2>
       <div class="h2-py">Běijīng yǒu yǔ · a novel</div>
-      <p>Then read a real story. A novel of modern Beijing — ambition, marriage, and the year everything came apart. Written entirely in the 1,000 words. No stopping to teach; just tap anything you don't know.</p>
-      <span class="rating-tag">Adult themes</span>
+      <p>A novel of modern Beijing — ambition, marriage, and the year everything came apart. No stopping to teach; just tap anything you don't know.</p>
       <span class="go">Start the novel <span class="arrow">→</span></span>
+    </a>
+
+    <a class="choice cards" href="cards.html">
+      <span class="glyph hanzi">卡</span>
+      <span class="badge">flashcards</span>
+      <h2 class="hanzi">生词卡</h2>
+      <div class="h2-py">shēngcí kǎ · flashcards</div>
+      <p>Drill any slice of the list — one HSK level, the words you've read, or just your starred ones. Choose what goes on the front: characters, pinyin, or the spoken word alone.</p>
+      <span class="go">Study the cards <span class="arrow">→</span></span>
     </a>
   </div>
 </main>

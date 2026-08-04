@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#f7f3ea">
-<title>一字一世界 · A Graded Chinese Reader — 500 Words from Zero</title>
+<title>读书 · The Beginner Reader — 一字一世界</title>
 <meta name="description" content="A graded Chinese reader that starts at zero and introduces one word at a time — all 300 HSK 1 & 2 words plus 200 essentials of modern life in China. Tap any word for pinyin and meaning.">
 
 <!-- Favicons -->
@@ -278,6 +278,17 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 
 
 #dr-play{padding:10px 24px 12px;border-bottom:1px solid var(--line)}
+#dr-play{display:flex;gap:8px}
+#dr-play button{flex:1}
+#cardsBtn{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  background:#e0a92b;border:none;color:#fff;font-family:inherit;font-size:13px;
+  letter-spacing:.04em;padding:11px 10px;cursor:pointer;transition:all .14s;
+}
+#cardsBtn:hover{background:#c9971f}
+#cardsBtn:disabled{background:var(--line);color:var(--ink-soft);cursor:default}
+#cardsBtn .hanzi{font-size:15px}
+
 #playBtn{
   width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
   background:var(--jade);border:none;color:#fff;font-family:inherit;font-size:13px;
@@ -286,6 +297,18 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
 #playBtn:hover{background:var(--jade-soft,#5d8a77)}
 #playBtn:disabled{background:var(--line);color:var(--ink-soft);cursor:default}
 #playBtn .hanzi{font-size:15px}
+#dr-backup{padding:16px 24px;border-top:1px dashed var(--line)}
+.bk-head{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+.bk-head .hanzi{color:var(--seal);font-size:14px;letter-spacing:0}
+.bk-stats{font-size:12px;color:var(--ink-soft);margin-bottom:12px}
+.bk-stats b{color:var(--seal);font-size:14px}
+.bk-row{display:flex;gap:8px;margin-bottom:8px}
+#dr-backup button{
+  flex:1;font-family:inherit;font-size:12px;background:var(--card);
+  border:1px solid var(--line);color:var(--ink-soft);padding:9px 10px;cursor:pointer;transition:all .13s;
+}
+#dr-backup button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
+.bk-note{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.45;margin-top:4px}
 #dr-reset{padding:14px 24px 18px;border-top:1px dashed var(--line)}
 #dr-reset button{
   width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -356,7 +379,7 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     <span><b id="st-ch">30</b> chapters</span>
     <span><b id="st-seg">0</b> segments read</span>
   </div>
-  <p class="game-link"><a href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a href="game.html"><span class="hanzi">一字一格</span> · the game</a> &nbsp;·&nbsp; <a href="intermediate.html"><span class="hanzi">北京有雨</span> · the novel →</a></p>
+  <p class="game-link"><a href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a href="cards.html"><span class="hanzi">生词卡</span> · flashcards</a> &nbsp;·&nbsp; <a href="game.html"><span class="hanzi">一字一格</span> · the game</a> &nbsp;·&nbsp; <a href="intermediate.html"><span class="hanzi">北京有雨</span> · early intermediate →</a></p>
 </header>
 
 <div class="continue-bar" id="continueBar" style="display:none">
@@ -393,7 +416,10 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     <button id="reviewToggle">★ <span>Review list</span></button>
     <span id="reviewCount"></span>
   </div>
-  <div id="dr-play"><button id="playBtn"><span class="hanzi">复习</span> Play these words →</button></div>
+  <div id="dr-play">
+    <button id="playBtn"><span class="hanzi">复习</span> Play these words →</button>
+    <button id="cardsBtn"><span class="hanzi">生词卡</span> Flashcards →</button>
+  </div>
   <div id="dr-list"></div>
   <div id="dr-lock">Keep reading — words appear here as you meet them in the story.</div>
 </aside>
@@ -417,6 +443,19 @@ main{max-width:680px;margin:26px auto 0;padding:0 24px 120px}
     </div>
     <div id="voiceNote"></div>
   </div>
+<div id="dr-backup">
+  <div class="bk-head"><span class="hanzi">存档</span> · Save &amp; transfer progress</div>
+  <div class="bk-stats" id="bkStats"></div>
+  <div class="bk-row">
+    <button id="bkDownload">⤓ Download backup file</button>
+    <button id="bkCode">⧉ Copy transfer code</button>
+  </div>
+  <div class="bk-row">
+    <button id="bkRestore">⤒ Restore from file or code</button>
+  </div>
+  <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
+  <div class="bk-note" id="bkNote">Your stars and known words live in this browser only. Back them up to move to another device.</div>
+</div>
   <div id="dr-reset"><button id="resetBtn"><span class="rst-icon">↺</span> Reset all progress</button></div>
 </aside>
 
@@ -1531,6 +1570,153 @@ const STORY = [
 
 </script>
 <script>
+/* ============================================================
+   一字一世界 — shared progress store
+   One source of truth for starred words and known words across
+   every page. Inlined into each page by the build step.
+   ============================================================ */
+const YZYG = (function(){
+  const STAR_KEY='yzyg-stars-v1';
+  const KNOWN_KEY='yzyg-known-v1';
+  const SEEN_KEY='yzyg-seen-v1';
+
+  /* legacy keys from before the stores were unified */
+  const LEGACY_STARS=['manmandu-review-v1','yzyg-int-review-v1'];
+  const LEGACY_SEEN=['yzyg-int-collected-v1'];
+
+  function readSet(key){
+    try{ const raw=localStorage.getItem(key); return raw?new Set(JSON.parse(raw)):new Set(); }
+    catch(e){ return new Set(); }
+  }
+  function writeSet(key,set){
+    try{ localStorage.setItem(key, JSON.stringify([...set])); }catch(e){}
+  }
+
+  let stars=readSet(STAR_KEY);
+  let known=readSet(KNOWN_KEY);
+  let seen=readSet(SEEN_KEY);
+
+  /* one-time migration: fold the old per-page lists into the unified ones */
+  (function migrate(){
+    let changed=false;
+    LEGACY_STARS.forEach(k=>{
+      const old=readSet(k);
+      if(old.size){ old.forEach(w=>stars.add(w)); changed=true; try{ localStorage.removeItem(k); }catch(e){} }
+    });
+    LEGACY_SEEN.forEach(k=>{
+      const old=readSet(k);
+      if(old.size){ old.forEach(w=>seen.add(w)); try{ localStorage.removeItem(k); }catch(e){} }
+    });
+    if(changed) writeSet(STAR_KEY,stars);
+    writeSet(SEEN_KEY,seen);
+  })();
+
+  /* listeners so open panels can refresh when something changes */
+  const listeners=new Set();
+  function notify(){ listeners.forEach(fn=>{ try{ fn(); }catch(e){} }); }
+
+  /* keep multiple open tabs in sync */
+  window.addEventListener('storage',e=>{
+    if(e.key===STAR_KEY){ stars=readSet(STAR_KEY); notify(); }
+    if(e.key===KNOWN_KEY){ known=readSet(KNOWN_KEY); notify(); }
+    if(e.key===SEEN_KEY){ seen=readSet(SEEN_KEY); notify(); }
+  });
+
+  return {
+    /* ---- starred ---- */
+    isStarred: w=>stars.has(w),
+    stars: ()=>stars,
+    starCount: ()=>stars.size,
+    toggleStar(w){
+      if(stars.has(w)) stars.delete(w); else stars.add(w);
+      writeSet(STAR_KEY,stars); notify();
+      return stars.has(w);
+    },
+    setStar(w,on){
+      if(on) stars.add(w); else stars.delete(w);
+      writeSet(STAR_KEY,stars); notify();
+    },
+
+    /* ---- known ---- */
+    isKnown: w=>known.has(w),
+    known: ()=>known,
+    knownCount: ()=>known.size,
+    markKnown(w){ if(!known.has(w)){ known.add(w); writeSet(KNOWN_KEY,known); notify(); } },
+    unmarkKnown(w){ if(known.has(w)){ known.delete(w); writeSet(KNOWN_KEY,known); notify(); } },
+    toggleKnown(w){ known.has(w)?known.delete(w):known.add(w); writeSet(KNOWN_KEY,known); notify(); return known.has(w); },
+
+    /* ---- seen (words encountered while reading) ---- */
+    isSeen: w=>seen.has(w),
+    seen: ()=>seen,
+    seenCount: ()=>seen.size,
+    markSeen(words){
+      let added=false;
+      (Array.isArray(words)?words:[words]).forEach(w=>{ if(w && !seen.has(w)){ seen.add(w); added=true; } });
+      if(added){ writeSet(SEEN_KEY,seen); notify(); }
+      return added;
+    },
+    flushSeen(){ writeSet(SEEN_KEY,seen); },
+
+    onChange(fn){ listeners.add(fn); return ()=>listeners.delete(fn); },
+
+    /* ---- backup / restore ----
+       Exports everything as one JSON payload. Also available as a compact
+       base64 code so progress can move between devices by copy-paste. */
+    exportData(){
+      return {
+        v:1,
+        app:'yzyg',
+        exported:new Date().toISOString(),
+        stars:[...stars],
+        known:[...known],
+        seen:[...seen],
+        progress:{
+          reader: (()=>{ try{ return JSON.parse(localStorage.getItem('manmandu-progress-v1')||'null'); }catch(e){ return null; } })(),
+          novel:  (()=>{ try{ return JSON.parse(localStorage.getItem('yzyg-int-progress-v1')||'null'); }catch(e){ return null; } })()
+        },
+        best: parseInt(localStorage.getItem('yzyg-best')||'0',10)||0
+      };
+    },
+    exportCode(){
+      /* base64 of the UTF-8 JSON — safe to paste anywhere */
+      const json=JSON.stringify(this.exportData());
+      const bytes=new TextEncoder().encode(json);
+      let bin=''; bytes.forEach(b=>bin+=String.fromCharCode(b));
+      return btoa(bin);
+    },
+    importData(obj,{merge=true}={}){
+      if(!obj || obj.app!=='yzyg') throw new Error('This does not look like a 一字一世界 backup.');
+      if(!merge){ stars=new Set(); known=new Set(); seen=new Set(); }
+      (obj.stars||[]).forEach(w=>stars.add(w));
+      (obj.known||[]).forEach(w=>known.add(w));
+      (obj.seen ||[]).forEach(w=>seen.add(w));
+      writeSet(STAR_KEY,stars); writeSet(KNOWN_KEY,known); writeSet(SEEN_KEY,seen);
+      try{
+        if(obj.progress&&obj.progress.reader) localStorage.setItem('manmandu-progress-v1',JSON.stringify(obj.progress.reader));
+        if(obj.progress&&obj.progress.novel)  localStorage.setItem('yzyg-int-progress-v1',JSON.stringify(obj.progress.novel));
+        if(obj.best) localStorage.setItem('yzyg-best',String(Math.max(obj.best, parseInt(localStorage.getItem('yzyg-best')||'0',10)||0)));
+      }catch(e){}
+      notify();
+      return {stars:stars.size, known:known.size, seen:seen.size};
+    },
+    importCode(code,opts){
+      const bin=atob(String(code).trim());
+      const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+      const json=new TextDecoder().decode(bytes);
+      return this.importData(JSON.parse(json),opts);
+    },
+    clearAll(){
+      stars=new Set(); known=new Set(); seen=new Set();
+      try{
+        [STAR_KEY,KNOWN_KEY,SEEN_KEY,'manmandu-progress-v1','yzyg-int-progress-v1'].forEach(k=>localStorage.removeItem(k));
+      }catch(e){}
+      notify();
+    }
+  };
+})();
+
+</script>
+<script>
 (function(){
 const $=s=>document.querySelector(s);
 const storyEl=$('#story'), tocEl=$('#toc');
@@ -1731,6 +1917,7 @@ let hskN=0, essN=0;
 const stHsk=$('#st-hsk'), stEss=$('#st-ess'), stSeg=$('#st-seg'), wlCnt=$('#wl-cnt'), drHsk=$('#dr-hsk'), drTot=$('#dr-tot');
 function unlock(sec){
   const w=sec.dataset.nw;
+  if(w) YZYG.markSeen(w);
   if(unlocked.has(w))return;
   unlocked.add(w); order.push(w);
   const lv=VOCAB[w].l;
@@ -1757,22 +1944,17 @@ window.addEventListener('scroll',()=>{
   $('#progressbar').style.width=p+'%';
 },{passive:true});
 
-/* ---------- mark-for-review ---------- */
-const REVIEW_KEY='manmandu-review-v1';
-let review=new Set();
-try{ const raw=localStorage.getItem(REVIEW_KEY); if(raw) review=new Set(JSON.parse(raw)); }catch(e){}
-function saveReview(){ try{ localStorage.setItem(REVIEW_KEY, JSON.stringify([...review])); }catch(e){} }
+/* ---------- mark-for-review (backed by the shared store) ---------- */
+const review={ has:w=>YZYG.isStarred(w), get size(){ return YZYG.starCount(); } };
 function toggleReview(w){
-  if(review.has(w)) review.delete(w); else review.add(w);
-  saveReview();
-  // sync every star for this word across the page + drawer
-  document.querySelectorAll(`.star[data-star="${w}"]`).forEach(b=>b.classList.toggle('on', review.has(w)));
+  const on=YZYG.toggleStar(w);
+  document.querySelectorAll(`.star[data-star="${w}"]`).forEach(b=>b.classList.toggle('on', on));
   updateReviewCount();
   if(reviewOnly) { drawerDirty=true; renderDrawer(); }
 }
 function updateReviewCount(){
   const c=$('#reviewCount');
-  if(c) c.textContent = review.size ? `${review.size} marked` : '';
+  if(c) c.textContent = YZYG.starCount() ? `${YZYG.starCount()} marked` : '';
 }
 let reviewOnly=false;
 
@@ -1809,6 +1991,8 @@ function refreshPlayBtn(){
   const btn=document.getElementById('playBtn'); if(!btn) return;
   const n=currentDrawerWords().length;
   btn.disabled=n===0;
+  const cb=document.getElementById('cardsBtn');
+  if(cb){ cb.disabled=n===0; cb.innerHTML=n?`<span class="hanzi">生词卡</span> Flashcards →`:`<span class="hanzi">生词卡</span> —`; }
   btn.innerHTML=n?`<span class="hanzi">复习</span> Play these ${n} word${n===1?'':'s'} →`
                  :`<span class="hanzi">复习</span> No words to play yet`;
 }
@@ -1824,6 +2008,20 @@ function refreshPlayBtn(){
     location.href='game.html?custom=1';
   });
 })();
+
+(function(){
+  const cb=document.getElementById('cardsBtn'); if(!cb) return;
+  cb.addEventListener('click',()=>{
+    const words=currentDrawerWords();
+    if(!words.length) return;
+    let label=DRAWER_LABEL;
+    if(typeof reviewOnly!=='undefined' && reviewOnly) label='your starred words';
+    else if(drSearch && drSearch.value.trim()) label='"'+drSearch.value.trim()+'"';
+    try{ localStorage.setItem('yzyg-custom-set', JSON.stringify({words,label})); }catch(e){}
+    location.href='cards.html?custom=1';
+  });
+})();
+
 
 function closePanels(){
   drawer.classList.remove('open');
@@ -1891,6 +2089,83 @@ if(voiceTestBtn){
 }
 
 /* ---------- reset progress ---------- */
+/* ---------- backup / restore ---------- */
+(function(){
+  const $=s=>document.querySelector(s);
+  const note=$('#bkNote'), stats=$('#bkStats');
+  if(!note) return;
+  const DEFAULT_NOTE='Your stars and known words live in this browser only. Back them up to move to another device.';
+
+  function refresh(){
+    if(stats) stats.innerHTML=
+      `<b>${YZYG.starCount()}</b> starred &nbsp;·&nbsp; <b>${YZYG.knownCount()}</b> known &nbsp;·&nbsp; <b>${YZYG.seenCount()}</b> read`;
+  }
+  refresh();
+  YZYG.onChange(refresh);
+
+  let noteTimer=null;
+  function say(msg,ms=4000){
+    clearTimeout(noteTimer);
+    note.textContent=msg;
+    noteTimer=setTimeout(()=>{ note.textContent=DEFAULT_NOTE; },ms);
+  }
+
+  $('#bkDownload').addEventListener('click',()=>{
+    const data=YZYG.exportData();
+    const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const d=new Date().toISOString().slice(0,10);
+    a.href=url; a.download=`yizi-progress-${d}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    say('Saved. Keep the file somewhere safe — you can restore it on any device.');
+  });
+
+  $('#bkCode').addEventListener('click',async ()=>{
+    const code=YZYG.exportCode();
+    try{
+      await navigator.clipboard.writeText(code);
+      say('Transfer code copied. Paste it into Restore on your other device.');
+    }catch(e){
+      window.prompt('Copy your transfer code:', code);
+    }
+  });
+
+  $('#bkRestore').addEventListener('click',()=>{
+    const code=window.prompt(
+      'Paste a transfer code to restore your progress.\n\n' +
+      'Leave this empty and press OK to pick a backup file instead.');
+    if(code===null) return;
+    if(!code.trim()){ $('#bkFile').click(); return; }
+    try{
+      const r=YZYG.importCode(code);
+      say(`Restored — ${r.stars} starred, ${r.known} known, ${r.seen} read.`,6000);
+      setTimeout(()=>location.reload(),1200);
+    }catch(e){
+      say('That code could not be read. Check it was copied in full.',6000);
+    }
+  });
+
+  $('#bkFile').addEventListener('change',e=>{
+    const f=e.target.files&&e.target.files[0];
+    if(!f) return;
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{
+        const r=YZYG.importData(JSON.parse(fr.result));
+        say(`Restored — ${r.stars} starred, ${r.known} known, ${r.seen} read.`,6000);
+        setTimeout(()=>location.reload(),1200);
+      }catch(err){
+        say('That file could not be read as a backup.',6000);
+      }
+    };
+    fr.onerror=()=>say('Could not read that file.',6000);
+    fr.readAsText(f);
+    e.target.value='';
+  });
+})();
+
 $('#resetBtn').addEventListener('click',()=>{
   if(confirm('Reset all progress on this device? This clears your unlocked words.')){
     try{ localStorage.removeItem(LS_KEY); }catch(e){}

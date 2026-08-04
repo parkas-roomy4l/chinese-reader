@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#f7f3ea">
-<title>一字一格 · The Tile Game — 一字一世界</title>
-<meta name="description" content="A hanzi recognition game: climb across a honeycomb of Chinese characters, one word at a time. Same 500 words as the reader.">
+<title>生词卡 · Flashcards — 一字一世界</title>
+<meta name="description" content="Flashcards for the 1,000 essential words of modern Chinese life. Filter by level or starred words, and choose what goes on the front of the card.">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -15,388 +15,244 @@
   color-scheme: only light;
   --paper:#f7f3ea; --paper-deep:#efe9db; --ink:#2b2620; --ink-soft:#6b6357;
   --seal:#b02e20; --seal-soft:#c9553f; --jade:#3e6b5a; --jade-soft:#5d8a77; --indigo:#3d4d6b;
-  --line:#d9d0bf; --card:#fffdf8;
+  --line:#d9d0bf; --card:#fffdf8; --gold:#e0a92b;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{background:#f7f3ea !important}
 body{
-  background:var(--bg,#f7f3ea) !important; color:#2b2620 !important;
-  font-family:Georgia,'Times New Roman',serif; line-height:1.5;
+  background:#f7f3ea !important; color:#2b2620 !important;
+  font-family:Georgia,'Times New Roman',serif; line-height:1.55;
   min-height:100vh; display:flex; flex-direction:column;
-  transition:background .8s ease;
 }
-
-/* ---- heat levels: background + accent escalate with streak & depth ---- */
-:root{ --bg:#f7f3ea; --heat-a:#b02e20; --heat-b:#3e6b5a; --tile-fill:#3e6b5a; --tile-stroke:#3e6b5a; }
-body[data-heat="0"]{ --bg:#f7f3ea; --heat-a:#b02e20; --heat-b:#3e6b5a; --tile-fill:#3e6b5a; --tile-stroke:#3e6b5a; }
-body[data-heat="1"]{ --bg:#f4ead9; --heat-a:#c9553f; --heat-b:#3e8a6b; --tile-fill:#3e8a6b; --tile-stroke:#357a5d; }
-body[data-heat="2"]{ --bg:#f7e6c8; --heat-a:#e0662a; --heat-b:#2f9e6f; --tile-fill:#22a06b; --tile-stroke:#1c8a5b; }
-body[data-heat="3"]{ --bg:#fde3b0; --heat-a:#f5721a; --heat-b:#16b37e; --tile-fill:#12bd7a; --tile-stroke:#0aa268; }
-body[data-heat="4"]{ --bg:#ffd98f; --heat-a:#ff5a1f; --heat-b:#00c98a; --tile-fill:#0dd487; --tile-stroke:#08b873; }
-body[data-heat="5"]{ --bg:#ffcf6b; --heat-a:#ff3d81; --heat-b:#00e0a0; --tile-fill:#12e39a; --tile-stroke:#00c98a; }
-body[data-heat="6"]{ --bg:#ffb84d; --heat-a:#ff1f9c; --heat-b:#26ffb0; --tile-fill:#00f5b0; --tile-stroke:#00d9a0; }
-body[data-heat="7"]{ --bg:#ff9a3d; --heat-a:#ff00b8; --heat-b:#4dffd0; --tile-fill:#3dffce; --tile-stroke:#00f0c0; }
-body[data-heat="8"]{ --bg:#b93dff; --heat-a:#ff2ec4; --heat-b:#6effe0; --tile-fill:#6bffe6; --tile-stroke:#2ff5d0; }
-body[data-heat="9"]{ --bg:#7b1fff; --heat-a:#ff29d7; --heat-b:#8affe8; --tile-fill:#9dffee; --tile-stroke:#4dffdd; }
-/* level 10+: full rave with animated hue-shift background */
-body[data-heat="10"]{ --heat-a:#ff2ee6; --heat-b:#a6ffff; --tile-fill:#c4ffff; --tile-stroke:#7dffff;
-  animation:rave 3.2s linear infinite; }
-@keyframes rave{
-  0%{ background:#8a1fff !important; }
-  25%{ background:#ff1f9c !important; }
-  50%{ background:#1fb0ff !important; }
-  75%{ background:#00e88a !important; }
-  100%{ background:#8a1fff !important; }
-}
-/* at high heat, dim the scholarly header chrome so the color takes over */
-body[data-heat="8"] header, body[data-heat="9"] header, body[data-heat="10"] header{ opacity:.5; }
 .hanzi{font-family:'Kaiti SC','KaiTi','STKaiti','Kaiti TC','Noto Serif SC',serif}
 
-header{max-width:760px;margin:0 auto;padding:34px 20px 6px;text-align:center}
-.brand{display:flex;align-items:baseline;justify-content:center;gap:12px;flex-wrap:wrap}
-h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.08em}
-.brand-pinyin{color:var(--seal);font-style:italic;font-size:14.5px;letter-spacing:.1em}
-.how{margin-top:8px;color:var(--ink-soft);font-size:13.5px;font-style:italic}
-.back-link{display:inline-block;margin-top:9px;font-size:12.5px;color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line)}
-.back-link:hover{color:var(--seal);border-color:var(--seal)}
+header{max-width:760px;margin:0 auto;padding:44px 22px 4px;text-align:center}
+h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
+.brand-pinyin{display:block;color:var(--seal);font-style:italic;font-size:14px;letter-spacing:.12em;margin-top:7px}
+.navlinks{margin-top:13px;font-size:12.5px}
+.navlinks a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line)}
+.navlinks a:hover{color:var(--seal);border-color:var(--seal)}
 
-/* ---- board ---- */
-.board-wrap{flex:1;position:relative;display:flex;justify-content:center;align-items:stretch;padding:8px 8px 150px;min-height:0}
-svg#board{display:block;touch-action:none;cursor:grab;width:100%;height:calc(100vh - 275px);min-height:340px}
-svg#board.panning{cursor:grabbing}
-#zoomctl{
-  position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:55;
-  display:flex;flex-direction:column;gap:8px;
+/* ---------- setup ---------- */
+#setup{max-width:620px;margin:0 auto;padding:26px 22px 60px}
+.panel{background:var(--card);border:1px solid var(--line);padding:22px 24px;margin-bottom:18px}
+.panel h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  font-family:inherit;font-size:13px;cursor:pointer;padding:8px 14px;
+  background:var(--paper);border:1px solid var(--line);color:var(--ink);transition:all .13s;
+  display:flex;align-items:center;gap:7px;
 }
-#zoomctl button{
-  width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
-  background:var(--card);color:var(--seal);cursor:pointer;font-size:17px;font-family:Georgia,serif;
-  box-shadow:0 2px 10px rgba(43,38,32,.14);transition:all .13s;line-height:1;
-  display:flex;align-items:center;justify-content:center;padding:0;text-align:center;
-}
-#zoomctl button:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
-.pan-hint{text-align:center;font-size:11.5px;color:var(--ink-soft);font-style:italic;margin-top:6px;letter-spacing:.04em}
+.chip:hover{border-color:var(--seal-soft);color:var(--seal)}
+.chip.on{background:var(--seal);border-color:var(--seal);color:#fff}
+.chip .n{font-size:11px;opacity:.7}
+.chip.gold.on{background:var(--gold);border-color:var(--gold)}
+.chip:disabled{opacity:.4;cursor:default}
+.chip:disabled:hover{border-color:var(--line);color:var(--ink)}
 
-/* ---- fullscreen board mode ---- */
-body.board-fs header,
-body.board-fs .pan-hint{display:none}
-body.board-fs .board-wrap{padding:6px 6px 84px}
-body.board-fs svg#board{height:calc(100vh - 96px)}
-#fsBtn.active{background:var(--seal);color:#fff;border-color:var(--seal)}
-#practiceBtn{font-family:'Kaiti SC','KaiTi','STKaiti',serif;font-size:17px}
-#practiceBtn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.opt{display:flex;flex-direction:column;gap:9px}
+.opt label{
+  display:flex;align-items:flex-start;gap:11px;cursor:pointer;padding:10px 13px;
+  border:1px solid var(--line);background:var(--paper);transition:all .13s;
+}
+.opt label:hover{border-color:var(--seal-soft)}
+.opt label.on{border-color:var(--seal);background:#fbeeec}
+.opt input{margin-top:3px;accent-color:var(--seal);flex:none}
+.opt .lab{font-size:14px}
+.opt .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
 
-/* practice mode: strip the game down to pure study */
-body.practice .pan-hint b{color:var(--indigo)}
-#customBanner{
-  position:fixed;left:50%;transform:translateX(-50%);top:0;z-index:79;
-  background:var(--jade);color:#fff;padding:6px 18px;
-  font-size:12.5px;letter-spacing:.04em;display:none;align-items:center;gap:12px;
-  border-radius:0 0 6px 6px;box-shadow:0 3px 12px rgba(43,38,32,.2);
+.startrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#startBtn{
+  flex:1;min-width:200px;background:var(--seal);color:#fff;border:none;font-family:inherit;
+  font-size:15px;letter-spacing:.05em;padding:15px 20px;cursor:pointer;transition:background .14s;
 }
-body.custom #customBanner{display:flex}
-#customBanner b{font-size:14px}
-#customBanner #cbExit{color:#cfe8dc;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:1px}
-#customBanner #cbExit:hover{color:#fff}
-@media (max-width:560px){ #customBanner{font-size:11px;padding:5px 12px;gap:8px} }
-#practiceBanner{
-  position:fixed;left:50%;transform:translateX(-50%);top:0;z-index:79;
-  background:var(--indigo);color:#fff;padding:5px 18px;
-  font-size:12px;letter-spacing:.1em;display:none;
-  border-radius:0 0 6px 6px;box-shadow:0 3px 12px rgba(43,38,32,.2);
-}
-body.practice #customBanner{
-  position:fixed;left:50%;transform:translateX(-50%);top:0;z-index:79;
-  background:var(--jade);color:#fff;padding:6px 18px;
-  font-size:12.5px;letter-spacing:.04em;display:none;align-items:center;gap:12px;
-  border-radius:0 0 6px 6px;box-shadow:0 3px 12px rgba(43,38,32,.2);
-}
-body.custom #customBanner{display:flex}
-#customBanner b{font-size:14px}
-#customBanner #cbExit{color:#cfe8dc;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:1px}
-#customBanner #cbExit:hover{color:#fff}
-@media (max-width:560px){ #customBanner{font-size:11px;padding:5px 12px;gap:8px} }
-#practiceBanner{display:block}
-body.practice #scorebar .sc:not(.jade){opacity:.35}
-@media (max-width:560px){ #zoomctl{right:10px} #zoomctl button{width:36px;height:36px;font-size:15px} }
-.hex{cursor:pointer}
-.hex polygon{fill:var(--card);stroke:var(--line);stroke-width:1.6;transition:fill .18s, stroke .18s}
-.hex text{fill:var(--ink);pointer-events:none;user-select:none}
-.hex.eligible polygon{stroke:var(--seal-soft);stroke-width:2;fill:#fdf6f0}
-.hex.selected polygon{stroke:var(--seal);stroke-width:3;fill:#fbeeec}
-.hex.correct{cursor:default}
-.hex.correct polygon{fill:var(--tile-fill);stroke:var(--tile-stroke);transition:fill .5s, stroke .5s}
-.hex.correct text{fill:#fdfbf5}
-/* protected tiles — locked in at every 50 cleared, safe from losses */
-.hex.protected polygon{fill:#1a1712;stroke:#000;transition:fill .5s, stroke .5s}
-.hex.protected text{fill:#f0c46b}
-@keyframes lockpulse{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
-.hex.locking{animation:lockpulse .5s cubic-bezier(.3,1.3,.5,1)}
-.hex.lastcorrect polygon{stroke:#fff;stroke-width:3}
-.hex.wrong polygon{fill:var(--seal);stroke:var(--seal)}
-.hex.wrong text{fill:#fff}
-.hex.dimmed{cursor:default}
-.hex.dimmed polygon{opacity:.55}
-.hex.dimmed text{opacity:.45}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-.hex.shake{animation:shake .35s}
-@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.14)}100%{transform:scale(1)}}
-.hex.pop{animation:pop .3s}
-@keyframes popbig{0%{transform:scale(1)}35%{transform:scale(1.35)}100%{transform:scale(1)}}
-.hex.popbig{animation:popbig .42s cubic-bezier(.3,1.4,.5,1)}
-.hex{transform-box:fill-box;transform-origin:center}
+#startBtn:hover{background:var(--seal-soft)}
+#startBtn:disabled{background:var(--line);color:var(--ink-soft);cursor:default}
+#deckCount{font-size:13px;color:var(--ink-soft)}
+#deckCount b{color:var(--seal);font-size:17px}
+.shufflerow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);margin-top:12px}
+.shufflerow input{accent-color:var(--seal);width:16px;height:16px}
 
-/* ---- screen shake on correct (intensity scales with streak) ---- */
-@keyframes screenshake{
-  0%,100%{transform:translate(0,0)}
-  20%{transform:translate(var(--shx,3px),var(--shy,-2px))}
-  40%{transform:translate(calc(var(--shx,3px)*-1),var(--shy,2px))}
-  60%{transform:translate(var(--shx,3px),var(--shy,2px))}
-  80%{transform:translate(calc(var(--shx,3px)*-1),var(--shy,-2px))}
+/* ---------- study ---------- */
+#study{display:none;flex:1;flex-direction:column;padding:14px 20px 30px}
+#study.on{display:flex}
+.studybar{
+  max-width:620px;width:100%;margin:0 auto 16px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;font-size:12px;color:var(--ink-soft);
 }
-.board-wrap.shake{animation:screenshake .32s}
+.studybar .prog{letter-spacing:.1em;text-transform:uppercase}
+.studybar .prog b{color:var(--seal);font-size:15px;letter-spacing:0}
+.studybar button{
+  font-family:inherit;font-size:12px;background:none;border:1px solid var(--line);
+  color:var(--ink-soft);padding:6px 12px;cursor:pointer;transition:all .13s;
+}
+.studybar button:hover{border-color:var(--seal);color:var(--seal)}
+.pbar{max-width:620px;width:100%;margin:0 auto 22px;height:3px;background:var(--paper-deep)}
+.pbar span{display:block;height:100%;background:var(--seal);width:0;transition:width .25s}
 
-/* ---- combo / streak popup ---- */
-#comboPop{
-  position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.5);z-index:80;
-  pointer-events:none;text-align:center;opacity:0;
-  font-family:Georgia,serif;
-}
-#comboPop.show{animation:combo .9s cubic-bezier(.2,1.3,.4,1) forwards}
-@keyframes combo{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-6deg)}
-  25%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(2deg)}
-  70%{opacity:1;transform:translate(-50%,-52%) scale(1) rotate(0)}
-  100%{opacity:0;transform:translate(-50%,-64%) scale(1)}
-}
-#comboPop .combo-x{font-size:64px;font-weight:700;line-height:1;
-  color:var(--heat-a);text-shadow:0 3px 0 rgba(0,0,0,.12),0 0 30px var(--heat-a)}
-#comboPop .combo-label{margin-top:6px;display:flex;flex-direction:column;align-items:center;gap:1px}
-#comboPop .combo-hz{font-size:30px;font-weight:700;line-height:1.1;color:var(--heat-b);
-  text-shadow:0 2px 0 rgba(0,0,0,.1),0 0 22px var(--heat-b)}
-#comboPop .combo-py{font-size:13px;letter-spacing:.18em;color:var(--heat-b);font-style:italic;opacity:.9}
-
-/* ---- milestone banner ---- */
-#milestone{
-  position:fixed;left:0;right:0;top:0;z-index:82;pointer-events:none;
-  display:flex;align-items:center;justify-content:center;
-  padding:16px;opacity:0;
-}
-#milestone.show{animation:milebanner 1.8s ease forwards}
-@keyframes milebanner{
-  0%{opacity:0;transform:translateY(-40px) scale(.85)}
-  15%{opacity:1;transform:translateY(0) scale(1)}
-  80%{opacity:1;transform:translateY(0) scale(1)}
-  100%{opacity:0;transform:translateY(-10px) scale(1)}
-}
-#milestone .mile-inner{
-  background:linear-gradient(90deg,var(--heat-a),var(--heat-b));
-  color:#fff;padding:14px 34px;border-radius:40px;
-  font-size:20px;font-weight:700;letter-spacing:.06em;
-  box-shadow:0 8px 30px rgba(0,0,0,.25);white-space:nowrap;
-}
-#milestone .mile-inner .mile-sub{font-size:12px;letter-spacing:.12em;opacity:.92;display:block;text-align:center;margin-top:3px;font-weight:600}
-#milestone .mile-inner .mile-sub .hanzi{font-size:14px;margin-right:2px}
-
-/* ---- coins / confetti layer ---- */
-#coinLayer{position:fixed;inset:0;z-index:78;pointer-events:none;overflow:hidden}
-.coin{position:absolute;top:-40px;will-change:transform;font-size:26px;line-height:1;
-  filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}
-@keyframes coinfall{
-  0%{transform:translateY(-40px) rotate(0deg);opacity:1}
-  90%{opacity:1}
-  100%{transform:translateY(105vh) rotate(var(--spin,360deg));opacity:.85}
-}
-
-/* ---- reveal card ---- */
-#revealCard{
-  position:fixed;left:0;top:0;
-  z-index:60;width:min(280px,calc(100vw - 20px));
+.cardwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 0 20px}
+.flashcard{
+  width:min(560px,100%);min-height:min(380px,52vh);
   background:var(--card);border:1px solid var(--line);border-top:3px solid var(--seal);
-  box-shadow:0 8px 30px rgba(43,38,32,.28);padding:11px 13px;
-  opacity:0;pointer-events:none;transition:opacity .12s, transform .12s;
-  transform:scale(.94);transform-origin:center top;
+  box-shadow:0 10px 34px rgba(43,38,32,.13);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:34px 30px;cursor:pointer;position:relative;text-align:center;
 }
-#revealCard.show{opacity:1;pointer-events:auto;transform:scale(1)}
-#revealCard .rc-top{display:flex;align-items:center;gap:10px}
-#revealCard .rc-hz{font-size:27px;line-height:1;white-space:nowrap}
-#revealCard .rc-info{flex:1;min-width:0}
-#revealCard .rc-py{color:var(--seal);font-style:italic;font-size:14.5px;display:flex;align-items:center;gap:7px}
-#revealCard .rc-def{font-size:12.5px;color:var(--ink-soft);margin-top:1px;line-height:1.35}
-#revealCard .rc-lv{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#b0a795;white-space:nowrap}
-#revealCard .rc-q{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);
-  display:flex;align-items:center;gap:7px}
-#revealCard .rc-btns{display:flex;gap:7px;width:100%}
-#revealCard button{font-family:inherit;cursor:pointer;font-size:13px;padding:9px 10px;border:none;transition:all .12s;flex:1;white-space:nowrap}
-#revealCard .rc-star{flex:0 0 42px;background:var(--card);border:1px solid var(--line) !important;color:#c3b9a5;font-size:15px}
-#revealCard .rc-star:hover{border-color:#e0a92b !important;color:#e0a92b;background:#fdf6e6}
-#revealCard .rc-star.on{background:#e0a92b;border-color:#e0a92b !important;color:#fff}
-#revealCard .rc-key{display:block;font-size:9px;opacity:.75;letter-spacing:.08em;margin-top:1px}
-#btnRight{background:var(--jade);color:#fff}
-#btnRight:hover{background:var(--jade-soft)}
-#btnWrong{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
-#btnWrong:hover{background:var(--seal);color:#fff}
-.spk{
-  display:inline-flex;align-items:center;justify-content:center;flex:none;
-  width:23px;height:23px;border-radius:50%;border:1px solid var(--line);
-  background:var(--card);color:var(--seal);cursor:pointer;font-size:11px;transition:all .12s;
+.flashcard.flipped{border-top-color:var(--jade)}
+.flashcard .side-tag{
+  position:absolute;top:12px;left:16px;font-size:9.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:#b0a795;
 }
-.spk:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
-.no-tts .spk{display:none}
+.flashcard .star{
+  position:absolute;top:10px;right:12px;
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:#c3b9a5;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;padding:0;
+}
+.flashcard .star:hover{border-color:var(--gold);color:var(--gold);background:#fdf6e6}
+.flashcard .star.on{background:var(--gold);border-color:var(--gold);color:#fff}
 
-/* ---- hint bubble ---- */
-#hint{
-  position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:55;
-  background:var(--ink);color:var(--paper);padding:8px 16px;font-size:13px;
-  opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;max-width:calc(100vw - 30px);
+.fc-hz{font-size:clamp(56px,15vw,104px);line-height:1.15;letter-spacing:.04em}
+.fc-py{color:var(--seal);font-style:italic;font-size:clamp(19px,4vw,26px);margin-top:12px}
+.fc-def{font-size:clamp(17px,3.4vw,21px);color:var(--ink);margin-top:16px;max-width:34ch}
+.fc-lv{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#b0a795;margin-top:16px}
+.fc-audio{
+  width:88px;height:88px;border-radius:50%;border:2px solid var(--seal-soft);
+  background:var(--card);color:var(--seal);cursor:pointer;font-size:34px;
+  display:flex;align-items:center;justify-content:center;transition:all .14s;padding:0;
 }
-#hint.show{opacity:.94}
+.fc-audio:hover{background:var(--seal);color:#fff}
+.fc-hint{font-size:12.5px;color:var(--ink-soft);font-style:italic;margin-top:22px}
+.fc-replay{
+  margin-top:14px;font-family:inherit;font-size:12.5px;background:var(--card);
+  border:1px solid var(--line);color:var(--seal);padding:7px 14px;cursor:pointer;transition:all .13s;
+}
+.fc-replay:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
 
-/* ---- score bar ---- */
-#scorebar{
-  position:fixed;left:0;right:0;bottom:0;z-index:50;
-  background:var(--card);border-top:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;
-  padding:12px 14px;font-size:13px;color:var(--ink-soft);
+.answers{max-width:560px;width:100%;margin:0 auto;display:flex;gap:10px}
+.answers button{
+  flex:1;font-family:inherit;font-size:14px;padding:14px 12px;border:none;cursor:pointer;transition:all .13s;
 }
-#scorebar .sc{display:flex;align-items:baseline;gap:7px;letter-spacing:.1em;text-transform:uppercase;font-size:10.5px}
-#scorebar .sc b{font-size:19px;letter-spacing:0;color:var(--seal);font-family:Georgia,serif}
-#scorebar .sc.jade b{color:var(--jade)}
-#newBoardBtn{
-  font-family:inherit;font-size:12px;letter-spacing:.05em;cursor:pointer;
-  background:var(--card);border:1px solid var(--line);color:var(--ink-soft);padding:7px 14px;transition:all .14s;
-}
-#newBoardBtn:hover{border-color:var(--seal);color:var(--seal)}
+.answers .again{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
+.answers .again:hover{background:var(--seal);color:#fff}
+.answers .got{background:var(--jade);color:#fff}
+.answers .got:hover{background:var(--jade-soft)}
+.answers .kb{display:block;font-size:10px;opacity:.75;margin-top:2px;letter-spacing:.06em}
+.answers.hidden{visibility:hidden}
 
-/* ---- victory ---- */
-#victory{
-  position:fixed;inset:0;z-index:90;background:rgba(247,243,234,.96);
-  display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;
-}
-#victory.show{display:flex}
-@keyframes vpop{0%{transform:scale(.9);opacity:0}55%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
-.v-card{
-  background:var(--card);border:1px solid var(--line);border-top:4px solid var(--jade);
-  padding:34px 40px 26px;max-width:400px;width:100%;
-  box-shadow:0 18px 50px rgba(43,38,32,.2);animation:vpop .38s cubic-bezier(.3,0,.2,1);
-}
-#victory .v-seal{width:82px;height:82px;border:3px solid var(--jade);color:var(--jade);
-  display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;border-radius:2px}
-.v-kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
-#victory h2{font-weight:400;font-size:32px;letter-spacing:.1em;margin-bottom:5px;color:var(--jade)}
-.v-sub{color:var(--ink-soft);font-size:13px;font-style:italic;margin-bottom:24px}
-.v-stats{display:flex;justify-content:center;gap:14px;margin-bottom:22px}
-.v-stat{flex:1;padding:14px 6px;background:var(--paper);border:1px solid var(--line)}
-.v-stat b{display:block;font-size:26px;color:var(--jade);line-height:1;margin-bottom:5px}
-.v-stat span{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-.v-site{font-size:11px;letter-spacing:.08em;color:#b0a795;border-top:1px dashed var(--line);padding-top:14px}
-.v-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;justify-content:center}
-#victory button{font-family:inherit;font-size:13.5px;padding:11px 20px;cursor:pointer;border:none;transition:all .13s}
-#shareBtn{background:var(--jade);color:#fff}
-#shareBtn:hover{background:var(--jade-soft)}
-#victoryBtn{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
-#victoryBtn:hover{background:var(--seal);color:#fff}
-.v-copied{margin-top:14px;font-size:12.5px;color:var(--jade);opacity:0;transition:opacity .2s;height:16px}
-.v-copied.show{opacity:1}
-@media (max-width:440px){
-  .v-card{padding:28px 22px 22px}
-  #victory h2{font-size:27px}
-  .v-stat b{font-size:22px}
-}
+/* ---------- done ---------- */
+#done{display:none;max-width:520px;margin:40px auto;padding:0 22px;text-align:center}
+#done.on{display:block}
+#done .seal{width:80px;height:80px;border:3px solid var(--jade);color:var(--jade);
+  display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px}
+#done h2{font-weight:400;font-size:26px;letter-spacing:.08em;margin-bottom:6px}
+#done .sub{color:var(--ink-soft);font-size:13.5px;font-style:italic;margin-bottom:22px}
+#done .stats{display:flex;gap:12px;margin-bottom:24px}
+#done .stat{flex:1;padding:14px 8px;background:var(--card);border:1px solid var(--line)}
+#done .stat b{display:block;font-size:24px;color:var(--jade);line-height:1}
+#done .stat span{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+#done .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#done button{font-family:inherit;font-size:13.5px;padding:11px 20px;cursor:pointer;border:none}
+#againBtn{background:var(--seal);color:#fff}
+#missedBtn{background:var(--gold);color:#fff}
+#newDeckBtn{background:var(--card);color:var(--ink-soft);border:1px solid var(--line) !important}
 
 #credit-badge{
-  position:fixed;left:14px;bottom:64px;z-index:52;
-  display:flex;align-items:center;gap:6px;
-  padding:6px 11px 6px 9px;background:var(--card);border:1px solid var(--line);
-  border-left:3px solid var(--seal);border-radius:20px;
-  font-size:11.5px;color:var(--ink-soft);text-decoration:none;box-shadow:0 2px 10px rgba(43,38,32,.12);
+  position:fixed;left:14px;bottom:16px;z-index:52;
+  display:flex;align-items:center;gap:6px;padding:6px 11px 6px 9px;
+  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--seal);
+  border-radius:20px;font-size:11.5px;color:var(--ink-soft);text-decoration:none;
 }
-#credit-badge .cb-seal{width:17px;height:17px;flex:none;border:1.5px solid var(--seal);color:var(--seal);
-  border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;line-height:1}
+#credit-badge .cb-seal{width:17px;height:17px;flex:none;border:1.5px solid var(--seal);color:var(--seal);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px}
 #credit-badge b{color:var(--seal)}
-@media (max-width:560px){ #credit-badge{display:none} }
+@media (max-width:700px){ #credit-badge{display:none} }
+.no-tts .needs-tts{display:none}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">
-    <h1 class="hanzi">一字一格</h1>
-    <span class="brand-pinyin">yī zì yī gé · the tile game</span>
-  </div>
-  <p class="how">Decide if you know a tile, then tap it to reveal — and be honest. Right: it turns green and you move to a neighbor. Wrong: you lose only your most recent tiles. Easy words in the middle, harder toward the rim.</p>
-  <a class="back-link" href="index.html">← 主页 · home</a> &nbsp;·&nbsp; <a class="back-link" href="read.html">读书 · beginner</a> &nbsp;·&nbsp; <a class="back-link" href="cards.html">生词卡 · flashcards</a> &nbsp;·&nbsp; <a class="back-link" href="intermediate.html">北京有雨 · early intermediate →</a>
+  <h1 class="hanzi">生词卡</h1>
+  <span class="brand-pinyin">shēngcí kǎ · flashcards</span>
+  <p class="navlinks">
+    <a href="index.html">← 主页 · home</a> &nbsp;·&nbsp;
+    <a href="read.html">读书 · beginner</a> &nbsp;·&nbsp;
+    <a href="intermediate.html">北京有雨 · early intermediate</a> &nbsp;·&nbsp;
+    <a href="game.html">一字一格 · the game</a>
+  </p>
 </header>
 
-<p class="pan-hint">drag to pan · scroll or pinch to zoom · keys: <b>↵</b> knew it · <b>␣</b> missed · <b>R</b> replay · <b>S</b> star</p>
-<div class="board-wrap"><svg id="board"></svg></div>
-<div id="zoomctl">
-  <button id="practiceBtn" title="Practice mode — no effects, no consequences">练</button>
-  <button id="sfxBtn" title="Sound on/off">🔊</button>
-  <button id="fsBtn" title="Fullscreen board">⤡</button>
-  <button id="zoomIn" title="Zoom in">+</button>
-  <button id="zoomOut" title="Zoom out">−</button>
-  <button id="zoomFit" title="Fit whole board">⤢</button>
-</div>
-
-<div id="customBanner">
-  <span class="hanzi">复习</span> fùxí · reviewing <b id="cbCount">0</b> words from <span id="cbLabel"></span>
-  <a href="game.html" id="cbExit">play all 1,000 →</a>
-</div>
-<div id="practiceBanner"><span class="hanzi">练习模式</span> liànxí móshì · practice mode — mistakes cost nothing</div>
-
-<div id="coinLayer"></div>
-<div id="comboPop"><div class="combo-x"></div><div class="combo-label"></div></div>
-<div id="milestone"><div class="mile-inner"></div></div>
-
-<div id="revealCard">
-  <div class="rc-top">
-    <div class="rc-hz hanzi" id="rcHz"></div>
-    <div class="rc-info">
-      <div class="rc-py"><span id="rcPy"></span><button class="spk" id="rcSpk" aria-label="Play pronunciation">🔊</button></div>
-      <div class="rc-def" id="rcDef"></div>
-    </div>
-    <div class="rc-lv" id="rcLv"></div>
+<!-- ================= SETUP ================= -->
+<div id="setup">
+  <div class="panel">
+    <h2>1 · Which words</h2>
+    <div class="chips" id="filterChips"></div>
   </div>
-  <div class="rc-q">
-    <div class="rc-btns">
-      <button id="btnRight">✓ 对了<span class="rc-key">knew it &nbsp;·&nbsp; ↵ / →</span></button>
-      <button id="btnWrong">✗ 错了<span class="rc-key">missed &nbsp;·&nbsp; ␣ / ←</span></button>
-      <button id="btnStar" class="rc-star" title="Star this word (S)">★</button>
+
+  <div class="panel">
+    <h2>2 · Front of the card</h2>
+    <div class="opt" id="frontOpts">
+      <label data-mode="hz"><input type="radio" name="front" value="hz" checked>
+        <span><span class="lab">Character only</span><span class="sub">See 房租 — recall the sound and the meaning</span></span></label>
+      <label data-mode="hzpy"><input type="radio" name="front" value="hzpy">
+        <span><span class="lab">Character + pinyin</span><span class="sub">See 房租 fángzū — recall the meaning</span></span></label>
+      <label data-mode="audio" class="needs-tts"><input type="radio" name="front" value="audio">
+        <span><span class="lab">Spoken word only</span><span class="sub">Hear it — recall the characters and the meaning</span></span></label>
+      <label data-mode="en"><input type="radio" name="front" value="en">
+        <span><span class="lab">English only</span><span class="sub">See “rent” — produce the Chinese</span></span></label>
     </div>
   </div>
-</div>
 
-<div id="hint"></div>
-
-<div id="scorebar">
-  <div class="sc">streak <b id="scStreak">0</b></div>
-  <div class="sc jade">cleared <b id="scCleared">0</b><span id="scTotal"></span></div>
-  <div class="sc">best <b id="scBest">0</b></div>
-  <button id="newBoardBtn">↺ 新的一局 · new board</button>
-</div>
-
-<div id="victory">
-  <div class="v-card" id="vCard">
-    <div class="v-seal hanzi">完</div>
-    <div class="v-kicker">一字一格 · the tile game</div>
-    <h2 class="hanzi">全绿了！</h2>
-    <div class="v-sub">quán lǜ le — the whole board is green</div>
-    <div class="v-stats">
-      <div class="v-stat"><b id="vTiles">0</b><span>tiles cleared</span></div>
-      <div class="v-stat"><b id="vBest">0</b><span>best streak</span></div>
-      <div class="v-stat"><b id="vMisses">0</b><span>misses</span></div>
+  <div class="panel">
+    <h2>3 · Study</h2>
+    <div class="startrow">
+      <button id="startBtn">Start studying →</button>
+      <span id="deckCount"></span>
     </div>
-    <div class="v-site">chinesereader.net · @pourteaux</div>
+    <div class="shufflerow"><input type="checkbox" id="shuffleChk" checked><label for="shuffleChk">Shuffle the deck</label></div>
   </div>
-  <div class="v-actions">
-    <button id="shareBtn">📷 Share result</button>
-    <button id="victoryBtn">再来一局 · play again</button>
-  </div>
-  <div class="v-copied" id="vCopied">Copied to clipboard!</div>
 </div>
 
-<a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener" title="Created by @pourteaux on X">
+<!-- ================= STUDY ================= -->
+<div id="study">
+  <div class="studybar">
+    <span class="prog"><b id="pNow">0</b> / <span id="pTotal">0</span> &nbsp;·&nbsp; <span id="pGot">0</span> got it</span>
+    <button id="quitBtn">✕ End session</button>
+  </div>
+  <div class="pbar"><span id="pFill"></span></div>
+
+  <div class="cardwrap">
+    <div class="flashcard" id="card">
+      <span class="side-tag" id="sideTag">Front</span>
+      <button class="star" id="cardStar" aria-label="Star this word">★</button>
+      <div id="cardBody"></div>
+    </div>
+  </div>
+
+  <div class="answers hidden" id="answers">
+    <button class="again" id="againCard">✗ 还不会<span class="kb">not yet · ␣</span></button>
+    <button class="got" id="gotCard">✓ 会了<span class="kb">got it · ↵</span></button>
+  </div>
+</div>
+
+<!-- ================= DONE ================= -->
+<div id="done">
+  <div class="seal hanzi">完</div>
+  <h2 class="hanzi">这一轮完了</h2>
+  <div class="sub">zhè yì lún wán le — round complete</div>
+  <div class="stats">
+    <div class="stat"><b id="dGot">0</b><span>got it</span></div>
+    <div class="stat"><b id="dMissed">0</b><span>not yet</span></div>
+    <div class="stat"><b id="dStarred">0</b><span>starred</span></div>
+  </div>
+  <div class="acts">
+    <button id="missedBtn">Drill the ones I missed</button>
+    <button id="againBtn">Same deck again</button>
+    <button id="newDeckBtn">Choose different words</button>
+  </div>
+</div>
+
+<a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener">
   <span class="cb-seal hanzi">字</span> by <b>@pourteaux</b>
 </a>
 
@@ -554,7 +410,7 @@ const YZYG = (function(){
 (function(){
 const $=s=>document.querySelector(s);
 
-/* ---------- audio (same voice ranking as the reader) ---------- */
+/* ---------- audio ---------- */
 let ttsVoices=[];
 let ttsRate=parseFloat(localStorage.getItem('manmandu-rate')||'0.92')||0.92;
 let ttsVoiceName=null;
@@ -572,11 +428,11 @@ function bestVoices(){ return ttsVoices.map(v=>({v,s:voiceScore(v)})).filter(x=>
 function loadVoices(){ try{ ttsVoices=window.speechSynthesis.getVoices()||[]; }catch(e){} }
 if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
 else{ document.documentElement.classList.add('no-tts'); }
-function speak(hanzi){
-  if(!hanzi || !('speechSynthesis' in window)) return;
+function speak(text){
+  if(!text || !('speechSynthesis' in window)) return;
   try{ window.speechSynthesis.cancel(); }catch(e){}
   try{
-    const u=new SpeechSynthesisUtterance(hanzi);
+    const u=new SpeechSynthesisUtterance(text);
     u.lang='zh-CN'; u.rate=ttsRate;
     try{
       const chosen=ttsVoices.find(v=>v.name===ttsVoiceName);
@@ -587,735 +443,181 @@ function speak(hanzi){
   }catch(e){}
 }
 
-/* ---------- sound effects (Web Audio, synthesized — no files) ---------- */
-let audioCtx=null, sfxOn=(localStorage.getItem('yzyg-sfx')!=='off');
-function ac(){
-  if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
-  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
-  return audioCtx;
-}
-function tone(freq, t0, dur, {type='sine', gain=0.18, glideTo=null}={}){
-  const c=ac(); if(!c) return;
-  const o=c.createOscillator(), g=c.createGain();
-  o.type=type; o.frequency.setValueAtTime(freq, t0);
-  if(glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t0+dur);
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(gain, t0+0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
-  o.connect(g); g.connect(c.destination);
-  o.start(t0); o.stop(t0+dur+0.02);
-}
-// rising ding whose pitch climbs with the current streak — the core dopamine hit
-function sfxCorrect(streakVal){
-  if(!sfxOn) return; const c=ac(); if(!c) return;
-  const t=c.currentTime;
-  // pentatonic ladder so higher streaks sound "up" and pleasant
-  const scale=[523.25,587.33,659.25,783.99,880,1046.5,1174.7,1318.5,1567.98,1760];
-  const idx=Math.min(scale.length-1, streakVal-1<0?0:streakVal-1);
-  const base=scale[idx];
-  tone(base, t, 0.16, {type:'triangle', gain:0.2});
-  tone(base*1.5, t+0.045, 0.16, {type:'sine', gain:0.13});     // sparkle harmony
-}
-function sfxWrong(){
-  if(!sfxOn) return; const c=ac(); if(!c) return;
-  const t=c.currentTime;
-  tone(311.13, t, 0.22, {type:'sawtooth', gain:0.15, glideTo:174.61}); // descending "aww"
-}
-function sfxMilestone(){
-  if(!sfxOn) return; const c=ac(); if(!c) return;
-  const t=c.currentTime;
-  [523.25,659.25,783.99,1046.5].forEach((f,i)=> tone(f, t+i*0.08, 0.3, {type:'triangle', gain:0.2})); // fanfare arpeggio
-}
-function sfxCoin(){
-  if(!sfxOn) return; const c=ac(); if(!c) return;
-  const t=c.currentTime;
-  tone(987.77, t, 0.07, {type:'square', gain:0.06});
-  tone(1318.5, t+0.05, 0.09, {type:'square', gain:0.06});
-}
+/* ---------- filters ---------- */
+const ALL=Object.keys(VOCAB).filter(w=>VOCAB[w].l!=='name');
+const FILTERS=[
+  {id:'all',    label:'All words',   test:w=>true},
+  {id:'HSK 1',  label:'HSK 1',       test:w=>VOCAB[w].l==='HSK 1'||VOCAB[w].l==='bonus'},
+  {id:'HSK 2',  label:'HSK 2',       test:w=>VOCAB[w].l==='HSK 2'},
+  {id:'HSK 3',  label:'HSK 3',       test:w=>VOCAB[w].l==='HSK 3'},
+  {id:'essential', label:'Essentials', test:w=>VOCAB[w].l==='essential'},
+  {id:'starred', label:'★ Starred',  test:w=>YZYG.isStarred(w), gold:true},
+  {id:'seen',   label:'Words I’ve read', test:w=>YZYG.isSeen(w)},
+  {id:'unknown',label:'Not yet known',   test:w=>!YZYG.isKnown(w)}
+];
+let activeFilter='all';
 
-/* ---------- custom review mode ----------
-   A reader can hand us a word list via localStorage and open game.html?custom=1.
-   The board is then built from only those words. */
-const CUSTOM_KEY='yzyg-custom-set';
-let customSet=null;
-if(new URLSearchParams(location.search).get('custom')==='1'){
-  try{
-    const raw=localStorage.getItem(CUSTOM_KEY);
-    if(raw){
-      const parsed=JSON.parse(raw);
-      const words=(parsed.words||[]).filter(w=>VOCAB[w]);
-      if(words.length) customSet={words:[...new Set(words)], label:parsed.label||'your word list'};
-    }
-  }catch(e){}
+function deckFor(id){
+  const f=FILTERS.find(x=>x.id===id);
+  return ALL.filter(f.test);
 }
-
-/* ---------- word pools by tier ---------- */
-const tiers={1:[],2:[],3:[],4:[]};
-const POOL = customSet ? customSet.words : Object.keys(VOCAB);
-POOL.forEach(w=>{
-  const v=VOCAB[w]; if(!v) return;
-  if(v.l==='name' && !customSet) return;   // names are excluded from the full board, but kept if you asked for them
-  if(v.l==='HSK 1' || v.l==='bonus') tiers[1].push(w);
-  else if(v.l==='HSK 2') tiers[2].push(w);
-  else if(v.l==='HSK 3') tiers[3].push(w);          // official HSK 3
-  else tiers[4].push(w);                            // essential: modern life + real reading
+function renderChips(){
+  const box=$('#filterChips');
+  box.innerHTML=FILTERS.map(f=>{
+    const n=deckFor(f.id).length;
+    return `<button class="chip${f.gold?' gold':''}${activeFilter===f.id?' on':''}" data-f="${f.id}"${n?'':' disabled'}>`+
+           `${f.label}<span class="n">${n}</span></button>`;
+  }).join('');
+  updateDeckCount();
+}
+$('#filterChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c||c.disabled) return;
+  activeFilter=c.dataset.f;
+  renderChips();
 });
+function updateDeckCount(){
+  const n=deckFor(activeFilter).length;
+  $('#deckCount').innerHTML=n?`<b>${n}</b> card${n===1?'':'s'} in this deck`:'nothing to study here yet';
+  $('#startBtn').disabled=!n;
+}
+
+/* front-side mode */
+let frontMode='hz';
+function paintFrontOpts(){
+  document.querySelectorAll('#frontOpts label').forEach(l=>l.classList.toggle('on', l.dataset.mode===frontMode));
+}
+$('#frontOpts').addEventListener('change',e=>{ frontMode=e.target.value; paintFrontOpts(); });
+paintFrontOpts();
+
+/* ---------- session ---------- */
+let deck=[], idx=0, flipped=false, got=0, missed=[], starsAdded=0;
+
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-/* ---------- hex grid (pointy-top, axial coords) sized to hold EVERY word ---------- */
-const SIZE=33;
-const SQ3=Math.sqrt(3);
-const NBR=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
-function key(q,r){ return q+','+r; }
-const TOTAL_WORDS=tiers[1].length+tiers[2].length+tiers[3].length+tiers[4].length;
-
-/* build full rings until we can hold all words, then an evenly-spaced partial outer ring */
-function ringCells(n){
-  if(n===0) return [{q:0,r:0,ring:0}];
-  const out=[]; let q=n, r=-n; // start at the NE corner of ring n
-  const dirs=[[-1,0],[-1,1],[0,1],[1,0],[1,-1],[0,-1]]; // W,SW,SE,E,NE,NW — stays on the ring
-  for(const [dq,dr] of dirs){ for(let i=0;i<n;i++){ out.push({q,r,ring:n}); q+=dq; r+=dr; } }
-  return out;
+function startSession(words){
+  deck=words.slice();
+  if($('#shuffleChk').checked) shuffle(deck);
+  idx=0; got=0; missed=[]; starsAdded=0;
+  $('#setup').style.display='none';
+  $('#done').classList.remove('on');
+  $('#study').classList.add('on');
+  $('#pTotal').textContent=deck.length;
+  showCard();
 }
-const cells=[];
-{
-  let ring=0;
-  while(cells.length + ringCells(ring).length <= TOTAL_WORDS){
-    cells.push(...ringCells(ring)); ring++;
-  }
-  const remaining=TOTAL_WORDS-cells.length;
-  if(remaining>0){
-    const rc=ringCells(ring);
-    // pick `remaining` cells evenly spaced around the ring for an organic rim
-    const step=rc.length/remaining;
-    for(let i=0;i<remaining;i++) cells.push(rc[Math.round(i*step)%rc.length]);
-  }
-}
+$('#startBtn').addEventListener('click',()=>startSession(deckFor(activeFilter)));
 
-const svg=$('#board');
-let tiles=new Map();          // key -> {q,r,word,el,state}
-let lastCorrect=null;         // key of last correct tile
-let clearedOrder=[];          // keys in the order they were cleared (for partial rollback)
-let practice=(localStorage.getItem('yzyg-practice')==='on');   // practice mode: no effects, no consequences
-let protectedCount=0;         // number of leading cleared tiles that are locked/safe
-let streak=0, cleared=0, misses=0;
-let best=parseInt(localStorage.getItem('yzyg-best')||'0',10)||0;
-let selectedKey=null, revealing=false;
+function showCard(){
+  if(idx>=deck.length){ finish(); return; }
+  flipped=false;
+  const w=deck[idx], v=VOCAB[w];
+  $('#pNow').textContent=idx+1;
+  $('#pGot').textContent=got;
+  $('#pFill').style.width=(idx/deck.length*100)+'%';
+  $('#sideTag').textContent='Front';
+  $('#card').classList.remove('flipped');
+  $('#answers').classList.add('hidden');
+  const star=$('#cardStar');
+  star.classList.toggle('on', YZYG.isStarred(w));
+  star.dataset.w=w;
 
-let FULL={x:0,y:0,w:100,h:100};       // full board extents
-let VB={x:0,y:0,w:100,h:100};          // current viewBox
-function applyVB(){ svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
-
-/* ---------- juice: heat level, coins, combos, milestones, shake ---------- */
-let heat=0, coinTimer=null;
-// heat is driven by BOTH streak and total cleared (they stack)
-function computeHeat(){
-  const fromStreak=streak/4;                         // +1 heat per 4 streak
-  const fromDepth=cleared/60;                        // +1 heat per 60 cleared
-  return Math.max(0, Math.min(10, Math.floor(fromStreak+fromDepth)));
-}
-function updateHeat(){
-  const h=computeHeat();
-  if(h!==heat){
-    heat=h;
-    document.body.setAttribute('data-heat', heat);
-    manageCoinRain();
-  }
-}
-
-/* coins rain, frequency rising with heat/streak */
-function spawnCoin(){
-  const layer=$('#coinLayer'); if(!layer) return;
-  const glyphs=heat>=8?['🧧','🏮','🀄','🐉','🥟','🐼']:heat>=4?['🧧','🏮','🀄','🥟']:['🧧','🏮'];
-  const el=document.createElement('div');
-  el.className='coin';
-  el.textContent=glyphs[Math.floor(Math.random()*glyphs.length)];
-  const dur=2.2+Math.random()*1.6;
-  el.style.left=Math.random()*100+'vw';
-  el.style.fontSize=(18+Math.random()*20)+'px';
-  el.style.setProperty('--spin',(Math.random()*720-360)+'deg');
-  el.style.animation=`coinfall ${dur}s linear forwards`;
-  layer.appendChild(el);
-  setTimeout(()=>el.remove(), dur*1000+100);
-}
-function coinBurst(n){ for(let i=0;i<n;i++) setTimeout(spawnCoin, i*45); }
-function manageCoinRain(){
-  clearInterval(coinTimer); coinTimer=null;
-  if(heat<1) return;                                 // no ambient rain until warmed up
-  const interval=Math.max(120, 900-heat*80);         // faster as heat climbs
-  coinTimer=setInterval(()=>{ spawnCoin(); if(heat>=6) spawnCoin(); }, interval);
-}
-
-/* combo popup — shows the multiplier/streak with escalating flair */
-// escalating Chinese hype: [hanzi, pinyin] — an encouraging ladder as the streak climbs
-const comboWords=[
-  ['',''],
-  ['不错','bùcuò'],          // not bad
-  ['很好','hěn hǎo'],        // very good
-  ['真棒','zhēn bàng'],      // awesome
-  ['厉害','lìhai'],          // impressive
-  ['太厉害了','tài lìhai le'],// amazing!
-  ['火了','huǒ le'],         // on fire
-  ['无敌','wúdí'],           // unstoppable
-  ['牛逼','niúbī'],          // badass (slang)
-  ['神了','shén le'],        // godlike
-  ['太神了','tài shén le'],  // insane
-  ['传奇','chuánqí']         // legendary
-];
-function showCombo(streakVal){
-  if(streakVal<3) return;                            // only start hyping at 3+
-  const pop=$('#comboPop');
-  const tier=Math.min(comboWords.length-1, Math.floor(streakVal/3)+1);
-  const [hz,py]=comboWords[tier];
-  pop.querySelector('.combo-x').textContent=streakVal+'×';
-  pop.querySelector('.combo-label').innerHTML=`<span class="combo-hz hanzi">${hz}</span><span class="combo-py">${py}</span>`;
-  pop.classList.remove('show'); void pop.offsetWidth; pop.classList.add('show');
-}
-
-/* milestone banner every 10/25/50 and each 25 after */
-const shownMilestones=new Set();
-function checkMilestone(){
-  const marks=[10,25,50,75,100,150,200,300,400,503];
-  if(marks.includes(cleared) && !shownMilestones.has(cleared)){
-    shownMilestones.add(cleared);
-    const m=$('#milestone');
-    const msg = cleared>=503 ? `<span class="hanzi">全部通关！</span> · all 503 cleared`
-      : `<span class="hanzi">${cleared} 个词</span> · ${cleared} words`;
-    m.querySelector('.mile-inner').innerHTML=`${msg}<span class="mile-sub"><span class="hanzi">加油</span> jiāyóu · keep going</span>`;
-    m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
-    sfxMilestone();
-    coinBurst(Math.min(40, 12+cleared/8));
-  }
-}
-
-/* checkpoints: every 50 cleared, lock in all progress so far — those tiles turn black and can't be lost */
-const CHECKPOINT=50;
-function checkCheckpoint(){
-  const target=Math.floor(cleared/CHECKPOINT)*CHECKPOINT;   // highest multiple of 50 reached
-  if(target>protectedCount){
-    // lock tiles from protectedCount up to target
-    for(let i=protectedCount;i<target;i++){
-      const k=clearedOrder[i]; const t=tiles.get(k);
-      if(t){ t.el.classList.add('protected','locking'); (function(el){ setTimeout(()=>el.classList.remove('locking'),520); })(t.el); }
-    }
-    protectedCount=target;
-    // celebratory banner for the lock-in
-    const m=$('#milestone');
-    m.querySelector('.mile-inner').innerHTML=`<span class="hanzi">锁定 ${target}</span> · ${target} locked in<span class="mile-sub"><span class="hanzi">安全了</span> ānquán le · these are safe now</span>`;
-    m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
-    sfxMilestone();
-    coinBurst(24);
-  }
-}
-
-
-function screenShake(streakVal){
-  const wrap=$('.board-wrap');
-  const mag=Math.min(9, 2+streakVal*0.5);
-  wrap.style.setProperty('--shx', mag.toFixed(1)+'px');
-  wrap.style.setProperty('--shy', (mag*0.7).toFixed(1)+'px');
-  wrap.classList.remove('shake'); void wrap.offsetWidth; wrap.classList.add('shake');
-}
-
-function buildBoard(){
-  tiles.clear(); lastCorrect=null; clearedOrder=[]; protectedCount=0; streak=0; cleared=0; misses=0; selectedKey=null; revealing=false;
-  hideReveal(); $('#victory').classList.remove('show');
-  // reset juice
-  heat=0; document.body.setAttribute('data-heat','0'); manageCoinRain();
-  shownMilestones.clear();
-  const cl=$('#coinLayer'); if(cl) cl.innerHTML='';
-
-  /* assign words: cells already come in ring order; shuffle WITHIN each ring,
-     then pour tier1 words into the first cells, tier2 next, tier3 last.
-     -> clean center-out difficulty bands, random placement inside each band. */
-  const byRing={};
-  cells.forEach(c=>{ (byRing[c.ring]=byRing[c.ring]||[]).push(c); });
-  const ordered=[];
-  Object.keys(byRing).map(Number).sort((a,b)=>a-b).forEach(r=>ordered.push(...shuffle(byRing[r].slice())));
-  // within the large 'essential' band, shorter words drift inward (a rough difficulty proxy)
-  const t4=shuffle(tiers[4].slice()).sort((a,b)=>a.length-b.length);
-  const words=[...shuffle(tiers[1].slice()), ...shuffle(tiers[2].slice()), ...shuffle(tiers[3].slice()), ...t4];
-
-  svg.innerHTML='';
-  let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
-  const frag=document.createDocumentFragment();
-
-  ordered.forEach((c,i)=>{
-    const word=words[i];
-    const x=SIZE*SQ3*(c.q + c.r/2), y=SIZE*1.5*c.r;
-    const pts=[];
-    for(let k2=0;k2<6;k2++){
-      const a=Math.PI/180*(60*k2-30);
-      pts.push((x+SIZE*.94*Math.cos(a)).toFixed(1)+','+(y+SIZE*.94*Math.sin(a)).toFixed(1));
-    }
-    minX=Math.min(minX,x-SIZE); maxX=Math.max(maxX,x+SIZE);
-    minY=Math.min(minY,y-SIZE); maxY=Math.max(maxY,y+SIZE);
-
-    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('class','hex');
-    g.dataset.key=key(c.q,c.r);
-    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    poly.setAttribute('points',pts.join(' '));
-    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-    txt.setAttribute('x',x); txt.setAttribute('y',y);
-    txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
-    txt.setAttribute('class','hanzi');
-    const fs = word.length===1?24 : word.length===2?17 : word.length===3?12 : 10;
-    txt.setAttribute('font-size',fs);
-    txt.textContent=word;
-    g.appendChild(poly); g.appendChild(txt);
-    frag.appendChild(g);
-    tiles.set(g.dataset.key,{q:c.q,r:c.r,word,el:g,state:'idle',cx:x,cy:y});
-  });
-  svg.appendChild(frag);
-
-  const pad=SIZE;
-  FULL={x:minX-pad,y:minY-pad,w:(maxX-minX)+pad*2,h:(maxY-minY)+pad*2};
-  startView();
-  $('#scTotal').textContent='/'+tiles.size;
-  updateBar(); refreshEligibility();
-}
-
-/* ---------- viewBox helpers ---------- */
-function svgAspect(){ const r=svg.getBoundingClientRect(); return r.width/Math.max(1,r.height); }
-function clampVB(){
-  const MINW=SIZE*SQ3*5;                       // max zoom-in: ~5 hexes across
-  const MAXW=Math.max(FULL.w, FULL.h*svgAspect());
-  VB.w=Math.min(Math.max(VB.w,MINW),MAXW);
-  VB.h=VB.w/svgAspect();
-  const cx=Math.min(Math.max(VB.x+VB.w/2, FULL.x), FULL.x+FULL.w);
-  const cy=Math.min(Math.max(VB.y+VB.h/2, FULL.y), FULL.y+FULL.h);
-  VB.x=cx-VB.w/2; VB.y=cy-VB.h/2;
-}
-function startView(){
-  // begin zoomed into the easy center: ~11 hexes across
-  VB.w=SIZE*SQ3*11; VB.h=VB.w/svgAspect();
-  VB.x=-VB.w/2; VB.y=-VB.h/2;
-  clampVB(); applyVB();
-}
-function fitView(){
-  VB.w=Math.max(FULL.w, FULL.h*svgAspect()); VB.h=VB.w/svgAspect();
-  VB.x=FULL.x+FULL.w/2-VB.w/2; VB.y=FULL.y+FULL.h/2-VB.h/2;
-  clampVB(); applyVB();
-}
-function zoomAt(factor, px, py){
-  // (px,py) in client coords; keep that point stationary while zooming
-  const r=svg.getBoundingClientRect();
-  const mx=VB.x+(px-r.left)/r.width*VB.w;
-  const my=VB.y+(py-r.top)/r.height*VB.h;
-  VB.w*=factor; clampVB();
-  VB.h=VB.w/svgAspect();
-  VB.x=mx-(px-r.left)/r.width*VB.w;
-  VB.y=my-(py-r.top)/r.height*VB.h;
-  clampVB(); applyVB();
-}
-function panToTile(t){
-  // keep the action in view: recenter if tile is outside the middle 55% of the viewport
-  const fx=(t.cx-VB.x)/VB.w, fy=(t.cy-VB.y)/VB.h;
-  if(fx<0.225||fx>0.775||fy<0.225||fy>0.775){
-    animatePan(t.cx-VB.w/2, t.cy-VB.h/2);
-  }
-}
-let panAnim=null;
-function animatePan(tx,ty){
-  cancelAnimationFrame(panAnim);
-  const sx=VB.x, sy=VB.y, t0=performance.now(), D=260;
-  function step(now){
-    const p=Math.min(1,(now-t0)/D), e=1-Math.pow(1-p,3);
-    VB.x=sx+(tx-sx)*e; VB.y=sy+(ty-sy)*e;
-    clampVB(); applyVB();
-    if(p<1) panAnim=requestAnimationFrame(step);
-  }
-  panAnim=requestAnimationFrame(step);
-}
-
-function neighborsOf(k){
-  const t=tiles.get(k); if(!t) return [];
-  return NBR.map(([dq,dr])=>tiles.get(key(t.q+dq,t.r+dr))).filter(Boolean);
-}
-function eligibleKeys(){
-  // practice: pick ANY tile, anywhere — study freely without path constraints
-  if(practice) return [...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
-  // no tiles cleared yet -> any tile is a valid start
-  if(cleared===0) return [...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
-  // normal case: neighbors of the last-cleared tile
-  let elig=lastCorrect ? neighborsOf(lastCorrect).filter(t=>t.state!=='correct').map(t=>key(t.q,t.r)) : [];
-  if(!elig.length){
-    // boxed in: allow branching from ANY green tile's free neighbors
-    const set=new Set();
-    tiles.forEach((t,k)=>{ if(t.state==='correct') neighborsOf(k).forEach(n=>{ if(n.state!=='correct') set.add(key(n.q,n.r)); }); });
-    elig=[...set];
-  }
-  // total dead end (e.g. a fully-surrounded pocket) -> free-pick anywhere on the board
-  if(!elig.length) elig=[...tiles.keys()].filter(k=>tiles.get(k).state!=='correct');
-  return elig;
-}
-function refreshEligibility(){
-  const elig=new Set(eligibleKeys());
-  tiles.forEach((t,k)=>{
-    t.el.classList.remove('eligible','dimmed','lastcorrect');
-    if(t.state==='correct'){ if(k===lastCorrect) t.el.classList.add('lastcorrect'); return; }
-    if(elig.has(k)) t.el.classList.add('eligible');
-    else if(cleared>0) t.el.classList.add('dimmed');
-  });
-  if(elig.size===0 && cleared>0 && cleared===tiles.size) victory();
-}
-
-function showHint(msg){
-  const h=$('#hint'); h.textContent=msg; h.classList.add('show');
-  clearTimeout(showHint._t); showHint._t=setTimeout(()=>h.classList.remove('show'),1600);
-}
-function hideReveal(){ $('#revealCard').classList.remove('show'); }
-
-function updateBar(){
-  $('#scStreak').textContent=streak;
-  $('#scCleared').textContent=cleared;
-  $('#scBest').textContent=best;
-}
-
-/* ---------- pointer interaction: tap to play, drag to pan, pinch to zoom ---------- */
-const pointers=new Map();
-let panStart=null, pinchStart=null, moved=false;
-
-svg.addEventListener('pointerdown',e=>{
-  svg.setPointerCapture(e.pointerId);
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  moved=false;
-  if(pointers.size===1){
-    panStart={x:e.clientX,y:e.clientY,vx:VB.x,vy:VB.y,target:e.target};
-  }else if(pointers.size===2){
-    const [a,b]=[...pointers.values()];
-    pinchStart={d:Math.hypot(a.x-b.x,a.y-b.y),w:VB.w,cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};
-    panStart=null;
-  }
-});
-svg.addEventListener('pointermove',e=>{
-  if(!pointers.has(e.pointerId)) return;
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pointers.size===2 && pinchStart){
-    const [a,b]=[...pointers.values()];
-    const d=Math.hypot(a.x-b.x,a.y-b.y);
-    if(Math.abs(d-pinchStart.d)>4){
-      moved=true;
-      const factor=pinchStart.d/Math.max(1,d);
-      VB.w=pinchStart.w*factor;
-      zoomAt(1,(a.x+b.x)/2,(a.y+b.y)/2);   // clamp + re-anchor around midpoint
-    }
-    return;
-  }
-  if(panStart){
-    const dx=e.clientX-panStart.x, dy=e.clientY-panStart.y;
-    if(Math.abs(dx)>5||Math.abs(dy)>5) moved=true;
-    if(moved){
-      svg.classList.add('panning');
-      const r=svg.getBoundingClientRect();
-      VB.x=panStart.vx-dx/r.width*VB.w;
-      VB.y=panStart.vy-dy/r.height*VB.h;
-      clampVB(); applyVB();
-    }
-  }
-});
-function endPointer(e){
-  const wasTap=!moved && pointers.size===1 && panStart;
-  const target=panStart?panStart.target:null;
-  pointers.delete(e.pointerId);
-  if(pointers.size<2) pinchStart=null;
-  if(pointers.size===0){ svg.classList.remove('panning'); panStart=null; }
-  if(wasTap && target) handleTap(target);
-}
-svg.addEventListener('pointerup',endPointer);
-svg.addEventListener('pointercancel',endPointer);
-
-svg.addEventListener('wheel',e=>{
-  e.preventDefault();
-  zoomAt(e.deltaY>0?1.18:1/1.18, e.clientX, e.clientY);
-},{passive:false});
-
-$('#zoomIn').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1/1.35, r.left+r.width/2, r.top+r.height/2); });
-$('#zoomOut').addEventListener('click',()=>{ const r=svg.getBoundingClientRect(); zoomAt(1.35, r.left+r.width/2, r.top+r.height/2); });
-$('#zoomFit').addEventListener('click',fitView);
-
-/* practice mode toggle — strips effects and consequences */
-const practiceBtn=$('#practiceBtn');
-function setPractice(on){
-  practice=on;
-  try{ localStorage.setItem('yzyg-practice', on?'on':'off'); }catch(e){}
-  document.body.classList.toggle('practice', on);
-  practiceBtn.classList.toggle('active', on);
-  practiceBtn.title = on ? 'Practice mode ON — click for normal game' : 'Practice mode — no effects, no consequences';
-  if(on){
-    // silence and de-juice everything currently running
-    clearInterval(coinTimer); coinTimer=null;
-    const cl=$('#coinLayer'); if(cl) cl.innerHTML='';
-    heat=0; document.body.setAttribute('data-heat','0');
-    $('#comboPop').classList.remove('show');
-    $('#milestone').classList.remove('show');
-    $('#victory').classList.remove('show');
+  const body=$('#cardBody');
+  if(frontMode==='hz'){
+    body.innerHTML=`<div class="fc-hz hanzi">${w}</div><div class="fc-hint">tap to reveal</div>`;
+  }else if(frontMode==='hzpy'){
+    body.innerHTML=`<div class="fc-hz hanzi">${w}</div><div class="fc-py">${v.p}</div><div class="fc-hint">tap to reveal</div>`;
+  }else if(frontMode==='audio'){
+    body.innerHTML=`<button class="fc-audio" id="playFront" aria-label="Play the word">🔊</button>`+
+                   `<button class="fc-replay" id="replayFront">play again</button>`+
+                   `<div class="fc-hint">listen, then tap the card to reveal</div>`;
+    speak(w);
   }else{
-    updateHeat(); manageCoinRain();
+    body.innerHTML=`<div class="fc-def" style="font-size:clamp(24px,5vw,34px)">${v.d}</div><div class="fc-hint">say it in Chinese, then tap to reveal</div>`;
   }
-  refreshEligibility();
 }
-practiceBtn.addEventListener('click',()=>setPractice(!practice));
-setPractice(practice);          // apply persisted preference on load
 
-/* sound toggle + unlock audio on first user gesture */
-const sfxBtn=$('#sfxBtn');
-function paintSfx(){ sfxBtn.textContent=sfxOn?'🔊':'🔇'; sfxBtn.title=sfxOn?'Sound on':'Sound off'; }
-paintSfx();
-sfxBtn.addEventListener('click',()=>{
-  sfxOn=!sfxOn;
-  try{ localStorage.setItem('yzyg-sfx', sfxOn?'on':'off'); }catch(e){}
-  paintSfx();
-  if(sfxOn){ ac(); sfxCoin(); }              // little confirmation blip
+function flip(){
+  if(flipped) return;
+  flipped=true;
+  const w=deck[idx], v=VOCAB[w];
+  $('#sideTag').textContent='Back';
+  $('#card').classList.add('flipped');
+  $('#cardBody').innerHTML=
+    `<div class="fc-hz hanzi">${w}</div>`+
+    `<div class="fc-py">${v.p}</div>`+
+    `<div class="fc-def">${v.d}</div>`+
+    `<div class="fc-lv">${v.l}</div>`+
+    `<button class="fc-replay needs-tts" id="replayBack">🔊 hear it again</button>`;
+  $('#answers').classList.remove('hidden');
+  if(frontMode!=='audio') speak(w);
+}
+
+$('#card').addEventListener('click',e=>{
+  if(e.target.closest('.star')) return;                 // starring must not flip
+  if(e.target.closest('#playFront')||e.target.closest('#replayFront')){ speak(deck[idx]); return; }
+  if(e.target.closest('#replayBack')){ speak(deck[idx]); return; }
+  flip();
 });
-// browsers require a gesture before audio can play — prime it on first pointer down
-window.addEventListener('pointerdown',()=>{ ac(); }, {once:true});
+$('#cardStar').addEventListener('click',e=>{
+  const w=e.currentTarget.dataset.w;
+  const on=YZYG.toggleStar(w);
+  e.currentTarget.classList.toggle('on',on);
+  if(on) starsAdded++;
+});
 
-/* ---- fullscreen board toggle ---- */
-const fsBtn=$('#fsBtn');
-function setFs(on){
-  document.body.classList.toggle('board-fs',on);
-  fsBtn.classList.toggle('active',on);
-  fsBtn.textContent=on?'⤢':'⤡';
-  fsBtn.title=on?'Exit fullscreen':'Fullscreen board';
-  // SVG size changed — re-clamp the view on the next frame so aspect ratio stays correct
-  requestAnimationFrame(()=>{ clampVB(); applyVB(); });
+function answer(ok){
+  if(!flipped) return;
+  const w=deck[idx];
+  if(ok){ got++; YZYG.markKnown(w); }
+  else { missed.push(w); YZYG.unmarkKnown(w); }
+  idx++;
+  showCard();
 }
-fsBtn.addEventListener('click',()=>setFs(!document.body.classList.contains('board-fs')));
+$('#gotCard').addEventListener('click',()=>answer(true));
+$('#againCard').addEventListener('click',()=>answer(false));
+
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape' && document.body.classList.contains('board-fs')) setFs(false);
-
-  // fast answering: while the reveal card is up, grade without touching the mouse
-  if(revealing){
-    if(e.key==='Enter' || e.key==='ArrowRight' || e.key.toLowerCase()==='j'){
-      e.preventDefault(); $('#btnRight').click();
-    }else if(e.key===' ' || e.key==='ArrowLeft' || e.key.toLowerCase()==='f'){
-      e.preventDefault(); $('#btnWrong').click();
-    }else if(e.key.toLowerCase()==='r'){
-      e.preventDefault(); speak($('#rcSpk').dataset.w);   // replay audio
-    }else if(e.key.toLowerCase()==='s'){
-      e.preventDefault(); $('#btnStar').click();          // star the current word
-    }
-    return;
-  }
+  if(!$('#study').classList.contains('on')) return;
+  if(e.key===' '){ e.preventDefault(); flipped?answer(false):flip(); }
+  else if(e.key==='Enter'){ e.preventDefault(); flipped?answer(true):flip(); }
+  else if(e.key.toLowerCase()==='r'){ e.preventDefault(); speak(deck[idx]); }
+  else if(e.key.toLowerCase()==='s'){ e.preventDefault(); $('#cardStar').click(); }
 });
 
-window.addEventListener('resize',()=>{ clampVB(); applyVB(); });
-
-function handleTap(targetEl){
-  if(revealing) return;                       // must answer the card first
-  const g=targetEl.closest ? targetEl.closest('.hex') : null; if(!g) return;
-  const k=g.dataset.key, t=tiles.get(k);
-  if(!t || t.state==='correct') return;
-
-  const elig=new Set(eligibleKeys());
-  if(!elig.has(k)){
-    g.classList.add('shake'); setTimeout(()=>g.classList.remove('shake'),380);
-    const anyStart=(cleared===0) || !neighborsOf(lastCorrect||'').some(n=>n.state!=='correct');
-    showHint(anyStart?'Pick any tile to start a new path':'Pick a tile touching your last green one');
-    return;
-  }
-  // single tap: select AND reveal immediately
-  if(selectedKey && tiles.get(selectedKey)) tiles.get(selectedKey).el.classList.remove('selected');
-  selectedKey=k;
-  g.classList.add('selected');
-
-  revealing=true;
-  $('#rcHz').textContent=t.word;
-  const v=VOCAB[t.word];
-  $('#rcPy').textContent=v.p;
-  $('#rcDef').textContent=v.d;
-  $('#rcLv').textContent=v.l;
-  $('#rcSpk').dataset.w=t.word;
-  const sb=$('#btnStar'); sb.dataset.w=t.word; sb.classList.toggle('on', YZYG.isStarred(t.word));
-  positionReveal(g);                 // anchor the card right next to this tile
-  $('#revealCard').classList.add('show');
-  speak(t.word);
+function finish(){
+  $('#study').classList.remove('on');
+  $('#done').classList.add('on');
+  $('#dGot').textContent=got;
+  $('#dMissed').textContent=missed.length;
+  $('#dStarred').textContent=starsAdded;
+  $('#missedBtn').style.display=missed.length?'':'none';
 }
-
-/* place the reveal popover adjacent to the tile, flipping to stay on-screen */
-function positionReveal(tileEl){
-  const card=$('#revealCard');
-  card.style.visibility='hidden';
-  card.classList.add('show');          // measure with real dimensions
-  const cw=card.offsetWidth, ch=card.offsetHeight;
-  card.classList.remove('show');
-  card.style.visibility='';
-
-  const r=tileEl.getBoundingClientRect();
-  const gap=10, pad=8;
-  const vw=document.documentElement.clientWidth;
-  const vh=document.documentElement.clientHeight;
-  const scoreH=90;                     // keep clear of the bottom score bar
-
-  // prefer directly below the tile; flip above if there's no room
-  let top=r.bottom+gap;
-  if(top+ch > vh-scoreH){
-    const above=r.top-gap-ch;
-    top = above>=pad ? above : Math.max(pad, Math.min(top, vh-scoreH-ch));
-  }
-  // horizontally center on the tile, clamped to the viewport
-  let left=r.left+r.width/2-cw/2;
-  left=Math.max(pad, Math.min(left, vw-cw-pad));
-
-  card.style.left=Math.round(left)+'px';
-  card.style.top=Math.round(top)+'px';
-}
-
-$('#rcSpk').addEventListener('click',e=>{ speak(e.currentTarget.dataset.w); });
-$('#btnStar').addEventListener('click',e=>{
-  const w=e.currentTarget.dataset.w; if(!w) return;
-  e.currentTarget.classList.toggle('on', YZYG.toggleStar(w));
+$('#quitBtn').addEventListener('click',()=>{ finish(); });
+$('#missedBtn').addEventListener('click',()=>startSession(missed));
+$('#againBtn').addEventListener('click',()=>startSession(deck));
+$('#newDeckBtn').addEventListener('click',()=>{
+  $('#done').classList.remove('on');
+  $('#study').classList.remove('on');
+  $('#setup').style.display='';
+  renderChips();
 });
 
-$('#btnRight').addEventListener('click',()=>{
-  const t=tiles.get(selectedKey); if(!t) return;
-  t.state='correct';
-  t.el.classList.remove('selected');
-  const bigPop = !practice && streak>=4;       // bigger pop when hot
-  t.el.classList.add('correct', bigPop?'popbig':'pop');
-  const v=VOCAB[t.word];
-  const titleEl=document.createElementNS('http://www.w3.org/2000/svg','title');
-  titleEl.textContent=v.p+' — '+v.d;
-  t.el.appendChild(titleEl);
-  setTimeout(()=>t.el.classList.remove('pop','popbig'),440);
-  clearedOrder.push(selectedKey);
-  YZYG.markKnown(t.word); YZYG.markSeen(t.word);
-  lastCorrect=selectedKey; selectedKey=null; revealing=false;
-  streak++; cleared++;
-  if(!practice && !customSet && streak>best){ best=streak; try{ localStorage.setItem('yzyg-best',best); }catch(e){} }
-  hideReveal(); updateBar(); refreshEligibility();
-  panToTile(t);
-
-  if(practice){                                // practice: quiet, no effects, no win screen
-    if(cleared===tiles.size) showHint('全部完成 — every tile cleared. Nice practice run!');
-    return;
+/* a deck can be handed over from a reader's word drawer */
+(function(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('custom')==='1'){
+    try{
+      const raw=localStorage.getItem('yzyg-custom-set');
+      if(raw){
+        const parsed=JSON.parse(raw);
+        const words=(parsed.words||[]).filter(w=>VOCAB[w]);
+        if(words.length){ renderChips(); startSession(words); return; }
+      }
+    }catch(e){}
   }
+  renderChips();
+})();
 
-  // ---- JUICE ----
-  sfxCorrect(streak);
-  updateHeat();
-  showCombo(streak);
-  if(streak>=3) screenShake(streak);
-  coinBurst(Math.min(14, 2+Math.floor(streak/2)));   // a little spray per correct, more when hot
-  checkMilestone();
-  checkCheckpoint();
-
-  if(cleared===tiles.size) victory();
-});
-
-$('#btnWrong').addEventListener('click',()=>{
-  const t=tiles.get(selectedKey); if(!t) return;
-  misses++;
-  YZYG.unmarkKnown(t.word); YZYG.markSeen(t.word);
-  t.el.classList.remove('selected');
-  t.el.classList.add('wrong');
-  hideReveal();
-
-  if(practice){
-    // practice: no penalty at all. Flash the tile, then let it go idle so you can
-    // revisit it, and keep your path anchored where it was.
-    showHint('practice — no penalty. Try it again anytime.');
-    setTimeout(()=>{
-      t.el.classList.remove('wrong');
-      t.state='idle';
-      selectedKey=null; revealing=false;
-      updateBar(); refreshEligibility();
-    },500);
-    return;
-  }
-
-  sfxWrong();
-
-  // only UNPROTECTED tiles can be lost; lose the most-recent third of those (at least 1)
-  const losable=clearedOrder.length-protectedCount;
-  const lose = losable>0 ? Math.max(1, Math.ceil(losable/3)) : 0;
-  const doomed = lose>0 ? clearedOrder.slice(-lose) : [];
-  doomed.forEach(k=>{ const x=tiles.get(k); if(x){ x.el.classList.add('wrong'); } });
-  streak=0;                                   // streak always resets on a miss
-  updateHeat();                               // cool the colors back down
-
-  showHint(
-    lose>0 ? `lost the last ${lose} tile${lose>1?'s':''} — streak reset`
-    : (protectedCount>0 ? `streak reset — but your ${protectedCount} locked tiles are safe` : 'try another tile')
-  );
-
-  setTimeout(()=>{
-    // clear the wrong-flash tile (the guess) back to idle
-    t.el.classList.remove('wrong');
-    // revert the doomed tiles to idle
-    doomed.forEach(k=>{
-      const x=tiles.get(k); if(!x) return;
-      x.state='idle';
-      x.el.classList.remove('correct','lastcorrect','wrong');
-      const ti=x.el.querySelector('title'); if(ti) ti.remove();
-    });
-    clearedOrder=clearedOrder.slice(0, clearedOrder.length-lose);
-    cleared=clearedOrder.length;
-    lastCorrect=clearedOrder.length ? clearedOrder[clearedOrder.length-1] : null;
-    selectedKey=null; revealing=false;
-    updateBar(); refreshEligibility(); updateHeat();
-    if(lastCorrect) panToTile(tiles.get(lastCorrect));
-  },650);
-});
-
-function victory(){
-  if(customSet){
-    const h=document.querySelector('#victory h2');
-    const sub=document.querySelector('#victory .v-sub');
-    if(h) h.textContent='复习完成！';
-    if(sub) sub.textContent='fùxí wánchéng — you cleared every word in the list';
-  }
-  $('#vTiles').textContent=tiles.size;
-  $('#vBest').textContent=best;
-  $('#vMisses').textContent=misses;
-  $('#victory').classList.add('show');
-}
-
-/* share: use Web Share API where available, otherwise copy a text summary */
-function shareText(){
-  const tail = misses===0
-    ? `Best streak: ${best} — flawless, zero misses!`
-    : `Best streak: ${best}, with ${misses} miss${misses===1?'':'es'}.`;
-  return `一字一世界 · the tile game\n`+
-         `I cleared all ${tiles.size} Chinese characters! ${tail}\n`+
-         `Play at chinesereader.net`;
-}
-$('#shareBtn').addEventListener('click',async ()=>{
-  const text=shareText();
-  try{
-    if(navigator.share){
-      await navigator.share({title:'一字一世界 · the tile game', text, url:'https://chinesereader.net'});
-      return;
-    }
-  }catch(e){ /* user cancelled or share failed — fall through to copy */ }
-  try{
-    await navigator.clipboard.writeText(text);
-    const c=$('#vCopied'); c.classList.add('show');
-    clearTimeout(shareBtn._t); shareBtn._t=setTimeout(()=>c.classList.remove('show'),2200);
-  }catch(e){
-    // last resort: show the text in a prompt so it can be copied manually
-    window.prompt('Copy your result:', text.replace(/\n/g,' '));
-  }
-});
-const shareBtn=$('#shareBtn');
-
-$('#victoryBtn').addEventListener('click',buildBoard);
-$('#newBoardBtn').addEventListener('click',buildBoard);
-
-/* ---------- custom mode chrome ---------- */
-if(customSet){
-  document.body.classList.add('custom');
-  $('#cbCount').textContent=customSet.words.length;
-  $('#cbLabel').textContent=customSet.label;
-  const h1=document.querySelector('header h1');
-  if(h1) h1.textContent='复习';
-  const how=document.querySelector('header .how');
-  if(how) how.textContent='Reviewing only the words you picked. Clear them all to finish the round.';
-}
-
-buildBoard();
+YZYG.onChange(()=>{ if($('#setup').style.display!=='none') renderChips(); });
 })();
 </script>
 </body>
