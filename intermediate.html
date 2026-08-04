@@ -90,12 +90,12 @@ body.show-all-trans .trans{display:block}
 
 /* ---- word list drawer ---- */
 #wl-btn{
-  position:fixed;right:20px;bottom:88px;z-index:110;width:58px;height:58px;border-radius:50%;
-  background:var(--seal);color:#fff;border:none;cursor:pointer;font-size:23px;
-  box-shadow:0 4px 16px rgba(176,46,32,.4);transition:transform .15s;
+  position:fixed;left:16px;bottom:66px;z-index:110;width:50px;height:50px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
   display:flex;align-items:center;justify-content:center;padding:0;
 }
-#wl-btn:hover{transform:scale(1.07)}
+#wl-btn:hover{transform:scale(1.07);background:var(--seal);color:#fff;border-color:var(--seal)}
 #wl-btn .cnt{
   position:absolute;top:-4px;right:-4px;background:var(--ink);color:#fff;
   font-family:Georgia,serif;font-size:10.5px;min-width:21px;height:21px;border-radius:11px;
@@ -208,7 +208,7 @@ body.show-all-trans .trans{display:block}
 
 /* ---- save & transfer ---- */
 #save-btn{
-  position:fixed;left:16px;bottom:66px;z-index:110;width:50px;height:50px;border-radius:50%;
+  position:fixed;left:78px;bottom:66px;z-index:110;width:50px;height:50px;border-radius:50%;
   background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
   box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
   display:flex;align-items:center;justify-content:center;padding:0;

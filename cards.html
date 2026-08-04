@@ -171,7 +171,7 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
 
 /* ---- save & transfer ---- */
 #save-btn{
-  position:fixed;left:14px;bottom:64px;z-index:110;width:50px;height:50px;border-radius:50%;
+  position:fixed;left:76px;bottom:64px;z-index:110;width:50px;height:50px;border-radius:50%;
   background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
   box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
   display:flex;align-items:center;justify-content:center;padding:0;
@@ -180,7 +180,7 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
 #save-scrim{position:fixed;inset:0;background:rgba(43,38,32,.3);z-index:106;opacity:0;pointer-events:none;transition:opacity .2s}
 #save-scrim.on{opacity:1;pointer-events:auto}
 #savePanel{
-  position:fixed;left:14px;bottom:122px;z-index:111;width:min(320px,calc(100vw - 28px));
+  position:fixed;left:76px;bottom:122px;z-index:111;width:min(320px,calc(100vw - 28px));
   background:var(--card);border:1px solid var(--line);box-shadow:0 10px 34px rgba(43,38,32,.22);
   opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .16s,transform .16s;
 }
@@ -199,7 +199,63 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
 }
 #dr-backup button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
 .bk-note{font-size:11.5px;color:var(--ink-soft);font-style:italic;line-height:1.45;margin-top:4px}
-@media (max-width:700px){ #save-btn{bottom:16px} #savePanel{bottom:74px} }
+@media (max-width:700px){ #save-btn{bottom:16px} #savePanel{bottom:74px} #vocab-btn{bottom:16px} #vocabPanel{bottom:74px} }
+
+/* ---- vocab list ---- */
+#vocab-btn{
+  position:fixed;left:14px;bottom:64px;z-index:110;width:50px;height:50px;border-radius:50%;
+  background:var(--card);color:var(--seal);border:1.5px solid var(--seal-soft);cursor:pointer;font-size:18px;
+  box-shadow:0 3px 12px rgba(43,38,32,.15);transition:transform .15s,background .15s,color .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+#vocab-btn:hover{transform:scale(1.07);background:var(--seal);color:#fff;border-color:var(--seal)}
+#vocab-btn .cnt{
+  position:absolute;top:-6px;right:-6px;background:var(--ink);color:#fff;
+  font-family:Georgia,serif;font-size:10px;min-width:18px;height:18px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;
+}
+#vocab-scrim{position:fixed;inset:0;background:rgba(43,38,32,.3);z-index:106;opacity:0;pointer-events:none;transition:opacity .2s}
+#vocab-scrim.on{opacity:1;pointer-events:auto}
+#vocabPanel{
+  position:fixed;left:14px;bottom:122px;z-index:111;width:min(340px,calc(100vw - 28px));
+  max-height:min(64vh,460px);display:flex;flex-direction:column;
+  background:var(--card);border:1px solid var(--line);box-shadow:0 10px 34px rgba(43,38,32,.22);
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .16s,transform .16s;
+}
+#vocabPanel.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+#vocabPanel .sp-head{padding:14px 40px 6px 18px;position:relative;flex:none}
+#vocabPanel .sp-head h2{font-weight:400;font-size:14px;letter-spacing:.05em}
+#vocabPanel .sp-head .sp-sub{font-size:11px;color:var(--ink-soft);margin-top:3px}
+#vocabPanel .sp-close{position:absolute;right:12px;top:12px;background:none;border:none;font-size:16px;color:var(--ink-soft);cursor:pointer}
+#vocab-search{margin:0 18px 8px;padding:8px 10px;font-family:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);flex:none}
+#vocab-filter{padding:0 18px 8px;display:flex;align-items:center;gap:8px;flex:none}
+#vocabStarToggle{font-family:inherit;font-size:11px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);padding:5px 10px;transition:all .13s}
+#vocabStarToggle:hover{border-color:#e0a92b;color:#e0a92b}
+#vocabStarToggle.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+#vocab-count{font-size:11px;color:var(--ink-soft)}
+#vocab-jump{padding:0 18px 10px;display:flex;gap:8px;flex:none}
+#vocab-jump button{
+  flex:1;font-family:inherit;font-size:11.5px;background:var(--paper);
+  border:1px solid var(--line);color:var(--ink-soft);padding:8px 10px;cursor:pointer;transition:all .13s;
+}
+#vocab-jump button:hover{border-color:var(--seal);color:var(--seal);background:#fbeeec}
+#vocab-jump button:disabled{opacity:.5;cursor:default}
+#vocabList{flex:1;overflow-y:auto;padding:2px 18px 14px}
+#vocabList .dr-item{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid #f1ece1;font-size:13px}
+#vocabList .dr-item .hz{font-size:17px;min-width:54px}
+#vocabList .dr-item .py{color:var(--seal);font-style:italic;min-width:66px;font-size:12px}
+#vocabList .dr-item .df{color:var(--ink-soft);flex:1;font-size:11.5px}
+#vocabList .dr-item .lv{font-size:8.5px;letter-spacing:.1em;color:#b0a795;text-transform:uppercase;white-space:nowrap}
+#vocabList .spk{width:19px;height:19px;font-size:9px;border-color:var(--line);background:var(--card);color:var(--seal)}
+#vocabList .spk:hover{background:var(--seal);color:#fff}
+#vocabList .star{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:19px;height:19px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:#c3b9a5;cursor:pointer;font-size:9.5px;transition:all .12s;padding:0;
+}
+#vocabList .star:hover{border-color:#e0a92b;color:#e0a92b;background:#fdf6e6}
+#vocabList .star.on{background:#e0a92b;border-color:#e0a92b;color:#fff}
+.vocab-empty{padding:20px 0;color:var(--ink-soft);font-style:italic;font-size:12.5px}
 </style>
 <meta name="description" content="Drill any slice of the 1,000 words. Filter by HSK level or your starred words, and choose what goes on the front of the card.">
 <meta property="og:type" content="website">
@@ -307,6 +363,25 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
 <a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener">
   <span class="cb-seal hanzi">字</span> by <b>@pourteaux</b>
 </a>
+
+<button id="vocab-btn" title="Your word list">📖<span class="cnt" id="vocab-cnt">0</span></button>
+<div id="vocab-scrim"></div>
+<div id="vocabPanel">
+  <div class="sp-head">
+    <h2><span class="hanzi">词表</span> · Your Word List</h2>
+    <div class="sp-sub"><b id="vocab-tot">0</b> of 1,000 encountered</div>
+    <button class="sp-close" id="vocab-close">✕</button>
+  </div>
+  <input id="vocab-search" type="text" placeholder="Search hanzi, pinyin, or English…">
+  <div id="vocab-filter">
+    <button id="vocabStarToggle">★ Starred only</button>
+    <span id="vocab-count"></span>
+  </div>
+  <div id="vocab-jump">
+    <button id="vocabPlayBtn"><span class="hanzi">复习</span> Play these words →</button>
+  </div>
+  <div id="vocabList"></div>
+</div>
 
 <button id="save-btn" title="Save &amp; transfer progress">💾</button>
 <div id="save-scrim"></div>
@@ -558,6 +633,80 @@ const YZYG = (function(){
     fr.onerror=()=>say('Could not read that file.',6000);
     fr.readAsText(f);
     e.target.value='';
+  });
+})();
+</script>
+<script>
+/* ---------- vocab list panel ---------- */
+(function(){
+  const $=s=>document.querySelector(s);
+  const btn=$('#vocab-btn'), panel=$('#vocabPanel'), scrim=$('#vocab-scrim'), list=$('#vocabList');
+  const search=$('#vocab-search'), starToggle=$('#vocabStarToggle');
+  const cnt=$('#vocab-cnt'), tot=$('#vocab-tot'), countEl=$('#vocab-count');
+  const ORDER=Object.keys(VOCAB);
+  let starredOnly=false;
+
+  function openPanel(){ render(); panel.classList.add('open'); scrim.classList.add('on'); }
+  function closePanel(){ panel.classList.remove('open'); scrim.classList.remove('on'); }
+  btn.addEventListener('click',openPanel);
+  $('#vocab-close').addEventListener('click',closePanel);
+  scrim.addEventListener('click',closePanel);
+
+  function updateCounts(){
+    cnt.textContent=YZYG.seenCount();
+    tot.textContent=YZYG.seenCount();
+    countEl.textContent=YZYG.starCount()?YZYG.starCount()+' starred':'';
+  }
+  updateCounts();
+  YZYG.onChange(()=>{ updateCounts(); if(panel.classList.contains('open')) render(); });
+
+  function render(){
+    const q=search.value.trim().toLowerCase();
+    let html='';
+    ORDER.forEach(w=>{
+      if(!(YZYG.isSeen(w)||YZYG.isStarred(w))) return;
+      if(starredOnly && !YZYG.isStarred(w)) return;
+      const v=VOCAB[w];
+      if(q && !(w.includes(q)||v.p.toLowerCase().includes(q)||v.d.toLowerCase().includes(q))) return;
+      html+=`<div class="dr-item"><span class="hz hanzi">${w}</span>`+
+            `<button class="spk" data-w="${w}" aria-label="Play">🔊</button>`+
+            `<button class="star${YZYG.isStarred(w)?' on':''}" data-star="${w}" aria-label="Star">★</button>`+
+            `<span class="py">${v.p}</span><span class="df">${v.d}</span><span class="lv">${v.l}</span></div>`;
+    });
+    list.innerHTML=html||`<div class="vocab-empty">${starredOnly?'No starred words yet — tap ★ on any word.':'Nothing seen yet — words you encounter anywhere on the site are collected here.'}</div>`;
+    refreshJump();
+  }
+
+  search.addEventListener('input',render);
+  starToggle.addEventListener('click',()=>{
+    starredOnly=!starredOnly;
+    starToggle.classList.toggle('on',starredOnly);
+    render();
+  });
+
+  list.addEventListener('click',e=>{
+    const s=e.target.closest('[data-star]');
+    if(s){ YZYG.toggleStar(s.dataset.star); return; }
+    const p=e.target.closest('[data-w]');
+    if(p && typeof speak==='function') speak(p.dataset.w);
+  });
+
+  function currentWords(){ return [...list.querySelectorAll('.dr-item .hz')].map(e=>e.textContent); }
+  function jumpLabel(){
+    if(starredOnly) return 'your starred words';
+    if(search.value.trim()) return '"'+search.value.trim()+'"';
+    return 'your word list';
+  }
+  function refreshJump(){
+    const n=currentWords().length;
+    const playBtn=$('#vocabPlayBtn');
+    if(playBtn) playBtn.disabled=n===0;
+  }
+  const playBtn=$('#vocabPlayBtn');
+  if(playBtn) playBtn.addEventListener('click',()=>{
+    const words=currentWords(); if(!words.length) return;
+    try{ localStorage.setItem('yzyg-custom-set', JSON.stringify({words,label:jumpLabel()})); }catch(e){}
+    location.href='game.html?custom=1';
   });
 })();
 </script>
