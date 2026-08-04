@@ -11,7 +11,7 @@ rebuilt from a template can never silently ship stale metadata.
 import re, sys, pathlib
 
 BASE = "https://chinesereader.net/"
-IMG  = BASE + "og-image.png"
+IMG  = BASE + "og-image-v2.png"
 SITE = "一字一世界"
 
 PAGES = {
