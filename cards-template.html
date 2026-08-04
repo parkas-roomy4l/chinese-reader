@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#f7f3ea">
+<title>生词卡 · Flashcards — 一字一世界</title>
+<meta name="description" content="Flashcards for the 1,000 essential words of modern Chinese life. Filter by level or starred words, and choose what goes on the front of the card.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<style>
+:root{
+  color-scheme: only light;
+  --paper:#f7f3ea; --paper-deep:#efe9db; --ink:#2b2620; --ink-soft:#6b6357;
+  --seal:#b02e20; --seal-soft:#c9553f; --jade:#3e6b5a; --jade-soft:#5d8a77; --indigo:#3d4d6b;
+  --line:#d9d0bf; --card:#fffdf8; --gold:#e0a92b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#f7f3ea !important}
+body{
+  background:#f7f3ea !important; color:#2b2620 !important;
+  font-family:Georgia,'Times New Roman',serif; line-height:1.55;
+  min-height:100vh; display:flex; flex-direction:column;
+}
+.hanzi{font-family:'Kaiti SC','KaiTi','STKaiti','Kaiti TC','Noto Serif SC',serif}
+
+header{max-width:760px;margin:0 auto;padding:44px 22px 4px;text-align:center}
+h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
+.brand-pinyin{display:block;color:var(--seal);font-style:italic;font-size:14px;letter-spacing:.12em;margin-top:7px}
+.navlinks{margin-top:13px;font-size:12.5px}
+.navlinks a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line)}
+.navlinks a:hover{color:var(--seal);border-color:var(--seal)}
+
+/* ---------- setup ---------- */
+#setup{max-width:620px;margin:0 auto;padding:26px 22px 60px}
+.panel{background:var(--card);border:1px solid var(--line);padding:22px 24px;margin-bottom:18px}
+.panel h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  font-family:inherit;font-size:13px;cursor:pointer;padding:8px 14px;
+  background:var(--paper);border:1px solid var(--line);color:var(--ink);transition:all .13s;
+  display:flex;align-items:center;gap:7px;
+}
+.chip:hover{border-color:var(--seal-soft);color:var(--seal)}
+.chip.on{background:var(--seal);border-color:var(--seal);color:#fff}
+.chip .n{font-size:11px;opacity:.7}
+.chip.gold.on{background:var(--gold);border-color:var(--gold)}
+.chip:disabled{opacity:.4;cursor:default}
+.chip:disabled:hover{border-color:var(--line);color:var(--ink)}
+
+.opt{display:flex;flex-direction:column;gap:9px}
+.opt label{
+  display:flex;align-items:flex-start;gap:11px;cursor:pointer;padding:10px 13px;
+  border:1px solid var(--line);background:var(--paper);transition:all .13s;
+}
+.opt label:hover{border-color:var(--seal-soft)}
+.opt label.on{border-color:var(--seal);background:#fbeeec}
+.opt input{margin-top:3px;accent-color:var(--seal);flex:none}
+.opt .lab{font-size:14px}
+.opt .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+.startrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#startBtn{
+  flex:1;min-width:200px;background:var(--seal);color:#fff;border:none;font-family:inherit;
+  font-size:15px;letter-spacing:.05em;padding:15px 20px;cursor:pointer;transition:background .14s;
+}
+#startBtn:hover{background:var(--seal-soft)}
+#startBtn:disabled{background:var(--line);color:var(--ink-soft);cursor:default}
+#deckCount{font-size:13px;color:var(--ink-soft)}
+#deckCount b{color:var(--seal);font-size:17px}
+.shufflerow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);margin-top:12px}
+.shufflerow input{accent-color:var(--seal);width:16px;height:16px}
+
+/* ---------- study ---------- */
+#study{display:none;flex:1;flex-direction:column;padding:14px 20px 30px}
+#study.on{display:flex}
+.studybar{
+  max-width:620px;width:100%;margin:0 auto 16px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;font-size:12px;color:var(--ink-soft);
+}
+.studybar .prog{letter-spacing:.1em;text-transform:uppercase}
+.studybar .prog b{color:var(--seal);font-size:15px;letter-spacing:0}
+.studybar button{
+  font-family:inherit;font-size:12px;background:none;border:1px solid var(--line);
+  color:var(--ink-soft);padding:6px 12px;cursor:pointer;transition:all .13s;
+}
+.studybar button:hover{border-color:var(--seal);color:var(--seal)}
+.pbar{max-width:620px;width:100%;margin:0 auto 22px;height:3px;background:var(--paper-deep)}
+.pbar span{display:block;height:100%;background:var(--seal);width:0;transition:width .25s}
+
+.cardwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 0 20px}
+.flashcard{
+  width:min(560px,100%);min-height:min(380px,52vh);
+  background:var(--card);border:1px solid var(--line);border-top:3px solid var(--seal);
+  box-shadow:0 10px 34px rgba(43,38,32,.13);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:34px 30px;cursor:pointer;position:relative;text-align:center;
+}
+.flashcard.flipped{border-top-color:var(--jade)}
+.flashcard .side-tag{
+  position:absolute;top:12px;left:16px;font-size:9.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:#b0a795;
+}
+.flashcard .star{
+  position:absolute;top:10px;right:12px;
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:#c3b9a5;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;padding:0;
+}
+.flashcard .star:hover{border-color:var(--gold);color:var(--gold);background:#fdf6e6}
+.flashcard .star.on{background:var(--gold);border-color:var(--gold);color:#fff}
+
+.fc-hz{font-size:clamp(56px,15vw,104px);line-height:1.15;letter-spacing:.04em}
+.fc-py{color:var(--seal);font-style:italic;font-size:clamp(19px,4vw,26px);margin-top:12px}
+.fc-def{font-size:clamp(17px,3.4vw,21px);color:var(--ink);margin-top:16px;max-width:34ch}
+.fc-lv{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#b0a795;margin-top:16px}
+.fc-audio{
+  width:88px;height:88px;border-radius:50%;border:2px solid var(--seal-soft);
+  background:var(--card);color:var(--seal);cursor:pointer;font-size:34px;
+  display:flex;align-items:center;justify-content:center;transition:all .14s;padding:0;
+}
+.fc-audio:hover{background:var(--seal);color:#fff}
+.fc-hint{font-size:12.5px;color:var(--ink-soft);font-style:italic;margin-top:22px}
+.fc-replay{
+  margin-top:14px;font-family:inherit;font-size:12.5px;background:var(--card);
+  border:1px solid var(--line);color:var(--seal);padding:7px 14px;cursor:pointer;transition:all .13s;
+}
+.fc-replay:hover{background:var(--seal);color:#fff;border-color:var(--seal)}
+
+.answers{max-width:560px;width:100%;margin:0 auto;display:flex;gap:10px}
+.answers button{
+  flex:1;font-family:inherit;font-size:14px;padding:14px 12px;border:none;cursor:pointer;transition:all .13s;
+}
+.answers .again{background:var(--card);color:var(--seal);border:1px solid var(--seal-soft) !important}
+.answers .again:hover{background:var(--seal);color:#fff}
+.answers .got{background:var(--jade);color:#fff}
+.answers .got:hover{background:var(--jade-soft)}
+.answers .kb{display:block;font-size:10px;opacity:.75;margin-top:2px;letter-spacing:.06em}
+.answers.hidden{visibility:hidden}
+
+/* ---------- done ---------- */
+#done{display:none;max-width:520px;margin:40px auto;padding:0 22px;text-align:center}
+#done.on{display:block}
+#done .seal{width:80px;height:80px;border:3px solid var(--jade);color:var(--jade);
+  display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px}
+#done h2{font-weight:400;font-size:26px;letter-spacing:.08em;margin-bottom:6px}
+#done .sub{color:var(--ink-soft);font-size:13.5px;font-style:italic;margin-bottom:22px}
+#done .stats{display:flex;gap:12px;margin-bottom:24px}
+#done .stat{flex:1;padding:14px 8px;background:var(--card);border:1px solid var(--line)}
+#done .stat b{display:block;font-size:24px;color:var(--jade);line-height:1}
+#done .stat span{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+#done .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#done button{font-family:inherit;font-size:13.5px;padding:11px 20px;cursor:pointer;border:none}
+#againBtn{background:var(--seal);color:#fff}
+#missedBtn{background:var(--gold);color:#fff}
+#newDeckBtn{background:var(--card);color:var(--ink-soft);border:1px solid var(--line) !important}
+
+#credit-badge{
+  position:fixed;left:14px;bottom:16px;z-index:52;
+  display:flex;align-items:center;gap:6px;padding:6px 11px 6px 9px;
+  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--seal);
+  border-radius:20px;font-size:11.5px;color:var(--ink-soft);text-decoration:none;
+}
+#credit-badge .cb-seal{width:17px;height:17px;flex:none;border:1.5px solid var(--seal);color:var(--seal);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px}
+#credit-badge b{color:var(--seal)}
+@media (max-width:700px){ #credit-badge{display:none} }
+.no-tts .needs-tts{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="hanzi">生词卡</h1>
+  <span class="brand-pinyin">shēngcí kǎ · flashcards</span>
+  <p class="navlinks">
+    <a href="index.html">← 主页 · home</a> &nbsp;·&nbsp;
+    <a href="read.html">读书 · beginner</a> &nbsp;·&nbsp;
+    <a href="intermediate.html">北京有雨 · early intermediate</a> &nbsp;·&nbsp;
+    <a href="game.html">一字一格 · the game</a>
+  </p>
+</header>
+
+<!-- ================= SETUP ================= -->
+<div id="setup">
+  <div class="panel">
+    <h2>1 · Which words</h2>
+    <div class="chips" id="filterChips"></div>
+  </div>
+
+  <div class="panel">
+    <h2>2 · Front of the card</h2>
+    <div class="opt" id="frontOpts">
+      <label data-mode="hz"><input type="radio" name="front" value="hz" checked>
+        <span><span class="lab">Character only</span><span class="sub">See 房租 — recall the sound and the meaning</span></span></label>
+      <label data-mode="hzpy"><input type="radio" name="front" value="hzpy">
+        <span><span class="lab">Character + pinyin</span><span class="sub">See 房租 fángzū — recall the meaning</span></span></label>
+      <label data-mode="audio" class="needs-tts"><input type="radio" name="front" value="audio">
+        <span><span class="lab">Spoken word only</span><span class="sub">Hear it — recall the characters and the meaning</span></span></label>
+      <label data-mode="en"><input type="radio" name="front" value="en">
+        <span><span class="lab">English only</span><span class="sub">See “rent” — produce the Chinese</span></span></label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>3 · Study</h2>
+    <div class="startrow">
+      <button id="startBtn">Start studying →</button>
+      <span id="deckCount"></span>
+    </div>
+    <div class="shufflerow"><input type="checkbox" id="shuffleChk" checked><label for="shuffleChk">Shuffle the deck</label></div>
+  </div>
+</div>
+
+<!-- ================= STUDY ================= -->
+<div id="study">
+  <div class="studybar">
+    <span class="prog"><b id="pNow">0</b> / <span id="pTotal">0</span> &nbsp;·&nbsp; <span id="pGot">0</span> got it</span>
+    <button id="quitBtn">✕ End session</button>
+  </div>
+  <div class="pbar"><span id="pFill"></span></div>
+
+  <div class="cardwrap">
+    <div class="flashcard" id="card">
+      <span class="side-tag" id="sideTag">Front</span>
+      <button class="star" id="cardStar" aria-label="Star this word">★</button>
+      <div id="cardBody"></div>
+    </div>
+  </div>
+
+  <div class="answers hidden" id="answers">
+    <button class="again" id="againCard">✗ 还不会<span class="kb">not yet · ␣</span></button>
+    <button class="got" id="gotCard">✓ 会了<span class="kb">got it · ↵</span></button>
+  </div>
+</div>
+
+<!-- ================= DONE ================= -->
+<div id="done">
+  <div class="seal hanzi">完</div>
+  <h2 class="hanzi">这一轮完了</h2>
+  <div class="sub">zhè yì lún wán le — round complete</div>
+  <div class="stats">
+    <div class="stat"><b id="dGot">0</b><span>got it</span></div>
+    <div class="stat"><b id="dMissed">0</b><span>not yet</span></div>
+    <div class="stat"><b id="dStarred">0</b><span>starred</span></div>
+  </div>
+  <div class="acts">
+    <button id="missedBtn">Drill the ones I missed</button>
+    <button id="againBtn">Same deck again</button>
+    <button id="newDeckBtn">Choose different words</button>
+  </div>
+</div>
+
+<a id="credit-badge" href="https://x.com/pourteaux" target="_blank" rel="noopener">
+  <span class="cb-seal hanzi">字</span> by <b>@pourteaux</b>
+</a>
+
+<script>
+__DATA__
+</script>
+<script>
+__STORE__
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+
+/* ---------- audio ---------- */
+let ttsVoices=[];
+let ttsRate=parseFloat(localStorage.getItem('manmandu-rate')||'0.92')||0.92;
+let ttsVoiceName=null;
+try{ ttsVoiceName=localStorage.getItem('manmandu-voice-name'); }catch(e){}
+function voiceScore(v){
+  let s=0; const lang=(v.lang||'').toLowerCase();
+  if(lang.startsWith('zh')) s+=100; else return -1;
+  if(lang==='zh-cn') s+=20;
+  if(!v.localService) s+=15;
+  if(/google/i.test(v.name)) s+=12;
+  if(/neural|natural|enhanced|premium|online|wavenet/i.test(v.name)) s+=10;
+  return s;
+}
+function bestVoices(){ return ttsVoices.map(v=>({v,s:voiceScore(v)})).filter(x=>x.s>=0).sort((a,b)=>b.s-a.s).map(x=>x.v); }
+function loadVoices(){ try{ ttsVoices=window.speechSynthesis.getVoices()||[]; }catch(e){} }
+if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+else{ document.documentElement.classList.add('no-tts'); }
+function speak(text){
+  if(!text || !('speechSynthesis' in window)) return;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='zh-CN'; u.rate=ttsRate;
+    try{
+      const chosen=ttsVoices.find(v=>v.name===ttsVoiceName);
+      const v=chosen || bestVoices()[0] || ttsVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith('zh'));
+      if(v) u.voice=v;
+    }catch(e){}
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- filters ---------- */
+const ALL=Object.keys(VOCAB).filter(w=>VOCAB[w].l!=='name');
+const FILTERS=[
+  {id:'all',    label:'All words',   test:w=>true},
+  {id:'HSK 1',  label:'HSK 1',       test:w=>VOCAB[w].l==='HSK 1'||VOCAB[w].l==='bonus'},
+  {id:'HSK 2',  label:'HSK 2',       test:w=>VOCAB[w].l==='HSK 2'},
+  {id:'HSK 3',  label:'HSK 3',       test:w=>VOCAB[w].l==='HSK 3'},
+  {id:'essential', label:'Essentials', test:w=>VOCAB[w].l==='essential'},
+  {id:'starred', label:'★ Starred',  test:w=>YZYG.isStarred(w), gold:true},
+  {id:'seen',   label:'Words I’ve read', test:w=>YZYG.isSeen(w)},
+  {id:'unknown',label:'Not yet known',   test:w=>!YZYG.isKnown(w)}
+];
+let activeFilter='all';
+
+function deckFor(id){
+  const f=FILTERS.find(x=>x.id===id);
+  return ALL.filter(f.test);
+}
+function renderChips(){
+  const box=$('#filterChips');
+  box.innerHTML=FILTERS.map(f=>{
+    const n=deckFor(f.id).length;
+    return `<button class="chip${f.gold?' gold':''}${activeFilter===f.id?' on':''}" data-f="${f.id}"${n?'':' disabled'}>`+
+           `${f.label}<span class="n">${n}</span></button>`;
+  }).join('');
+  updateDeckCount();
+}
+$('#filterChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c||c.disabled) return;
+  activeFilter=c.dataset.f;
+  renderChips();
+});
+function updateDeckCount(){
+  const n=deckFor(activeFilter).length;
+  $('#deckCount').innerHTML=n?`<b>${n}</b> card${n===1?'':'s'} in this deck`:'nothing to study here yet';
+  $('#startBtn').disabled=!n;
+}
+
+/* front-side mode */
+let frontMode='hz';
+function paintFrontOpts(){
+  document.querySelectorAll('#frontOpts label').forEach(l=>l.classList.toggle('on', l.dataset.mode===frontMode));
+}
+$('#frontOpts').addEventListener('change',e=>{ frontMode=e.target.value; paintFrontOpts(); });
+paintFrontOpts();
+
+/* ---------- session ---------- */
+let deck=[], idx=0, flipped=false, got=0, missed=[], starsAdded=0;
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function startSession(words){
+  deck=words.slice();
+  if($('#shuffleChk').checked) shuffle(deck);
+  idx=0; got=0; missed=[]; starsAdded=0;
+  $('#setup').style.display='none';
+  $('#done').classList.remove('on');
+  $('#study').classList.add('on');
+  $('#pTotal').textContent=deck.length;
+  showCard();
+}
+$('#startBtn').addEventListener('click',()=>startSession(deckFor(activeFilter)));
+
+function showCard(){
+  if(idx>=deck.length){ finish(); return; }
+  flipped=false;
+  const w=deck[idx], v=VOCAB[w];
+  $('#pNow').textContent=idx+1;
+  $('#pGot').textContent=got;
+  $('#pFill').style.width=(idx/deck.length*100)+'%';
+  $('#sideTag').textContent='Front';
+  $('#card').classList.remove('flipped');
+  $('#answers').classList.add('hidden');
+  const star=$('#cardStar');
+  star.classList.toggle('on', YZYG.isStarred(w));
+  star.dataset.w=w;
+
+  const body=$('#cardBody');
+  if(frontMode==='hz'){
+    body.innerHTML=`<div class="fc-hz hanzi">${w}</div><div class="fc-hint">tap to reveal</div>`;
+  }else if(frontMode==='hzpy'){
+    body.innerHTML=`<div class="fc-hz hanzi">${w}</div><div class="fc-py">${v.p}</div><div class="fc-hint">tap to reveal</div>`;
+  }else if(frontMode==='audio'){
+    body.innerHTML=`<button class="fc-audio" id="playFront" aria-label="Play the word">🔊</button>`+
+                   `<button class="fc-replay" id="replayFront">play again</button>`+
+                   `<div class="fc-hint">listen, then tap the card to reveal</div>`;
+    speak(w);
+  }else{
+    body.innerHTML=`<div class="fc-def" style="font-size:clamp(24px,5vw,34px)">${v.d}</div><div class="fc-hint">say it in Chinese, then tap to reveal</div>`;
+  }
+}
+
+function flip(){
+  if(flipped) return;
+  flipped=true;
+  const w=deck[idx], v=VOCAB[w];
+  $('#sideTag').textContent='Back';
+  $('#card').classList.add('flipped');
+  $('#cardBody').innerHTML=
+    `<div class="fc-hz hanzi">${w}</div>`+
+    `<div class="fc-py">${v.p}</div>`+
+    `<div class="fc-def">${v.d}</div>`+
+    `<div class="fc-lv">${v.l}</div>`+
+    `<button class="fc-replay needs-tts" id="replayBack">🔊 hear it again</button>`;
+  $('#answers').classList.remove('hidden');
+  if(frontMode!=='audio') speak(w);
+}
+
+$('#card').addEventListener('click',e=>{
+  if(e.target.closest('.star')) return;                 // starring must not flip
+  if(e.target.closest('#playFront')||e.target.closest('#replayFront')){ speak(deck[idx]); return; }
+  if(e.target.closest('#replayBack')){ speak(deck[idx]); return; }
+  flip();
+});
+$('#cardStar').addEventListener('click',e=>{
+  const w=e.currentTarget.dataset.w;
+  const on=YZYG.toggleStar(w);
+  e.currentTarget.classList.toggle('on',on);
+  if(on) starsAdded++;
+});
+
+function answer(ok){
+  if(!flipped) return;
+  const w=deck[idx];
+  if(ok){ got++; YZYG.markKnown(w); }
+  else { missed.push(w); YZYG.unmarkKnown(w); }
+  idx++;
+  showCard();
+}
+$('#gotCard').addEventListener('click',()=>answer(true));
+$('#againCard').addEventListener('click',()=>answer(false));
+
+document.addEventListener('keydown',e=>{
+  if(!$('#study').classList.contains('on')) return;
+  if(e.key===' '){ e.preventDefault(); flipped?answer(false):flip(); }
+  else if(e.key==='Enter'){ e.preventDefault(); flipped?answer(true):flip(); }
+  else if(e.key.toLowerCase()==='r'){ e.preventDefault(); speak(deck[idx]); }
+  else if(e.key.toLowerCase()==='s'){ e.preventDefault(); $('#cardStar').click(); }
+});
+
+function finish(){
+  $('#study').classList.remove('on');
+  $('#done').classList.add('on');
+  $('#dGot').textContent=got;
+  $('#dMissed').textContent=missed.length;
+  $('#dStarred').textContent=starsAdded;
+  $('#missedBtn').style.display=missed.length?'':'none';
+}
+$('#quitBtn').addEventListener('click',()=>{ finish(); });
+$('#missedBtn').addEventListener('click',()=>startSession(missed));
+$('#againBtn').addEventListener('click',()=>startSession(deck));
+$('#newDeckBtn').addEventListener('click',()=>{
+  $('#done').classList.remove('on');
+  $('#study').classList.remove('on');
+  $('#setup').style.display='';
+  renderChips();
+});
+
+/* a deck can be handed over from a reader's word drawer */
+(function(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('custom')==='1'){
+    try{
+      const raw=localStorage.getItem('yzyg-custom-set');
+      if(raw){
+        const parsed=JSON.parse(raw);
+        const words=(parsed.words||[]).filter(w=>VOCAB[w]);
+        if(words.length){ renderChips(); startSession(words); return; }
+      }
+    }catch(e){}
+  }
+  renderChips();
+})();
+
+YZYG.onChange(()=>{ if($('#setup').style.display!=='none') renderChips(); });
+})();
+</script>
+</body>
+</html>
