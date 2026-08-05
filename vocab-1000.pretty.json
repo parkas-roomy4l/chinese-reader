@@ -1542,7 +1542,7 @@
  "用": {
   "p": "yòng",
   "d": "to use",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "网": {
   "p": "wǎng",
@@ -1552,12 +1552,12 @@
  "上网": {
   "p": "shàngwǎng",
   "d": "to go online",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "发": {
   "p": "fā",
   "d": "to send (a message)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "信息": {
   "p": "xìnxī",
@@ -1567,7 +1567,7 @@
  "照片": {
   "p": "zhàopiàn",
   "d": "photo",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "视频": {
   "p": "shìpín",
@@ -1577,12 +1577,12 @@
  "音乐": {
   "p": "yīnyuè",
   "d": "music",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "聊天": {
   "p": "liáotiān",
   "d": "to chat",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "微信": {
   "p": "Wēixìn",
@@ -1607,17 +1607,17 @@
  "声音": {
   "p": "shēngyīn",
   "d": "sound; voice",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "需要": {
   "p": "xūyào",
   "d": "to need",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "应该": {
   "p": "yīnggāi",
   "d": "should; ought to",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "车": {
   "p": "chē",
@@ -1627,12 +1627,12 @@
  "地铁": {
   "p": "dìtiě",
   "d": "subway; metro",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "站": {
   "p": "zhàn",
   "d": "station; stop",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "打车": {
   "p": "dǎchē",
@@ -1642,32 +1642,32 @@
  "骑": {
   "p": "qí",
   "d": "to ride (a bike)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "自行车": {
   "p": "zìxíngchē",
   "d": "bicycle",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "城市": {
   "p": "chéngshì",
   "d": "city",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "地方": {
   "p": "dìfang",
   "d": "place",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "附近": {
   "p": "fùjìn",
   "d": "nearby; vicinity",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "地图": {
   "p": "dìtú",
   "d": "map",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "街": {
   "p": "jiē",
@@ -1677,22 +1677,22 @@
  "楼": {
   "p": "lóu",
   "d": "building; floor (三楼 = 3rd floor)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "电梯": {
   "p": "diàntī",
   "d": "elevator",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "超市": {
   "p": "chāoshì",
   "d": "supermarket",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "银行": {
   "p": "yínháng",
   "d": "bank",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "卡": {
   "p": "kǎ",
@@ -1712,17 +1712,17 @@
  "饿": {
   "p": "è",
   "d": "hungry",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "渴": {
   "p": "kě",
   "d": "thirsty",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "菜单": {
   "p": "càidān",
   "d": "menu",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "辣": {
   "p": "là",
@@ -1732,7 +1732,7 @@
  "甜": {
   "p": "tián",
   "d": "sweet",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "汤": {
   "p": "tāng",
@@ -1747,22 +1747,22 @@
  "面包": {
   "p": "miànbāo",
   "d": "bread",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "蛋糕": {
   "p": "dàngāo",
   "d": "cake",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "筷子": {
   "p": "kuàizi",
   "d": "chopsticks",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "碗": {
   "p": "wǎn",
   "d": "bowl",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "味道": {
   "p": "wèidào",
@@ -1772,12 +1772,12 @@
  "饱": {
   "p": "bǎo",
   "d": "full (after eating)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "啤酒": {
   "p": "píjiǔ",
   "d": "beer",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "干杯": {
   "p": "gānbēi",
@@ -1797,27 +1797,27 @@
  "关": {
   "p": "guān",
   "d": "to close; to turn off",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "灯": {
   "p": "dēng",
   "d": "lamp; light",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "空调": {
   "p": "kōngtiáo",
   "d": "air conditioner",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "洗澡": {
   "p": "xǐzǎo",
   "d": "to shower; to bathe",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "洗手间": {
   "p": "xǐshǒujiān",
   "d": "restroom; bathroom",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "房子": {
   "p": "fángzi",
@@ -1832,17 +1832,17 @@
  "舒服": {
   "p": "shūfu",
   "d": "comfortable",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "干净": {
   "p": "gānjìng",
   "d": "clean",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "半": {
   "p": "bàn",
   "d": "half (三点半 = 3:30)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "早": {
   "p": "zǎo",
@@ -1852,22 +1852,22 @@
  "先": {
   "p": "xiān",
   "d": "first; before",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "然后": {
   "p": "ránhòu",
   "d": "then; after that",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "马上": {
   "p": "mǎshàng",
   "d": "right away; immediately",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "一直": {
   "p": "yīzhí",
   "d": "all along; continuously",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "有点儿": {
   "p": "yǒudiǎnr",
@@ -1877,7 +1877,7 @@
  "明白": {
   "p": "míngbai",
   "d": "to understand; clear",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "忘": {
   "p": "wàng",
@@ -1887,7 +1887,7 @@
  "记得": {
   "p": "jìde",
   "d": "to remember",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "英语": {
   "p": "Yīngyǔ",
@@ -1907,27 +1907,27 @@
  "句子": {
   "p": "jùzi",
   "d": "sentence",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "练习": {
   "p": "liànxí",
   "d": "to practice; exercise",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "还是": {
   "p": "háishi",
   "d": "or (in questions); still",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "或者": {
   "p": "huòzhě",
   "d": "or (in statements)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "如果": {
   "p": "rúguǒ",
   "d": "if",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "可是": {
   "p": "kěshì",
@@ -1937,17 +1937,17 @@
  "其实": {
   "p": "qíshí",
   "d": "actually; in fact",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "当然": {
   "p": "dāngrán",
   "d": "of course",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "一定": {
   "p": "yīdìng",
   "d": "definitely; certainly",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "好像": {
   "p": "hǎoxiàng",
@@ -1962,12 +1962,12 @@
  "最近": {
   "p": "zuìjìn",
   "d": "recently; lately",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "以前": {
   "p": "yǐqián",
   "d": "before; in the past",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "以后": {
   "p": "yǐhòu",
@@ -1977,12 +1977,12 @@
  "打算": {
   "p": "dǎsuàn",
   "d": "to plan to",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "决定": {
   "p": "juédìng",
   "d": "to decide",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "火车": {
   "p": "huǒchē",
@@ -2002,7 +2002,7 @@
  "礼物": {
   "p": "lǐwù",
   "d": "gift; present",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "红包": {
   "p": "hóngbāo",
@@ -2012,7 +2012,7 @@
  "欢迎": {
   "p": "huānyíng",
   "d": "welcome",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "开心": {
   "p": "kāixīn",
@@ -2022,12 +2022,12 @@
  "担心": {
   "p": "dānxīn",
   "d": "to worry",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "放心": {
   "p": "fàngxīn",
   "d": "to relax; rest assured",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "加油": {
   "p": "jiāyóu",
@@ -2047,12 +2047,12 @@
  "同事": {
   "p": "tóngshì",
   "d": "colleague; coworker",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "会议": {
   "p": "huìyì",
   "d": "meeting",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "开会": {
   "p": "kāihuì",
@@ -2072,12 +2072,12 @@
  "请假": {
   "p": "qǐngjià",
   "d": "to ask for leave (from work)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "办公室": {
   "p": "bàngōngshì",
   "d": "office",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "项目": {
   "p": "xiàngmù",
@@ -2092,12 +2092,12 @@
  "完成": {
   "p": "wánchéng",
   "d": "to complete; to finish",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "迟到": {
   "p": "chídào",
   "d": "to be late",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "下班": {
   "p": "xiàbān",
@@ -2142,7 +2142,7 @@
  "层": {
   "p": "céng",
   "d": "floor; story (of a building)",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "水电费": {
   "p": "shuǐdiànfèi",
@@ -2152,12 +2152,12 @@
  "邻居": {
   "p": "línjū",
   "d": "neighbor",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "安静": {
   "p": "ānjìng",
   "d": "quiet",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "阳台": {
   "p": "yángtái",
@@ -2167,7 +2167,7 @@
  "换": {
   "p": "huàn",
   "d": "to change; to exchange; to swap",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "淘宝": {
   "p": "Táobǎo",
@@ -2242,7 +2242,7 @@
  "可爱": {
   "p": "kě'ài",
   "d": "cute; adorable",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "帅": {
   "p": "shuài",
@@ -2287,17 +2287,17 @@
  "结婚": {
   "p": "jiéhūn",
   "d": "to get married",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "胖": {
   "p": "pàng",
   "d": "fat; plump",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "瘦": {
   "p": "shòu",
   "d": "thin; to lose weight",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "减肥": {
   "p": "jiǎnféi",
@@ -2332,7 +2332,7 @@
  "疼": {
   "p": "téng",
   "d": "to hurt; to ache",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "体检": {
   "p": "tǐjiǎn",
@@ -2347,7 +2347,7 @@
  "习惯": {
   "p": "xíguàn",
   "d": "habit; to be used to",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "假期": {
   "p": "jiàqī",
@@ -2392,7 +2392,7 @@
  "护照": {
   "p": "hùzhào",
   "d": "passport",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "签证": {
   "p": "qiānzhèng",
@@ -2427,7 +2427,7 @@
  "着急": {
   "p": "zháojí",
   "d": "anxious; worried; in a hurry",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "报警": {
   "p": "bàojǐng",
@@ -2442,7 +2442,7 @@
  "帮忙": {
   "p": "bāngmáng",
   "d": "to help out; to lend a hand",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "没电": {
   "p": "méidiàn",
@@ -2462,7 +2462,7 @@
  "坏": {
   "p": "huài",
   "d": "broken; bad",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "修": {
   "p": "xiū",
@@ -2477,7 +2477,7 @@
  "同意": {
   "p": "tóngyì",
   "d": "to agree",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "建议": {
   "p": "jiànyì",
@@ -2492,17 +2492,17 @@
  "选择": {
   "p": "xuǎnzé",
   "d": "to choose; choice",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "机会": {
   "p": "jīhuì",
   "d": "opportunity; chance",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "努力": {
   "p": "nǔlì",
   "d": "to work hard; effort",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "成功": {
   "p": "chénggōng",
@@ -2527,7 +2527,7 @@
  "世界": {
   "p": "shìjiè",
   "d": "world",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "未来": {
   "p": "wèilái",
@@ -2537,7 +2537,7 @@
  "故事": {
   "p": "gùshi",
   "d": "story",
-  "l": "essential"
+  "l": "HSK 3"
  },
  "阿姨": {
   "p": "āyí",
@@ -4171,7 +4171,7 @@
  },
  "行": {
   "p": "háng",
-  "d": "line; row",
+  "d": "line; row; trade/profession (also read xíng: to walk; to go; OK)",
   "l": "essential"
  },
  "手": {

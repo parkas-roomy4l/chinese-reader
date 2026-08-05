@@ -54,7 +54,7 @@ const VOCAB_READER={
 "上衣":{p:"shàngyī",d:"shirt; upper garment",l:"reader"},
 "杯":{p:"bēi",d:"cup; glass",l:"reader"},
 "根":{p:"gēn",d:"(measure word: long thin things)",l:"reader"},
-"行":{p:"háng",d:"line; row",l:"reader"},
+"行":{p:"háng",d:"line; row; trade/profession (also read xíng: to walk; to go; OK)",l:"reader"},
 "字":{p:"zì",d:"character; word",l:"reader"},
 
 /* --- body & gesture --- */
