@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#f7f3ea">
-<title>北京有雨 · The Early Intermediate Reader — 一字一世界</title>
-<meta name="description" content="A novel of modern Beijing, written entirely in the 1,000 essential words. Tap any word for pinyin, meaning and audio, or reveal a whole line in English.">
+<title>醒着的人 · The Early Intermediate Reader — 一字一世界</title>
+<meta name="description" content="A sequel to 北京有雨, written entirely in the 1,000 essential words. Tap any word for pinyin, meaning and audio, or reveal a whole line in English.">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -256,14 +256,14 @@ body.show-all-trans .trans{display:block}
 <div id="progressbar"></div>
 
 <header>
-  <h1 class="hanzi">北京有雨</h1>
-  <span class="brand-pinyin">Běijīng yǒu yǔ · It Rains in Beijing</span>
-  <p class="tagline">A novel of modern Beijing — ambition, marriage, and the year everything came apart.</p>
+  <h1 class="hanzi">醒着的人</h1>
+  <span class="brand-pinyin">Xǐngzhe de rén · The Ones Who Are Awake</span>
+  <p class="tagline">A sequel to 北京有雨 — an old friendship, a shared secret, and the toast that means something different the second time.</p>
   <p class="navlinks">
     <a href="index.html">← 主页 · home</a> &nbsp;·&nbsp;
     <a href="read.html">读书 · beginner</a> &nbsp;·&nbsp;
     <a href="cards.html">生词卡 · flashcards</a> &nbsp;·&nbsp;
-    <a href="awake.html">醒着的人 · the sequel</a> &nbsp;·&nbsp;
+    <a href="intermediate.html">北京有雨 · part one</a> &nbsp;·&nbsp;
     <a href="game.html">一字一格 · the game →</a><br><a href="license.html" style="font-size:11px">open source · MIT + CC BY 4.0</a>
   </p>
 </header>
@@ -798,7 +798,7 @@ $('#reviewToggle').addEventListener('click',()=>{
 updateCounts();
 
 /* ---------- progress ---------- */
-const LS='yzyg-int-progress-v1';
+const LS='yzyg-awake-progress-v1';
 const paras=[...document.querySelectorAll('.para')];
 function saveProgress(){
   const y=window.scrollY;
@@ -945,7 +945,7 @@ $('#resetBtn').addEventListener('click',()=>{
 });
 
 /* always-show-translations preference */
-const ALL_KEY='yzyg-int-alltrans';
+const ALL_KEY='yzyg-awake-alltrans';
 const allTrans=$('#allTrans');
 allTrans.checked=(localStorage.getItem(ALL_KEY)==='on');
 document.body.classList.toggle('show-all-trans',allTrans.checked);

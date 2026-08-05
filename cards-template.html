@@ -302,6 +302,7 @@ h1{font-size:clamp(30px,6vw,42px);font-weight:400;letter-spacing:.1em}
     <a href="index.html">← 主页 · home</a> &nbsp;·&nbsp;
     <a href="read.html">读书 · beginner</a> &nbsp;·&nbsp;
     <a href="intermediate.html">北京有雨 · early intermediate</a> &nbsp;·&nbsp;
+    <a href="awake.html">醒着的人 · the sequel</a> &nbsp;·&nbsp;
     <a href="game.html">一字一格 · the game</a><br><a href="license.html" style="font-size:11px">open source · MIT + CC BY 4.0</a>
   </p>
 </header>
@@ -680,7 +681,7 @@ function speak(text){
 })();
 
 /* ---------- filters ---------- */
-const ALL=Object.keys(VOCAB).filter(w=>VOCAB[w].l!=='name');
+const ALL=Object.keys(VOCAB).filter(w=>VOCAB[w].l!=='name'&&VOCAB[w].l!=='extra');
 const FILTERS=[
   {id:'all',    label:'All words',   test:w=>true},
   {id:'HSK 1',  label:'HSK 1',       test:w=>VOCAB[w].l==='HSK 1'||VOCAB[w].l==='bonus'},

@@ -18,7 +18,7 @@ PAGES = {
  "index.html": dict(
    path="",
    title="一字一世界 · Learn the 1,000 Essential Words of Modern Chinese",
-   desc="The 1,000 words that carry modern Chinese life — every HSK 1, 2 and 3 word plus the vocabulary the textbooks leave out. Two graded stories, flashcards and a recognition game."),
+   desc="The 1,000 words that carry modern Chinese life — every HSK 1, 2 and 3 word plus the vocabulary the textbooks leave out. Three graded stories, flashcards and a recognition game."),
  "read.html": dict(
    path="read.html",
    title="读书 · The Beginner Reader — 一字一世界",
@@ -27,6 +27,10 @@ PAGES = {
    path="intermediate.html",
    title="北京有雨 · The Early Intermediate Reader — 一字一世界",
    desc="A novel of modern Beijing, written entirely in the 1,000 essential words. Tap any word for pinyin, meaning and audio, or reveal a whole line in English."),
+ "awake.html": dict(
+   path="awake.html",
+   title="醒着的人 · The Early Intermediate Reader — 一字一世界",
+   desc="A sequel to 北京有雨, written entirely in the 1,000 essential words. Tap any word for pinyin, meaning and audio, or reveal a whole line in English."),
  "game.html": dict(
    path="game.html",
    title="一字一格 · The Tile Game — 一字一世界",

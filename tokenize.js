@@ -63,7 +63,8 @@ if(require.main===module){
     nLines++;
   });
 
-  fs.writeFileSync(__dirname+'/story-int.json', JSON.stringify(out));
+  const outFile = file.replace(/\.txt$/, '.json');
+  fs.writeFileSync(__dirname+'/'+outFile, JSON.stringify(out));
   const gapList=Object.entries(gaps).sort((a,b)=>b[1]-a[1]);
   console.log('vocab size:', Object.keys(V).length);
   console.log('paragraphs:', nLines, '| chapters:', out.filter(x=>x.ch).length);

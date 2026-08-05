@@ -9,6 +9,9 @@ const YZYG = (function(){
   const MISSED_KEY='yzyg-missed-v1';
   const SEEN_KEY='yzyg-seen-v1';
 
+  /* one progress key per novel — add an entry here whenever a new story lands */
+  const NOVEL_KEYS={int:'yzyg-int-progress-v1', awake:'yzyg-awake-progress-v1'};
+
   /* legacy keys from before the stores were unified */
   const LEGACY_STARS=['manmandu-review-v1','yzyg-int-review-v1'];
   const LEGACY_SEEN=['yzyg-int-collected-v1'];
@@ -111,7 +114,9 @@ const YZYG = (function(){
         seen:[...seen],
         progress:{
           reader: (()=>{ try{ return JSON.parse(localStorage.getItem('manmandu-progress-v1')||'null'); }catch(e){ return null; } })(),
-          novel:  (()=>{ try{ return JSON.parse(localStorage.getItem('yzyg-int-progress-v1')||'null'); }catch(e){ return null; } })()
+          novels: Object.fromEntries(Object.entries(NOVEL_KEYS).map(([id,key])=>{
+            try{ return [id, JSON.parse(localStorage.getItem(key)||'null')]; }catch(e){ return [id, null]; }
+          }).filter(([,v])=>v!==null))
         },
         best: parseInt(localStorage.getItem('yzyg-best')||'0',10)||0
       };
@@ -133,7 +138,12 @@ const YZYG = (function(){
       writeSet(STAR_KEY,stars); writeSet(KNOWN_KEY,known); writeSet(MISSED_KEY,missed); writeSet(SEEN_KEY,seen);
       try{
         if(obj.progress&&obj.progress.reader) localStorage.setItem('manmandu-progress-v1',JSON.stringify(obj.progress.reader));
-        if(obj.progress&&obj.progress.novel)  localStorage.setItem('yzyg-int-progress-v1',JSON.stringify(obj.progress.novel));
+        if(obj.progress&&obj.progress.novel)   localStorage.setItem(NOVEL_KEYS.int,JSON.stringify(obj.progress.novel));   // legacy single-novel backups
+        if(obj.progress&&obj.progress.novels){
+          Object.entries(obj.progress.novels).forEach(([id,val])=>{
+            if(val && NOVEL_KEYS[id]) localStorage.setItem(NOVEL_KEYS[id],JSON.stringify(val));
+          });
+        }
         if(obj.best) localStorage.setItem('yzyg-best',String(Math.max(obj.best, parseInt(localStorage.getItem('yzyg-best')||'0',10)||0)));
       }catch(e){}
       notify();
@@ -148,7 +158,7 @@ const YZYG = (function(){
     clearAll(){
       stars=new Set(); known=new Set(); missed=new Set(); seen=new Set();
       try{
-        [STAR_KEY,KNOWN_KEY,MISSED_KEY,SEEN_KEY,'manmandu-progress-v1','yzyg-int-progress-v1'].forEach(k=>localStorage.removeItem(k));
+        [STAR_KEY,KNOWN_KEY,MISSED_KEY,SEEN_KEY,'manmandu-progress-v1',...Object.values(NOVEL_KEYS)].forEach(k=>localStorage.removeItem(k));
       }catch(e){}
       notify();
     }

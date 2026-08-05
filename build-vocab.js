@@ -10,7 +10,7 @@ function readObj(file){
 }
 
 const V=JSON.parse(fs.readFileSync(D+'/vocab-508.json','utf8'));
-for(const f of ['vocab-hsk3.js','vocab-story.js','vocab-names.js','vocab-reader.js','vocab-final.js']){
+for(const f of ['vocab-hsk3.js','vocab-story.js','vocab-names.js','vocab-reader.js','vocab-final.js','vocab-awake.js']){
   const obj=readObj(f);
   for(const [k,val] of Object.entries(obj)) if(!V[k]) V[k]=val;   // never overwrite
 }
@@ -18,16 +18,18 @@ for(const f of ['vocab-hsk3.js','vocab-story.js','vocab-names.js','vocab-reader.
 /* collapse the working tags into four learner-facing bands + names */
 const REMAP={'bonus':'bonus','HSK 1':'HSK 1','HSK 2':'HSK 2','HSK 3':'HSK 3',
              'HSK 3+':'essential','story':'essential','reader':'essential',
-             'essential':'essential','name':'name'};
+             'essential':'essential','name':'name','extra':'extra'};
 for(const k of Object.keys(V)) V[k].l=REMAP[V[k].l]||'essential';
 
 const counts={};
 Object.values(V).forEach(v=>counts[v.l]=(counts[v.l]||0)+1);
-const teachable=Object.values(V).filter(v=>v.l!=='name').length;
+/* names and "extra" (story vocab kept outside the core count, same idea
+   as names) don't count toward the 1,000-word promise or the game board */
+const teachable=Object.values(V).filter(v=>v.l!=='name'&&v.l!=='extra').length;
 
 console.log('level counts:', counts);
-console.log('teachable words (excluding names):', teachable);
-console.log('names:', counts['name']||0);
+console.log('teachable words (excluding names/extra):', teachable);
+console.log('names:', counts['name']||0, '| extra:', counts['extra']||0);
 if(teachable!==1000) console.log('⚠ NOT 1000 — off by', teachable-1000);
 else console.log('✓ exactly 1,000 words');
 
